@@ -16,6 +16,11 @@
   layoutFixes.href = 'assets/css/planiq-layout-fixes.css';
   document.head.append(layoutFixes);
 
+  const figmaLayout = document.createElement('link');
+  figmaLayout.rel = 'stylesheet';
+  figmaLayout.href = 'assets/css/flexxeriin-layout.css';
+  document.head.append(figmaLayout);
+
   const admin = document.createElement('script');
   admin.src = 'assets/js/admin.js';
   admin.onload = () => {

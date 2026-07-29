@@ -21,6 +21,11 @@
   figmaLayout.href = 'assets/css/flexxeriin-layout.css';
   document.head.append(figmaLayout);
 
+  const scaleRefinement = document.createElement('link');
+  scaleRefinement.rel = 'stylesheet';
+  scaleRefinement.href = 'assets/css/ui-scale-refinement.css';
+  document.head.append(scaleRefinement);
+
   const admin = document.createElement('script');
   admin.src = 'assets/js/admin.js';
   admin.onload = () => {

@@ -1,0 +1,111 @@
+:root {
+  --fc-ink: #264653;
+  --fc-teal: #2a9d8f;
+  --fc-gold: #e9c46a;
+  --fc-orange: #f4a261;
+  --fc-coral: #e76f51;
+
+  --bg: #142d36;
+  --surface: #1b3943;
+  --surface-2: #214650;
+  --surface-3: #294f59;
+  --text: #f8f4e9;
+  --muted: #b8c9c9;
+  --muted-2: #8eaaaa;
+  --border: #365b64;
+  --primary: var(--fc-teal);
+  --primary-ink: #071d1b;
+  --primary-soft: color-mix(in srgb, var(--fc-teal) 18%, var(--surface));
+  --success: var(--fc-teal);
+  --warning: var(--fc-gold);
+  --danger: var(--fc-coral);
+  --info: var(--fc-orange);
+  --purple: var(--fc-gold);
+  --shadow: 0 24px 70px rgb(6 24 29 / .34);
+}
+
+html[data-theme="light"] {
+  --bg: #f8f5ec;
+  --surface: #fffdf8;
+  --surface-2: #f4efe3;
+  --surface-3: #ebe3d3;
+  --text: var(--fc-ink);
+  --muted: #5f7479;
+  --muted-2: #829398;
+  --border: #d8d6c9;
+  --primary: #238c80;
+  --primary-ink: #ffffff;
+  --primary-soft: #d9efeb;
+  --success: #238c80;
+  --warning: #bd8d25;
+  --danger: #c6533b;
+  --info: #d97835;
+  --purple: #bd8d25;
+  --shadow: 0 24px 70px rgb(38 70 83 / .12);
+}
+
+.sidebar {
+  background: linear-gradient(180deg, color-mix(in srgb, var(--fc-ink) 96%, black), color-mix(in srgb, var(--fc-ink) 84%, var(--fc-teal)));
+  border-right-color: color-mix(in srgb, var(--fc-teal) 24%, transparent);
+}
+.sidebar .brand-copy strong,
+.sidebar .sidebar-profile strong { color: #fffdf8; }
+.sidebar .brand-copy small,
+.sidebar .sidebar-profile small,
+.sidebar .nav-label { color: #9eb6b9; }
+.sidebar .nav-item { color: #c2d1d2; }
+.sidebar .nav-item:hover { background: rgb(255 255 255 / .07); color: #fffdf8; }
+.sidebar .nav-item.is-active {
+  background: color-mix(in srgb, var(--fc-teal) 24%, transparent);
+  color: #78d2c7;
+  box-shadow: inset 3px 0 0 var(--fc-teal);
+}
+.sidebar .nav-count,
+.sidebar .workspace-card {
+  border-color: rgb(255 255 255 / .12);
+  background: rgb(255 255 255 / .06);
+}
+.sidebar .workspace-card-top span,
+.sidebar .workspace-card small { color: #a8bec0; }
+.sidebar .sidebar-profile { border-top-color: rgb(255 255 255 / .12); }
+
+.brand-mark span:nth-child(1) { background: var(--fc-teal); }
+.brand-mark span:nth-child(2) { background: var(--fc-gold); }
+.brand-mark span:nth-child(3) { background: var(--fc-coral); }
+
+.avatar {
+  background: linear-gradient(135deg, var(--fc-gold), var(--fc-orange));
+  color: var(--fc-ink);
+}
+
+.button-primary {
+  background: linear-gradient(135deg, var(--fc-teal), #218779);
+  color: #ffffff;
+  box-shadow: 0 8px 20px color-mix(in srgb, var(--fc-teal) 24%, transparent);
+}
+.button-primary:hover { filter: saturate(1.08) brightness(1.03); }
+.button-danger { background: color-mix(in srgb, var(--fc-coral) 16%, var(--surface)); color: var(--danger); }
+.notification-button i { background: var(--fc-coral); }
+
+.metric-card:nth-child(4n + 1) .metric-icon { color: var(--fc-teal); background: color-mix(in srgb, var(--fc-teal) 13%, var(--surface)); }
+.metric-card:nth-child(4n + 2) .metric-icon { color: var(--warning); background: color-mix(in srgb, var(--fc-gold) 15%, var(--surface)); }
+.metric-card:nth-child(4n + 3) .metric-icon { color: var(--info); background: color-mix(in srgb, var(--fc-orange) 15%, var(--surface)); }
+.metric-card:nth-child(4n + 4) .metric-icon { color: var(--danger); background: color-mix(in srgb, var(--fc-coral) 15%, var(--surface)); }
+
+.chart-column:nth-child(5n + 1) .chart-bar:not(.muted) { background: var(--fc-teal); }
+.chart-column:nth-child(5n + 2) .chart-bar:not(.muted) { background: var(--fc-gold); }
+.chart-column:nth-child(5n + 3) .chart-bar:not(.muted) { background: var(--fc-orange); }
+.chart-column:nth-child(5n + 4) .chart-bar:not(.muted) { background: var(--fc-coral); }
+.chart-column:nth-child(5n + 5) .chart-bar:not(.muted) { background: #39717c; }
+
+.theme-preview.light { background: linear-gradient(135deg, #fffdf8 48%, #d9efeb 48%); }
+.theme-preview.dark { background: linear-gradient(135deg, #142d36 48%, #214650 48%); }
+.theme-preview.system { background: linear-gradient(135deg, #fffdf8 49%, #142d36 50%); }
+
+.status-review,
+.priority-medium { color: var(--warning); }
+.status-active,
+.status-progress { color: var(--primary); }
+.priority-high { color: var(--danger); }
+
+::selection { background: color-mix(in srgb, var(--fc-gold) 65%, transparent); color: var(--fc-ink); }

@@ -1,4 +1,6 @@
 (() => {
+  window.__formcraftInitialHash = location.hash.slice(1);
+
   const theme = document.createElement('link');
   theme.rel = 'stylesheet';
   theme.href = 'assets/css/modules.css';

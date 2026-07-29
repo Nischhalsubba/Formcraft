@@ -11,6 +11,11 @@
   directionTheme.href = 'assets/css/planiq-direction.css';
   document.head.append(directionTheme);
 
+  const layoutFixes = document.createElement('link');
+  layoutFixes.rel = 'stylesheet';
+  layoutFixes.href = 'assets/css/planiq-layout-fixes.css';
+  document.head.append(layoutFixes);
+
   const admin = document.createElement('script');
   admin.src = 'assets/js/admin.js';
   admin.onload = () => {

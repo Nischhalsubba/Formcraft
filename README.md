@@ -1,25 +1,59 @@
 # Formcraft
 
-Formcraft is a personal design and development workspace for presenting product case studies, interface systems, experiments, open-source work, and the thinking behind them.
+Formcraft is a functional admin dashboard for managing projects, tasks, team members, reports, activity, and workspace settings.
 
-> Shaping ideas into thoughtful digital products.
+> A focused operating system for product work.
 
-## Project status
+## Current implementation
 
-Formcraft is currently in active development. The first release will establish an original visual identity, responsive dashboard shell, project storytelling system, and GitHub-focused portfolio experience.
+The current branch contains an original, responsive admin application with browser-persisted data. It is intentionally independent from the purchased Greeva source while the public redistribution terms for that package are being confirmed.
 
-## Planned first release
+### Working features
 
-- Original Formcraft brand and design system
-- Responsive public dashboard
-- Selected work and case-study pages
-- Open-source and experiment views
-- About and contact pages
-- Accessible light and dark themes
-- CodeIgniter integration after the public prototype is validated
+- Dashboard metrics and project activity visualization
+- Project creation, editing, filtering, progress tracking, and deletion
+- Task creation, editing, completion, filtering, and deletion
+- Project-linked task data
+- Team member overview and invitation flow
+- Reports generated from live workspace data
+- Workspace activity history
+- Workspace and notification settings
+- Light and dark themes with persistent preferences
+- Global project and task search
+- JSON workspace export and demo-data reset
+- Responsive desktop, tablet, and mobile navigation
+- Keyboard search shortcut and accessible focus behavior
+
+Data currently persists in `localStorage`, making the prototype immediately usable without a server. The next backend milestone will move the same domain model into CodeIgniter 4 with SQLite, authenticated sessions, migrations, validation, and role-aware authorization.
+
+## Planned backend architecture
+
+- CodeIgniter 4
+- SQLite for local development, with MySQL-compatible models
+- Session authentication and password hashing
+- Project, task, user, activity, and setting models
+- Database migrations and seed data
+- Server-side validation and CSRF protection
+- Role-based workspace access
+- JSON endpoints for dashboard charts and reports
+
+## Development
+
+Open `index.html` directly, or serve the repository with any static file server.
+
+```bash
+python3 -m http.server 8080
+```
+
+Then open `http://localhost:8080`.
+
+## Branches
+
+- `main`: stable reviewed work
+- `feat/functional-admin-dashboard`: active functional dashboard implementation
 
 ## Authorship
 
 Product design and development by **Nischhal Raj Subba**.
 
-The project may use a licensed dashboard package as a private technical reference or foundation. Any third-party code or assets included later will retain the attribution and licensing required by their respective owners.
+Any third-party code or assets introduced later will retain the attribution and licensing required by their respective owners.

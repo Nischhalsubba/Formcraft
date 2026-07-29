@@ -1,0 +1,377 @@
+/*
+ * PlanIQ-inspired product direction for Formcraft.
+ * This translates the reference's hierarchy, density and interaction principles
+ * into Formcraft's own palette and component system. It does not copy artwork.
+ */
+
+:root {
+  color-scheme: light;
+  --bg: #f6f7f3;
+  --surface: #ffffff;
+  --surface-2: #f2f4ef;
+  --surface-3: #e8ece6;
+  --text: #18343e;
+  --muted: #66787d;
+  --muted-2: #8c999c;
+  --border: #e3e8e1;
+  --primary: #2a9d8f;
+  --primary-ink: #ffffff;
+  --primary-soft: #e2f5f1;
+  --success: #2a9d8f;
+  --warning: #b88722;
+  --danger: #d75c43;
+  --info: #d87f3c;
+  --purple: #b88722;
+  --radius-sm: 9px;
+  --radius-md: 15px;
+  --radius-lg: 20px;
+  --shadow: 0 10px 34px rgb(38 70 83 / .07);
+  --sidebar: 232px;
+  --topbar: 72px;
+}
+
+html[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #102a33;
+  --surface: #173640;
+  --surface-2: #1d414b;
+  --surface-3: #28505a;
+  --text: #f7f8f3;
+  --muted: #b8c7c8;
+  --muted-2: #8fa8aa;
+  --border: #315963;
+  --primary: #4fc2b4;
+  --primary-ink: #08221f;
+  --primary-soft: rgb(42 157 143 / .17);
+  --success: #4fc2b4;
+  --warning: #e9c46a;
+  --danger: #f08268;
+  --info: #f4a261;
+  --shadow: 0 18px 54px rgb(3 18 23 / .28);
+}
+
+body {
+  background:
+    radial-gradient(circle at 76% -10%, rgb(42 157 143 / .08), transparent 26rem),
+    var(--bg);
+  letter-spacing: -.005em;
+}
+
+/* Quiet navigation: strong structure without competing with the work area. */
+.sidebar {
+  border-right: 1px solid var(--border);
+  background: color-mix(in srgb, var(--surface) 96%, transparent);
+  box-shadow: none;
+}
+
+.sidebar-head {
+  min-height: var(--topbar);
+  border-bottom-color: var(--border);
+}
+
+.sidebar .brand-copy strong,
+.sidebar .sidebar-profile strong { color: var(--text); }
+.sidebar .brand-copy small,
+.sidebar .sidebar-profile small,
+.sidebar .nav-label { color: var(--muted-2); }
+.sidebar .nav-item { color: var(--muted); }
+.sidebar .nav-item:hover {
+  background: var(--surface-2);
+  color: var(--text);
+}
+.sidebar .nav-item.is-active {
+  background: var(--primary-soft);
+  color: var(--primary);
+  box-shadow: none;
+}
+.sidebar .nav-count,
+.sidebar .workspace-card {
+  border-color: var(--border);
+  background: var(--surface-2);
+}
+.sidebar .workspace-card-top span,
+.sidebar .workspace-card small { color: var(--muted); }
+.sidebar .sidebar-profile { border-top-color: var(--border); }
+
+.brand-mark {
+  width: 32px;
+  height: 32px;
+  transform: none;
+}
+.brand-mark span:nth-child(1) { background: var(--primary); }
+.brand-mark span:nth-child(2) { background: #e9c46a; }
+.brand-mark span:nth-child(3) { background: #e76f51; }
+
+.topbar {
+  min-height: var(--topbar);
+  padding: 10px 24px;
+  border-bottom-color: var(--border);
+  background: color-mix(in srgb, var(--surface) 92%, transparent);
+  backdrop-filter: blur(16px);
+}
+.topbar h1 {
+  font-size: 17px;
+  font-weight: 760;
+  letter-spacing: -.025em;
+}
+.breadcrumb { color: var(--muted-2); }
+
+.content-area {
+  width: 100%;
+  max-width: 1540px;
+  margin-inline: auto;
+  padding: 24px;
+}
+
+.welcome-row {
+  align-items: flex-end;
+  margin-bottom: 18px;
+}
+.welcome-row h2 {
+  margin-bottom: 3px;
+  font-size: clamp(25px, 2.7vw, 34px);
+  font-weight: 720;
+}
+.welcome-row p { max-width: 610px; }
+.eyebrow,
+.panel-kicker {
+  color: var(--muted-2);
+  letter-spacing: .09em;
+}
+
+/* Compact metrics with a clear number-first hierarchy. */
+.metric-grid {
+  gap: 12px;
+  margin-bottom: 12px;
+}
+.metric-card {
+  min-height: 116px;
+  padding: 15px;
+  border-color: var(--border);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+  box-shadow: none;
+  transition: border-color .16s ease, transform .16s ease, box-shadow .16s ease;
+}
+.metric-card:hover {
+  transform: translateY(-2px);
+  border-color: color-mix(in srgb, var(--primary) 32%, var(--border));
+  box-shadow: var(--shadow);
+}
+.metric-top { font-size: 10px; }
+.metric-icon {
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  background: var(--surface-2);
+}
+.metric-value {
+  margin: 11px 0 4px;
+  font-size: 27px;
+  font-weight: 740;
+}
+.metric-foot { font-size: 9px; }
+
+.dashboard-grid,
+.report-grid {
+  gap: 12px;
+  margin-bottom: 12px;
+}
+.dashboard-grid { grid-template-columns: minmax(0, 1.85fr) minmax(250px, .65fr); }
+.lower-grid { grid-template-columns: minmax(0, 1.65fr) minmax(260px, .7fr); }
+
+.panel,
+.project-card,
+.member-card,
+.settings-panel,
+.modal,
+.empty-state {
+  border-color: var(--border);
+  background: var(--surface);
+  box-shadow: none;
+}
+.panel {
+  padding: 16px;
+  border-radius: var(--radius-md);
+}
+.panel-head { margin-bottom: 13px; }
+.panel h3 {
+  font-size: 15px;
+  font-weight: 720;
+}
+
+/* One dark utility card creates contrast, like the reference meeting/assistant card. */
+.focus-panel {
+  border-color: #264653;
+  background: #264653;
+  color: #ffffff;
+  overflow: hidden;
+  position: relative;
+}
+.focus-panel::before {
+  content: "";
+  position: absolute;
+  width: 160px;
+  height: 160px;
+  right: -80px;
+  top: -80px;
+  border-radius: 50%;
+  background: rgb(42 157 143 / .24);
+}
+.focus-panel .panel-kicker,
+.focus-panel .donut-copy,
+.focus-panel small { color: #b8c9c9; }
+.focus-panel h3,
+.focus-panel strong { color: #ffffff; }
+.focus-panel .status-success {
+  background: #75e6a4;
+  color: #153d31;
+}
+.focus-panel .donut {
+  background: conic-gradient(#75e6a4 var(--progress, 0%), rgb(255 255 255 / .12) 0);
+}
+.focus-panel .donut::after { background: #264653; }
+.focus-panel .focus-stats span + span { border-left-color: rgb(255 255 255 / .14); }
+
+/* Calm charts: neutral context, one purposeful accent. */
+.chart {
+  height: 215px;
+  gap: 9px;
+  border-bottom-color: var(--border);
+  background-image: linear-gradient(to bottom,
+    transparent 24%, var(--border) 25%, transparent 26%,
+    transparent 49%, var(--border) 50%, transparent 51%,
+    transparent 74%, var(--border) 75%, transparent 76%);
+}
+.chart-bar {
+  border-radius: 5px 5px 1px 1px;
+  background: #70d9a0;
+}
+.chart-bar.muted { background: #e3e8e1; }
+html[data-theme="dark"] .chart-bar.muted { background: #315963; }
+.chart-legend { margin-top: 11px; }
+
+.button,
+.icon-button,
+.filter-chip,
+.select-control,
+.search-box {
+  border-radius: 10px;
+}
+.button { min-height: 39px; }
+.button-primary {
+  background: #2a9d8f;
+  color: #ffffff;
+  box-shadow: none;
+}
+.button-primary:hover {
+  background: #238c80;
+  filter: none;
+}
+.button-secondary,
+.icon-button,
+.search-box {
+  border-color: var(--border);
+  background: var(--surface);
+}
+.search-box {
+  min-width: 270px;
+  height: 40px;
+}
+
+.status-pill,
+.priority,
+.tag {
+  border-radius: 7px;
+  padding: 4px 7px;
+  font-size: 9px;
+}
+.status-active,
+.status-progress,
+.status-success,
+.status-completed,
+.status-done {
+  background: #e3f7ef;
+  color: #237d70;
+}
+.status-review,
+.priority-medium {
+  background: #fbf3d8;
+  color: #9a7018;
+}
+.priority-high {
+  background: #fde9e4;
+  color: #bd4f39;
+}
+.status-planning,
+.status-todo,
+.priority-low {
+  background: var(--surface-2);
+  color: var(--muted);
+}
+html[data-theme="dark"] .status-active,
+html[data-theme="dark"] .status-progress,
+html[data-theme="dark"] .status-success,
+html[data-theme="dark"] .status-completed,
+html[data-theme="dark"] .status-done {
+  background: rgb(42 157 143 / .18);
+  color: #70d9ca;
+}
+
+.table-panel { border-radius: var(--radius-md); }
+th {
+  color: var(--muted-2);
+  letter-spacing: .07em;
+}
+td {
+  padding-block: 11px;
+  border-top-color: var(--border);
+}
+tbody tr { transition: background .14s ease; }
+tbody tr:hover { background: var(--surface-2); }
+
+.project-board,
+.team-grid { gap: 12px; }
+.project-card,
+.member-card {
+  border-radius: var(--radius-md);
+  transition: transform .16s ease, box-shadow .16s ease, border-color .16s ease;
+}
+.project-card:hover,
+.member-card:hover {
+  transform: translateY(-2px);
+  border-color: color-mix(in srgb, var(--primary) 30%, var(--border));
+  box-shadow: var(--shadow);
+}
+.project-symbol {
+  background: var(--primary-soft);
+  color: var(--primary);
+}
+
+.progress-track { background: var(--surface-3); }
+.progress-track span { background: var(--primary); }
+.avatar {
+  background: linear-gradient(135deg, #e9c46a, #f4a261);
+  color: #264653;
+}
+
+.modal { box-shadow: 0 30px 90px rgb(38 70 83 / .18); }
+.modal::backdrop { background: rgb(22 42 49 / .42); }
+.toast { border-color: var(--border); }
+
+@media (max-width: 1100px) {
+  .dashboard-grid,
+  .lower-grid { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 860px) {
+  .sidebar { box-shadow: 0 24px 80px rgb(38 70 83 / .18); }
+  .content-area { padding: 20px 16px; }
+}
+
+@media (max-width: 620px) {
+  .content-area { padding: 16px 10px 24px; }
+  .welcome-row { margin-bottom: 15px; }
+  .welcome-row h2 { font-size: 25px; }
+  .metric-card { min-height: 108px; }
+}

@@ -1,186 +1,204 @@
 # PlanIQ Visual Audit for Formcraft
 
-This document records the detailed visual analysis of the PlanIQ dashboard reference and how its visible system is translated into Formcraft.
+This audit records the details visible in the user-supplied PlanIQ presentation and how they are translated into Formcraft.
 
-## Reference
+## Reference evidence
 
-- Behance project: `https://www.behance.net/gallery/251693759/PlanIQ-SaaS-Project-Management-Dashboard-UIUX`
-- Related PlanIQ dashboard shots published by the same design team on Dribbble
+The supplied presentation explicitly shows:
 
-Formcraft uses the reference as a design-system study. It does not copy the PlanIQ logo, proprietary artwork, product copy, exact page compositions, or downloadable Figma assets.
+- Typeface: **Manrope**
+- Weights: Regular, Medium, Semibold, Bold
+- Presentation scale: Heading 1 `56px`, subheading `40px`, body `24px`
+- Primary color: `#75FC96`
+- Red: `#D13817`
+- Black: `#000000`
+- Gray: `#ADADAD`
+- White: `#FFFFFF`
 
-## Confidence levels
+It also shows a light project-management dashboard, horizontal pill navigation, compact KPI cards, green and neutral charts, a black meeting card, an AI-assistant surface, calendar views, export dialogs, responsive mobile layouts, and rounded white cards on a soft-gray canvas.
 
-- **Verified** means the value is publicly exposed in the related PlanIQ project metadata.
-- **Measured** means the value was estimated from the published dashboard imagery.
-- **Adapted** means the value was adjusted so the much larger Formcraft application remains usable and accessible.
+## Translation boundary
+
+Formcraft follows the design system, not the PlanIQ brand. It does not reuse the PlanIQ logo, name, product copy, exact screen compositions, photographs, mockups, decorative artwork, or client identity.
 
 ## Color system
 
-### Verified public colors
-
 | Token | Value | Formcraft role |
 |---|---:|---|
-| Canvas | `#F6F6F6` | Default application background |
-| Alternate canvas | `#EFF0F1` | Muted panels and progress tracks |
-| Ink | `#040404` | Primary text and dark utility surfaces |
-| Electric green | `#95F221` | Primary actions and selected navigation |
-| Strong green | `#4DD265` | Progress, active chart data and notification signals |
-| Deep green | `#53A964` | Links, success text and secondary positive states |
-| Mint | `#74D288` | Soft positive data visualization |
-| Muted green-gray | `#4A5F59` | Secondary information |
-| Cool gray | `#BCC3CA` | Strong dividers and disabled controls |
-| Warm brown | `#C17131` | Review, warning and attention states |
+| Primary green | `#75FC96` | Primary actions, active navigation, selection, progress and positive data |
+| Red | `#D13817` | Destructive actions, validation errors, failed and overdue states |
+| Black | `#000000` | Primary text and one strong meeting/AI/focus surface |
+| Gray | `#ADADAD` | Supporting text, disabled states, neutral chart context |
+| White | `#FFFFFF` | Cards, forms, navigation and content surfaces |
+| Adapted canvas | `#F6F6F6` | Application background derived from the visible presentation canvas |
+| Adapted border | `#E7E7E7` | Quiet card and control separation |
+| Adapted green tint | `#EAFFEF` | Positive secondary states |
+| Adapted red tint | `#FFF0EC` | Error and destructive secondary states |
 
-### Usage rule
+### Usage rules
 
-Electric green is scarce. It marks the current navigation item, primary action, selected control, active progress, or the most important chart series. It is not used as a large decorative background.
-
-Black is used for text and one high-contrast utility surface, such as meeting notes, an AI assistant, urgent focus, or the current work session.
+- Green is scarce and purposeful.
+- Black is used for text and one high-contrast utility card.
+- Red remains reserved for negative states.
+- Gray provides hierarchy without adding more brand colors.
+- White remains the dominant working surface.
 
 ## Typography
 
-The public Behance and Dribbble pages do not identify the font family. The visible letterforms are closest to a modern neutral grotesk.
-
-Formcraft therefore uses:
+The supplied image identifies Manrope directly, so Formcraft uses:
 
 ```css
-font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+font-family: 'Manrope', ui-sans-serif, system-ui, sans-serif;
 ```
 
-This is an informed implementation choice, not a verified claim about the original Figma file.
+### Presentation scale versus application scale
 
-### Type scale
+The 56px, 40px and 24px values belong to the portfolio presentation. Applying 24px body copy to dense tables and forms would make the dashboard unusable. Formcraft preserves the visual ratio through a responsive product scale:
 
-| Purpose | Size | Weight | Line height |
-|---|---:|---:|---:|
-| Main greeting | `26–34px` | `700` | `1.08` |
-| Page title | `16px` | `650` | `1.2` |
-| KPI value | `28px` | `700` | `1.05` |
-| Card title | `14px` | `650` | `1.25` |
-| Body | `11–13px` | `400–500` | `1.45` |
-| Navigation | `11px` | `600` | `1` |
-| Table content | `10px` | `400–600` | `1.35` |
-| Eyebrow and metadata | `8–9px` | `600` | `1.3` |
+| Purpose | Formcraft size | Weight |
+|---|---:|---:|
+| Main greeting | `28–40px` | `700` |
+| Route title | `16–20px` | `700` |
+| KPI value | `28px` | `700` |
+| Card title | `14–16px` | `700` |
+| Body | `12–14px` | `400–500` |
+| Navigation | `10–11px` | `600` |
+| Table content | `10–12px` | `400–600` |
+| Metadata | `8–10px` | `600` |
 
-Headlines use tight negative tracking. Body copy remains neutral and compact.
+Headings use tight tracking. Body copy uses a comfortable line height and no ultra-light weights.
 
 ## Spacing
 
-The interface follows a measured 4/8-point rhythm.
+The visible interface uses a compact 4px rhythm:
 
 ```text
-4, 8, 12, 16, 24, 32, 40, 48
+4, 8, 12, 16, 24, 32, 40, 48, 64
 ```
 
-### Application spacing
+Applied rules:
 
-- Page gutter: `24px` desktop, `14px` tablet, `10px` mobile
-- Grid gap: `12px`
-- Card padding: `14–15px`
+- Desktop page gutter: `24px`
+- Tablet gutter: `14px`
+- Mobile gutter: `10px`
+- Card and grid gap: `12px`
+- Card padding: `14–16px`
+- Table row padding: approximately `10px`
 - Compact control gap: `7–8px`
-- Header-to-content gap: `16px`
-- Table row padding: `10px`
-- Navigation item horizontal padding: `11px`
-
-Large empty areas are avoided. The dashboard is information-dense but not cramped.
+- Major section separation: `24–32px`
 
 ## Geometry
 
 | Component | Radius |
 |---|---:|
-| Floating top navigation | `18px` |
+| Floating horizontal navigation | `18px` |
 | Main cards | `16px` |
-| Inputs and buttons | `10px` |
-| Small icon containers | `7–10px` |
-| Status and navigation pills | Fully rounded |
+| Inputs and standard buttons | `10px` |
+| Dialogs and major containers | `20–22px` |
+| Navigation, filters and statuses | Fully rounded |
 
-Borders are generally `1px` and low contrast. Shadows are reserved for the floating navigation, dialogs and hover elevation.
+Borders are thin and neutral. Shadows are reserved for floating navigation, dialogs, menus, and restrained hover feedback.
 
 ## Navigation
 
-The desktop default uses a floating horizontal product navigation:
+The reference uses a horizontal navigation bar with:
 
-1. Brand
-2. Primary product areas
-3. Current item shown as an electric-green pill
-4. Search and account utilities
+1. compact brand mark;
+2. product destinations;
+3. an active green pill;
+4. search and utilities;
+5. user profile.
 
-Because Formcraft contains far more modules than the reference, the navigation supports horizontal overflow. Mobile continues to use an accessible drawer rather than shrinking every destination into microscopic confetti.
+Formcraft follows that desktop pattern. Because it contains substantially more modules, navigation supports horizontal overflow. Tablet and mobile use a drawer rather than shrinking labels into decorative dust.
 
 ## Dashboard composition
 
-The reference uses a modular grid rather than one monolithic analytics canvas.
+The supplied dashboard establishes this order:
 
-Formcraft follows this hierarchy:
+1. horizontal product navigation;
+2. greeting and brief context;
+3. three compact KPI cards;
+4. main project overview chart;
+5. task statistics;
+6. one black meeting card;
+7. AI-assistant card;
+8. task list and detailed operations.
 
-1. Greeting and concise page context
-2. Three compact KPI cards
-3. Large project-overview chart
-4. One dark focus/utility card
-5. Dense task or project list
-6. Supporting activity panel
+Formcraft adapts this into:
 
-The fourth metric remains available at tablet and mobile widths but is hidden on wide desktop because progress is already communicated by the focus card.
+1. navigation;
+2. greeting;
+3. KPI row;
+4. primary analysis panel;
+5. one black focus, meeting or assistant card;
+6. operational table;
+7. supporting activity.
 
 ## Card anatomy
 
-A normal card contains:
+Normal cards contain:
 
-1. Small muted label or eyebrow
-2. Clear title or numeric value
-3. One supporting line
-4. Optional compact control
+- a small label;
+- one clear value or heading;
+- a supporting line;
+- an optional compact action.
 
-Cards use white surfaces, a thin neutral border and almost no default shadow. Hover changes the border and adds a very soft shadow without moving content.
+They use white, a quiet border, 16px radius, and almost no default shadow.
 
-## Dark utility card
+## Black utility surface
 
-One black card is permitted per primary dashboard viewport.
+The presentation repeatedly uses black for a current meeting or high-value assistant interaction. Formcraft allows one prominent black card per main dashboard viewport.
 
-It may represent:
+It uses:
 
-- Current meeting
-- AI assistant
-- Today’s focus
-- Urgent workflow
-- Active timer
-
-It uses white text, cool-gray secondary text and electric-green progress or action elements.
+- white primary text;
+- gray supporting text;
+- green progress and actions;
+- minimal decoration.
 
 ## Charts
 
-- Neutral gray provides historical or contextual data.
-- Electric or strong green marks the active series.
-- Warm brown is used only for warning or review data.
-- Chart grids are thin and low contrast.
-- Bars are compact with `4px` top radii.
-- Legends are small and secondary.
-- Values cannot rely on color alone in the production chart components.
+- Gray represents contextual or inactive data.
+- Green marks active, selected or positive data.
+- Red represents critical or negative data only.
+- Grid lines stay thin and low contrast.
+- Bars remain compact.
+- Legends and controls remain secondary.
+- Production charts require labels and non-color cues.
 
 ## Tables and lists
 
-- Header labels are `8px`, semibold and muted.
-- Rows use approximately `10px` vertical padding.
-- Status values are pills rather than full-cell color blocks.
-- Row hover uses a nearly invisible neutral background.
-- Actions remain compact and appear consistently at the row end.
+- Headers are small, muted and semibold.
+- Rows remain compact.
+- Statuses use pills rather than colored cells.
+- Hover uses a nearly invisible neutral surface.
+- Actions stay aligned at the row end.
 
-## Icons
+## Calendar
 
-The reference uses small, simple line icons. Formcraft’s production component system should standardize on one line-icon family, preferably Lucide, at `16–18px` with a `1.75–2px` stroke.
+The reference calendar combines:
 
-Emoji must not be used as permanent interface icons.
+- horizontal project cards;
+- day, week and month controls;
+- compact filter and date controls;
+- a spacious weekly time grid;
+- green event emphasis;
+- avatars and small supporting metadata.
 
-## Motion
+Formcraft calendar views inherit the same color, typography, spacing and card geometry while retaining their own domain model and interactions.
 
-Motion is subtle:
+## AI assistant
 
-- `120–180ms` for hover and selected-state transitions
-- No bouncing cards
-- No decorative looping animations
-- No layout movement during hover
-- Reduced-motion preferences are respected
+The reference assistant uses:
+
+- white or green conversation surfaces;
+- a strong greeting;
+- compact workspace filters;
+- large quick-action cards;
+- simple composer controls;
+- green as the action signal.
+
+Formcraft can use this pattern for a future assistant module without copying PlanIQ copy or artwork.
 
 ## Responsive behavior
 
@@ -193,40 +211,41 @@ Motion is subtle:
 
 ### Tablet
 
-- Navigation becomes a drawer
-- KPI cards use two columns
-- Analytical panels stack
-- Table containers scroll when necessary
+- Drawer navigation
+- Two-column KPI cards
+- Stacked analytical panels
+- Scrollable tables
 
 ### Mobile
 
-- Single-column cards
-- Simplified controls
-- Drawer navigation
-- Tables become horizontally scrollable or purpose-built card lists
-- Primary action remains reachable without covering content
+- Single-column layout
+- Compact controls
+- Touch-friendly navigation drawer
+- Operational lists simplified or made horizontally scrollable
 
 ## Accessibility requirements
 
-- Body text must meet WCAG AA contrast.
-- Electric green cannot be used for small text on white without a darker text color.
-- Green buttons use near-black text.
-- Focus rings use a green-and-white mixed outline.
-- Charts require labels, tooltips and non-color cues.
-- The navigation must remain keyboard-scrollable when it overflows.
+- Body text targets WCAG AA contrast.
+- Green buttons use black text.
+- Focus rings remain visible on white and black surfaces.
+- Charts include labels and non-color cues.
+- Navigation remains keyboard accessible.
+- Touch targets reach 44px when practical.
+- Reduced-motion preferences are honored.
 
 ## Implementation status
 
 The current Formcraft branch applies:
 
-- The verified public PlanIQ palette
-- Inter as the documented closest font match
-- Floating horizontal desktop navigation
-- Measured spacing and radius system
-- Three-card desktop KPI row
-- Black focus utility card
-- Compact chart, table and status styling
-- Matching Calendar, Email, File Manager and Invoice surfaces
-- Responsive drawer behavior
+- Manrope at weights 400–800;
+- the exact five-color reference palette;
+- a soft-gray canvas and white surfaces;
+- horizontal desktop navigation;
+- adapted application typography;
+- compact modular spacing;
+- black focus utility card;
+- matching Calendar, Email, File Manager and Invoice surfaces;
+- responsive drawer behavior;
+- reduced-motion support.
 
-Further page-by-page work must reuse these tokens rather than inventing local colors, spacing or component shapes.
+Future pages must reuse the canonical tokens in `docs/DESIGN_SYSTEM.md` rather than reintroducing old palettes or local one-off component rules.

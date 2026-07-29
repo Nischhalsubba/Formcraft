@@ -1,333 +1,277 @@
 # Formcraft Design System
 
-Formcraft is intentionally designed as a calm, capable operations product rather than a reskinned marketplace template. The visual language combines structured blue-green foundations with warm status accents.
+This document is the canonical visual system for Formcraft. It is based on the user-supplied PlanIQ reference screens and replaces the earlier blue-green palette and Inter typography.
 
-## Brand palette
+## Core identity
 
-| Token | Hex | Primary role |
-|---|---|---|
-| Ink | `#264653` | Navigation, headings, dense structure, dark surfaces |
-| Teal | `#2A9D8F` | Primary actions, active states, progress, success |
-| Gold | `#E9C46A` | Attention, highlights, medium-priority information |
-| Orange | `#F4A261` | Warnings, pending states, secondary data series |
-| Coral | `#E76F51` | Errors, destructive actions, overdue and critical states |
+- Product type: full-featured SaaS administration and project-operations dashboard
+- Visual character: minimal, modular, calm, dense, rounded, and highly functional
+- Primary typeface: **Manrope**
+- Primary accent: **Fresh green `#75FC96`**
+- Destructive accent: **Red `#D13817`**
+- Structural colors: **Black `#000000`**, **Gray `#ADADAD`**, **White `#FFFFFF`**
 
-The five colors are not interchangeable decoration. Each has a defined semantic role so users can learn the interface reliably.
+The product should feel like a serious work tool rather than a colorful marketplace template. Green is a signal, not wallpaper.
 
-## Semantic color rules
+## Canonical palette
 
-### Ink
+| Token | Value | Usage |
+|---|---:|---|
+| Primary green | `#75FC96` | Primary actions, active navigation, selected controls, progress, positive chart series |
+| Red | `#D13817` | Destructive actions, validation errors, failed states, overdue records |
+| Black | `#000000` | Primary text, strong utility cards, meeting and AI-assistant surfaces |
+| Gray | `#ADADAD` | Supporting text, disabled states, secondary information |
+| White | `#FFFFFF` | Cards, controls, content surfaces, text on black |
+| App canvas | `#F6F6F6` | Default light-theme page background |
+| Soft surface | `#FAFAFA` | Hover states and muted card sections |
+| Border | `#E7E7E7` | Standard separators and component outlines |
+| Green tint | `#EAFFEF` | Success backgrounds and selected secondary states |
+| Red tint | `#FFF0EC` | Error and destructive backgrounds |
 
-Use for:
+## Color rules
 
-- Sidebar and navigation structure.
-- Primary text in the light theme.
-- Dense headers and data labels.
-- Dark-theme foundation.
+### Green
 
-Do not use Ink for every card background. The product needs depth and separation rather than one enormous dark rectangle, a treasured dashboard tradition for reasons nobody can explain.
+Use green for:
 
-### Teal
+- the primary call to action;
+- active navigation;
+- progress and completion;
+- selected filters;
+- successful states;
+- the dominant positive chart series.
 
-Use for:
+Green buttons use black text. Small green text on white is avoided because contrast becomes unreliable.
 
-- Primary buttons.
-- Active navigation.
-- Focused controls.
-- Success states.
-- Progress bars.
-- Selected table rows.
-- Primary chart series.
+### Red
 
-Teal must not be used for destructive actions or warning messages.
+Use red only for:
 
-### Gold
+- delete and destructive confirmation;
+- validation errors;
+- failed operations;
+- overdue or blocked items;
+- critical notifications.
 
-Use for:
+### Black
 
-- Medium-priority states.
-- Review status.
-- Important but non-blocking notices.
-- Highlighted metrics.
-- Secondary chart series.
+Black is used for primary text and one strong utility surface per dashboard viewport, such as meeting notes, active focus, an AI assistant, or an urgent work session.
 
-Gold text on white requires a darker derived shade for contrast.
+### Gray and white
 
-### Orange
-
-Use for:
-
-- Warning states.
-- Pending and at-risk indicators.
-- Time-sensitive notices.
-- Tertiary chart series.
-
-### Coral
-
-Use for:
-
-- Delete and destructive actions.
-- Validation errors.
-- Failed operations.
-- Overdue records.
-- Critical notifications.
-
-Coral should remain scarce. If half the page is coral, the color no longer communicates urgency and the interface merely appears sunburned.
-
-## Theme tokens
-
-### Light theme
-
-| Role | Value |
-|---|---|
-| Page background | `#F8F5EC` |
-| Primary surface | `#FFFDF8` |
-| Secondary surface | `#F4EFE3` |
-| Tertiary surface | `#EBE3D3` |
-| Primary text | `#264653` |
-| Secondary text | `#5F7479` |
-| Border | `#D8D6C9` |
-| Primary action | `#238C80` |
-| Primary soft | `#D9EFEB` |
-| Warning text | `#BD8D25` |
-| Danger text | `#C6533B` |
-
-### Dark theme
-
-| Role | Value |
-|---|---|
-| Page background | `#142D36` |
-| Primary surface | `#1B3943` |
-| Secondary surface | `#214650` |
-| Tertiary surface | `#294F59` |
-| Primary text | `#F8F4E9` |
-| Secondary text | `#B8C9C9` |
-| Border | `#365B64` |
-| Primary action | `#2A9D8F` |
-| Warning | `#E9C46A` |
-| Info | `#F4A261` |
-| Danger | `#E76F51` |
+White is the normal working surface. Gray establishes hierarchy through supporting text, borders, disabled states, and neutral charts.
 
 ## Typography
 
-Use a neutral interface sans-serif with clear numerals and strong small-size rendering.
-
-Recommended stack:
-
 ```css
-font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+font-family: 'Manrope', ui-sans-serif, system-ui, sans-serif;
 ```
 
-### Type scale
+Weights:
 
-| Style | Size | Weight | Use |
+- Regular: `400`
+- Medium: `500`
+- Semibold: `600`
+- Bold: `700`
+- Extra-bold, reserved for exceptional metrics: `800`
+
+### Responsive application scale
+
+The reference presentation lists Heading 1 at 56px, subheading at 40px, and body at 24px. Those are showcase sizes, not appropriate defaults for a dense admin application. Formcraft preserves the ratio while adapting it:
+
+| Style | Desktop size | Weight | Use |
 |---|---:|---:|---|
-| Display | 32-40px | 750-800 | Dashboard welcome and rare major states |
-| Page title | 20-24px | 700-750 | Route title |
-| Section title | 16-18px | 700 | Panels and cards |
-| Body | 14px | 400-500 | Standard content |
-| Small | 12px | 400-600 | Metadata and compact controls |
-| Label | 10-11px | 700-800 | Uppercase navigation and table labels |
+| Display greeting | `28–40px` | `700` | Dashboard welcome and major empty states |
+| Route title | `16–20px` | `700` | Page context |
+| KPI value | `28px` | `700` | Primary dashboard metrics |
+| Card heading | `14–16px` | `700` | Panels, dialogs and modules |
+| Body | `12–14px` | `400–500` | Standard content |
+| Navigation | `10–11px` | `600` | Product navigation |
+| Table content | `10–12px` | `400–600` | Dense operational data |
+| Metadata | `8–10px` | `600` | Labels, timestamps and table headers |
 
-Avoid very light weights. Admin screens contain dense information and must remain readable under imperfect displays, glare, and the many other punishments inflicted upon office workers.
+Headings use tight negative tracking. Body copy uses comfortable line height and avoids very light weights.
 
 ## Spacing
 
-Use a 4px base unit.
+Use a 4px base grid:
 
 ```text
-4, 8, 12, 16, 20, 24, 32, 40, 48, 64
+4, 8, 12, 16, 24, 32, 40, 48, 64
 ```
 
-Rules:
+Application rules:
 
-- 4-8px for icon and inline gaps.
-- 12px for compact controls.
-- 16-20px for card padding.
-- 24-32px for page and section spacing.
-- 40px or more only between major content groups.
+- Desktop page gutter: `24px`
+- Tablet gutter: `14px`
+- Mobile gutter: `10px`
+- Standard grid gap: `12px`
+- Card padding: `14–16px`
+- Header-to-content gap: `16px`
+- Compact control gap: `7–8px`
+- Table row padding: approximately `10px`
 
-## Radius
+## Geometry
 
-| Token | Value | Use |
-|---|---:|---|
-| Small | 8-10px | Inputs, chips, compact buttons |
-| Medium | 12-14px | Cards, tables, panels |
-| Large | 18-20px | Modals and major containers |
-| Pill | 999px | Status chips and avatars only |
+| Component | Radius |
+|---|---:|
+| Floating product navigation | `18px` |
+| Cards and major panels | `16px` |
+| Dialogs and major containers | `20–22px` |
+| Inputs and standard buttons | `10px` |
+| Icon containers | `7–10px` |
+| Navigation, filters and statuses | Fully rounded |
 
-Avoid applying pill shapes to every button. A dashboard is not a collection of medicinal capsules.
-
-## Elevation
-
-Use borders for most separation. Shadows are reserved for floating layers.
-
-- Cards: no shadow or a very subtle ambient shadow.
-- Sticky header: subtle shadow only while content scrolls underneath.
-- Dropdowns: medium shadow.
-- Modals and command palette: strong shadow.
-- Focus must never rely on shadow alone.
+Borders are normally 1px and low contrast. Shadows are reserved for the floating navigation, dialogs, menus, and subtle hover elevation.
 
 ## Layout
 
 ### Desktop
 
-- Sidebar: 248-264px.
-- Top bar: 72-88px.
-- Content padding: 24-32px.
-- 12-column content grid.
-- Maximum readable form width: 760px.
+- Floating horizontal product navigation
+- Brand, primary modules, search, notifications and account in one compact bar
+- Three-column KPI row
+- Two-column analytical grid
+- Dense project and task tables
+- One black utility card
+- Maximum content width around 1460px
+
+Formcraft has more modules than the reference, so desktop navigation may scroll horizontally while remaining keyboard accessible.
 
 ### Tablet
 
-- Sidebar becomes an overlay drawer.
-- Two-column metric and card layouts collapse progressively.
-- Tables preserve priority columns and allow horizontal scrolling where necessary.
+- Navigation becomes an overlay drawer below 861px
+- KPI cards use two columns
+- Analytical panels stack
+- Tables scroll horizontally when necessary
 
 ### Mobile
 
-- Single-column content.
-- Sticky top bar.
-- Primary actions remain reachable.
-- Filter toolbars become horizontally scrollable or move into sheets.
-- Minimum interactive target: 44x44px.
+- Single-column cards
+- Drawer navigation
+- Primary actions remain reachable
+- Dense tables may use horizontal scrolling or purpose-built cards
+- Interactive targets remain at least 44px where touch use is expected
 
-## Navigation
+## Dashboard hierarchy
 
-The sidebar uses Ink as its stable visual anchor. Active items use a Teal-tinted background and a narrow Teal indicator. Navigation groups are:
+1. Navigation
+2. Greeting and concise context
+3. Compact KPI cards
+4. Primary project or operational chart
+5. One black focus, meeting or assistant card
+6. Detailed table or list
+7. Supporting activity and guidance
 
-- Overview
-- Operations
-- Data
-- Components
-- System
-
-Nested groups should open predictably and remember their expanded state. Icon-only mode must retain tooltips and accessible labels.
+Avoid repeated page titles, oversized hero areas, decorative gradients, or multiple competing dark cards.
 
 ## Components
 
 ### Buttons
 
-- Primary: Teal fill, white text.
-- Secondary: surface background and border.
-- Tertiary: text-only.
-- Warning: Orange-tinted treatment.
-- Destructive: Coral-tinted treatment, solid Coral only for final confirmation.
+- Primary: green fill with black text
+- Secondary: white or current surface with gray border
+- Tertiary: text-only
+- Destructive: pale red surface, becoming solid red only for final confirmation
+- Top-level actions may use pill geometry; normal form buttons use 10px radius
 
-States required: hover, focus-visible, active, loading, disabled, and destructive confirmation.
+Required states: hover, focus-visible, active, loading, disabled, and destructive confirmation.
 
 ### Inputs
 
-- Labels remain visible; placeholders never replace labels.
-- Focus uses Teal border plus a visible focus ring.
-- Errors use Coral icon, border, and message.
-- Warnings use Orange.
-- Success confirmation uses Teal.
-- Disabled controls must remain readable.
+- Labels remain visible
+- Placeholder text never replaces the label
+- Focus uses a green ring
+- Errors use red border, icon and message
+- Disabled controls remain readable
 
-### Cards and panels
+### Cards
 
-- Clear title and optional metadata.
-- Actions aligned consistently in the header.
-- Avoid decorative gradients inside data cards.
-- Empty and loading states occupy the same basic footprint as loaded content to reduce layout shift.
+- White surface
+- Thin gray border
+- 16px radius
+- No decorative gradient
+- Little or no default shadow
+- Clear title, value, supporting line and optional compact action
+
+### Black utility card
+
+Only one prominent black card should appear in a dashboard viewport. It may represent:
+
+- current meeting;
+- AI assistant;
+- today’s focus;
+- active timer;
+- urgent workflow.
+
+It uses white text, gray secondary text and green actions or progress.
 
 ### Tables
 
-- Sticky headers for long datasets.
-- Row hover uses a subtle Teal tint.
-- Selected rows use a stronger Teal tint and visible checkbox state.
-- Coral is reserved for destructive row actions.
-- Column alignment follows data type: text left, numbers right, states centered only where useful.
+- Muted compact headers
+- Consistent row height
+- Subtle neutral hover
+- Status pills rather than colored cells
+- Row actions aligned to the end
+- Text left aligned, numbers right aligned
 
 ### Status mapping
 
-| State | Color |
+| State | Treatment |
 |---|---|
-| Active, complete, paid, online | Teal |
-| Review, medium priority, highlighted | Gold |
-| Pending, warning, due soon | Orange |
-| Error, overdue, failed, destructive | Coral |
-| Draft, inactive, neutral | Ink/neutral surface |
-
-### Notifications
-
-- Toasts appear in a consistent corner and do not block primary actions.
-- Success toasts use Teal.
-- Warning toasts use Orange.
-- Error toasts use Coral.
-- Persistent issues belong in inline alerts, not disappearing toasts.
+| Active, completed, paid, online | Green tint with dark-green text |
+| Draft, review, inactive, neutral | Gray surface and text |
+| Error, blocked, overdue, destructive | Red tint with red text |
 
 ## Charts
 
-Recommended accessible series order:
-
-1. `#2A9D8F`
-2. `#E9C46A`
-3. `#F4A261`
-4. `#E76F51`
-5. `#39717C`
-6. `#7AB8AE`
-7. `#B08B3B`
-8. `#A94F3B`
-
-Rules:
-
-- Do not communicate meaning by color alone.
-- Provide legends, labels, patterns, or direct annotations.
-- Use Coral only when the series represents a negative or critical state, unless it is simply part of a categorical chart with explicit labels.
-- Tooltips use the current surface color and accessible contrast.
-- Every chart has loading, empty, and error states.
+- Gray represents context or inactive data
+- Green marks the active or most important positive series
+- Red is reserved for negative or critical data
+- Grid lines remain thin and low contrast
+- Legends are small and secondary
+- Charts never rely on color alone; labels and tooltips remain required
 
 ## Icons
 
-Use one primary outline icon family throughout navigation and actions. A secondary filled family may be used for demonstrations in the icon browser, not randomly across production screens.
+Use one consistent outline icon family, preferably Lucide:
 
-- Navigation: 18-20px.
-- Inline actions: 16-18px.
-- Empty states: 32-48px.
-- Icons always receive text labels or accessible names when they perform actions.
+- Navigation: `16–18px`
+- Inline actions: `16px`
+- Empty states: `32–48px`
+- Stroke: approximately `1.75–2px`
+
+Emoji are not permanent production icons.
 
 ## Motion
 
-- Hover and focus transitions: 120-160ms.
-- Drawer and modal transitions: 180-240ms.
-- Charts: 250-400ms where motion improves understanding.
-- Respect `prefers-reduced-motion`.
-- Avoid continuous decorative animation in data-heavy screens.
+- Hover and selection: `120–180ms`
+- Drawer and modal: `180–240ms`
+- No bouncing cards
+- No decorative looping animation
+- No content movement on hover
+- Respect `prefers-reduced-motion`
 
 ## Accessibility
 
-- Body text contrast targets WCAG AA, 4.5:1.
-- Large text and non-text UI target at least 3:1.
-- Focus indicators must remain visible on every theme and palette color.
-- Every dialog traps focus and returns it to its trigger.
-- Error summaries link to invalid fields.
-- Tables include semantic headers and captions where needed.
-- Charts expose a text summary or downloadable table.
-- Color is never the sole carrier of meaning.
-
-## Brand language
-
-Formcraft copy should be:
-
-- Direct.
-- Calm.
-- Specific.
-- Task-oriented.
-- Free of empty marketing language.
-
-Use “Create invoice,” not “Unlock your financial journey.” The invoice has suffered enough.
+- Body text targets WCAG AA contrast
+- Green buttons use black text
+- Focus indicators remain visible on every surface
+- Dialogs trap focus and return it to their triggers
+- Forms associate errors with fields
+- Tables use semantic headers
+- Charts expose labels and non-color cues
+- Color is never the only carrier of meaning
 
 ## Anti-patterns
 
 Do not:
 
-- Copy the source dashboard layout screen-for-screen.
-- Reuse its logo, product name, sample companies, or artwork.
-- Apply all five palette colors to every component.
-- Use gradients as a substitute for hierarchy.
-- Hide labels in favor of placeholders.
-- Remove focus outlines.
-- make every card float with a large shadow.
+- reintroduce the former teal, gold, orange and coral palette;
+- use Inter instead of Manrope;
+- apply green to large decorative areas inside the application;
+- create several black feature cards on one screen;
+- use the 56/40/24 presentation scale for every admin component;
+- copy PlanIQ branding, logo, product copy or exact page compositions;
+- remove labels or focus indicators;
 - invent dashboard statistics presented as real data.

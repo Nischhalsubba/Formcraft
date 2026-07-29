@@ -1,0 +1,29 @@
+name: UI audit remediation
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [agent/full-ui-audit-remediation]
+
+permissions:
+  contents: read
+
+jobs:
+  static-validation:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Check JavaScript syntax
+        run: |
+          node --check assets/js/app-core.js
+          node --check assets/js/app-pages.js
+          node --check assets/js/app-actions.js
+          node --check assets/js/app-modules.js
+      - name: Run UI audit regression checks
+        run: npm test

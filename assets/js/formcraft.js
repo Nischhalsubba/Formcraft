@@ -11,6 +11,10 @@
   admin.onload = () => {
     const modules = document.createElement('script');
     modules.src = 'assets/js/modules.js';
+    modules.onload = () => {
+      const route = window.__formcraftInitialHash;
+      document.querySelector(`[data-module-route="${route}"]`)?.click();
+    };
     document.head.append(modules);
   };
   document.head.append(admin);

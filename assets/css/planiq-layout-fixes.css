@@ -1,0 +1,7 @@
+@media (min-width: 861px) {
+  .topbar { top: 86px; }
+  body:has(.page[data-page="dashboard"].is-active) .topbar-left {
+    visibility: hidden;
+    pointer-events: none;
+  }
+}

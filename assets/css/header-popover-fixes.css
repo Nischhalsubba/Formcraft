@@ -1,0 +1,106 @@
+.app-header {
+  overflow: visible;
+}
+
+.app-header::after {
+  border-radius: inherit;
+}
+
+.navbar {
+  z-index: 120;
+}
+
+.dashboard-content {
+  margin-top: 0;
+}
+
+.metric-grid {
+  position: relative;
+  z-index: 1;
+}
+
+.more-menu {
+  z-index: 130;
+}
+
+.more-menu[open] {
+  z-index: 180;
+}
+
+.more-menu > summary {
+  position: relative;
+}
+
+.popover-menu {
+  top: calc(100% + 10px);
+  right: auto;
+  left: 0;
+  z-index: 220;
+  max-height: min(60vh, 440px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  pointer-events: auto;
+  isolation: isolate;
+}
+
+.nav-utilities {
+  position: relative;
+  z-index: 180;
+}
+
+.nav-utilities > .utility-popover {
+  top: calc(100% + 10px);
+  right: var(--popover-right, 0px);
+  left: auto;
+  z-index: 240;
+  width: min(360px, calc(100vw - 32px));
+  max-height: min(70vh, 540px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  pointer-events: auto;
+}
+
+.utility-popover-list > button {
+  display: flex;
+  width: 100%;
+  min-height: 44px;
+  align-items: center;
+  gap: 10px;
+  padding: 0 12px;
+  border: 1px solid transparent;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 650;
+  text-align: left;
+}
+
+.utility-popover-list > button:hover,
+.utility-popover-list > button:focus-visible {
+  border-color: var(--border);
+  background: var(--surface-soft);
+  color: var(--ink);
+}
+
+@media (max-width: 1239px) {
+  .nav-utilities > .utility-popover {
+    right: 0;
+  }
+}
+
+@media (max-width: 600px) {
+  .dashboard-content {
+    padding-top: 22px;
+  }
+
+  .nav-utilities > .utility-popover {
+    position: fixed;
+    top: 76px;
+    right: 12px;
+    left: 12px;
+    width: auto;
+    max-height: calc(100vh - 96px);
+  }
+}

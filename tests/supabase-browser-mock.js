@@ -4,10 +4,8 @@
   const addDays = days => { const date = new Date(now); date.setDate(date.getDate() + days); return date; };
   const workspaceId = '11111111-1111-4111-8111-111111111111';
   const userId = '22222222-2222-4222-8222-222222222222';
-  const ownerSetupTest = location.search.includes('owner-setup-test=1');
   let version = 1;
-  let ownerCreated = ownerSetupTest ? false : window.__FORMCRAFT_TEST_OWNER_EXISTS__ !== false;
-  const noSession = ownerSetupTest || window.__FORMCRAFT_TEST_NO_SESSION__ === true;
+  let ownerCreated = null;
   let snapshot = {
     projects: [{ id: 'project-1', name: 'Test project', client: 'Test client', status: 'active', progress: 50, dueDate: dateKey(addDays(14)), description: 'Authenticated browser fixture.' }],
     tasks: [{ id: 'task-1', title: 'Test task', projectId: 'project-1', priority: 'medium', status: 'todo', dueDate: dateKey(addDays(2)), createdAt: now.toISOString(), completedAt: null }],
@@ -32,6 +30,13 @@
     user: { id: userId, email: 'test@example.com', user_metadata: { full_name: 'Test User' } }
   };
 
+  const isOwnerSetupTest = () => location.search.includes('owner-setup-test=1');
+  const hasOwner = () => {
+    if (ownerCreated === null) ownerCreated = isOwnerSetupTest() ? false : window.__FORMCRAFT_TEST_OWNER_EXISTS__ !== false;
+    return ownerCreated;
+  };
+  const hasSession = () => !isOwnerSetupTest() && window.__FORMCRAFT_TEST_NO_SESSION__ !== true;
+
   class Query {
     constructor(table) {
       this.table = table;
@@ -49,7 +54,7 @@
     maybeSingle() { return Promise.resolve(this.resolve(true)); }
     then(resolve, reject) { return Promise.resolve(this.resolve()).then(resolve, reject); }
     resolve(single = false) {
-      if (this.table === 'installation_state') return { data: { id: true, owner_created: ownerCreated }, error: null };
+      if (this.table === 'installation_state') return { data: { id: true, owner_created: hasOwner() }, error: null };
       if (this.table === 'workspace_members') {
         const row = { workspace_id: workspaceId, role: 'owner', joined_at: now.toISOString(), user_id: userId, workspaces: { id: workspaceId, name: 'Test workspace', description: 'Browser fixture' } };
         if (this.operation === 'update') return { data: [row], error: null };
@@ -64,10 +69,10 @@
 
   const client = {
     auth: {
-      getSession: async () => ({ data: { session: noSession ? null : session }, error: null }),
-      getUser: async () => ({ data: { user: noSession ? null : session.user }, error: null }),
+      getSession: async () => ({ data: { session: hasSession() ? session : null }, error: null }),
+      getUser: async () => ({ data: { user: hasSession() ? session.user : null }, error: null }),
       onAuthStateChange: callback => ({ data: { subscription: { unsubscribe() {} } }, callback }),
-      signInWithPassword: async () => ownerCreated
+      signInWithPassword: async () => hasOwner()
         ? ({ data: { session }, error: null })
         : ({ data: { session: null }, error: { message: 'Invalid login credentials' } }),
       signUp: async () => {

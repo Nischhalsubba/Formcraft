@@ -179,6 +179,12 @@
     if (!form) return;
 
     if (form.dataset.mode === 'signin') {
+      if (pendingCredentials) {
+        ownerStateCache = true;
+        decorateForm(form);
+        return;
+      }
+
       if (ownerStateCache === true) {
         decorateForm(form);
         return;

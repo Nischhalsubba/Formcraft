@@ -4,7 +4,7 @@ on:
   pull_request:
     branches: [main]
   push:
-    branches: [agent/resolve-final-ui-gaps]
+    branches: [fix/header-popover-layering]
 
 permissions:
   contents: read
@@ -30,6 +30,7 @@ jobs:
           node --check assets/js/app-actions.js
           node --check assets/js/app-modules.js
           node --check assets/js/final-ui-fixes.js
+          node --check assets/js/header-popover-fixes.js
       - name: Run static UI audit checks
         run: npm test
       - name: Install browser test dependencies

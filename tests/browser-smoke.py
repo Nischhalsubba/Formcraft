@@ -22,6 +22,31 @@ base_url = f'http://127.0.0.1:{server.server_port}'
 try:
     with sync_playwright() as p:
         browser = p.chromium.launch(headless=True)
+
+        owner_page = browser.new_page(viewport={'width': 1280, 'height': 900})
+        owner_errors = []
+        owner_page.on('console', lambda msg: owner_errors.append(f'console:{msg.type}:{msg.text}') if msg.type == 'error' else None)
+        owner_page.on('pageerror', lambda exc: owner_errors.append(f'page:{exc}'))
+        owner_page.add_init_script("window.__FORMCRAFT_TEST_OWNER_EXISTS__ = false; window.__FORMCRAFT_TEST_NO_SESSION__ = true;")
+        owner_page.add_init_script(supabase_mock)
+        owner_page.route('https://fonts.googleapis.com/**', lambda route: route.fulfill(status=200, content_type='text/css', body=''))
+        owner_page.route('https://cdn.jsdelivr.net/**', lambda route: route.fulfill(status=200, content_type='application/javascript', body=''))
+        owner_page.goto(f'{base_url}/?owner-setup-test=1', wait_until='domcontentloaded')
+        owner_page.wait_for_selector('[data-auth-form][data-mode="signup"]')
+        assert 'Create your account' in owner_page.locator('#backend-title').inner_text()
+        generated_password = owner_page.locator('[data-auth-form] input[name="password"]').input_value()
+        assert len(generated_password) >= 20
+        assert owner_page.locator('[data-copy-generated-password]').is_visible()
+        owner_page.locator('[data-auth-form] input[name="fullName"]').fill('Owner User')
+        owner_page.locator('[data-auth-form] input[name="email"]').fill('owner@example.com')
+        owner_page.locator('[data-auth-form] button[type="submit"]').click()
+        owner_page.wait_for_selector('[data-auth-form][data-mode="signin"]')
+        assert owner_page.locator('[data-auth-form] input[name="email"]').input_value() == 'owner@example.com'
+        assert owner_page.locator('[data-auth-form] input[name="password"]').input_value() == generated_password
+        assert 'Account created' in owner_page.locator('[data-backend-status]').inner_text()
+        assert owner_errors == []
+        owner_page.close()
+
         for name, width, height in [('desktop', 1440, 1100), ('mobile', 390, 844)]:
             page = browser.new_page(viewport={'width': width, 'height': height}, accept_downloads=True)
             errors = []
@@ -194,4 +219,4 @@ finally:
     server.shutdown()
     server.server_close()
 
-print('Browser smoke checks passed across authenticated dynamic routes and responsive states.')
+print('Browser smoke checks passed across owner setup, authenticated routes, and responsive states.')

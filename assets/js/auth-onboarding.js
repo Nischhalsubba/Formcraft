@@ -4,11 +4,11 @@
   const appRoot = document.querySelector('#app');
   if (!appRoot) return;
 
-  const OWNER_CREATED_KEY = 'formcraft-owner-account-created';
   const REMEMBERED_EMAIL_KEY = 'formcraft-remembered-email';
-  const PREFER_SIGNIN_KEY = 'formcraft-prefer-signin';
   const initializedForms = new WeakSet();
   let pendingCredentials = null;
+  let ownerStateCache = null;
+  let ownerStateRequest = null;
 
   function randomIndex(max) {
     const values = new Uint32Array(1);
@@ -21,7 +21,7 @@
       'ABCDEFGHJKLMNPQRSTUVWXYZ',
       'abcdefghijkmnopqrstuvwxyz',
       '23456789',
-      '!@#$%*_-'
+      '!@#$%*_-
     ];
     const all = groups.join('');
     const characters = groups.map(group => group[randomIndex(group.length)]);
@@ -57,9 +57,37 @@
     }
   }
 
+  async function ownerAccountExists(force = false) {
+    if (!force && typeof ownerStateCache === 'boolean') return ownerStateCache;
+    if (!force && ownerStateRequest) return ownerStateRequest;
+
+    const client = window.FormcraftBackend?.client;
+    if (!client) return null;
+
+    ownerStateRequest = client
+      .from('installation_state')
+      .select('owner_created')
+      .eq('id', true)
+      .single()
+      .then(({ data, error }) => {
+        if (error) throw error;
+        ownerStateCache = Boolean(data?.owner_created);
+        return ownerStateCache;
+      })
+      .catch(error => {
+        console.error('Could not read Formcraft installation state.', error);
+        return null;
+      })
+      .finally(() => {
+        ownerStateRequest = null;
+      });
+
+    return ownerStateRequest;
+  }
+
   function decorateSignupPassword(form, passwordField) {
     passwordField.autocomplete = 'new-password';
-    passwordField.value = generateStrongPassword();
+    if (!passwordField.value) passwordField.value = generateStrongPassword();
 
     const tools = document.createElement('div');
     tools.className = 'backend-password-tools';
@@ -128,44 +156,39 @@
 
       if (mode === 'signup' && passwordField) {
         pendingCredentials = { email, password: passwordField.value };
-      }
-
-      if (mode === 'signin') {
-        localStorage.setItem(OWNER_CREATED_KEY, 'true');
+        ownerStateCache = null;
       }
     }, true);
   }
 
-  function scanAuthUi() {
+  async function scanAuthUi() {
     const form = document.querySelector('[data-auth-form]');
     if (!form) return;
 
-    const ownerExistsInThisBrowser = localStorage.getItem(OWNER_CREATED_KEY) === 'true';
-    const userPrefersSignin = sessionStorage.getItem(PREFER_SIGNIN_KEY) === 'true';
+    if (form.dataset.mode === 'signin') {
+      const currentForm = form;
+      const exists = await ownerAccountExists(true);
+      if (!currentForm.isConnected || document.querySelector('[data-auth-form]') !== currentForm) return;
 
-    if (form.dataset.mode === 'signin' && !ownerExistsInThisBrowser && !userPrefersSignin) {
-      const signupButton = document.querySelector('[data-auth-mode="signup"]');
-      if (signupButton) {
-        queueMicrotask(() => signupButton.click());
-        return;
+      if (exists === false) {
+        const signupButton = document.querySelector('[data-auth-mode="signup"]');
+        if (signupButton) {
+          signupButton.click();
+          queueMicrotask(() => {
+            const status = document.querySelector('[data-backend-status]');
+            if (status) status.textContent = 'No owner account exists yet. Create the first Formcraft account below.';
+          });
+          return;
+        }
       }
     }
 
     decorateForm(form);
   }
 
-  document.addEventListener('click', event => {
-    const modeButton = event.target.closest('[data-auth-mode]');
-    if (!modeButton) return;
-
-    if (modeButton.dataset.authMode === 'signin') {
-      sessionStorage.setItem(PREFER_SIGNIN_KEY, 'true');
-    } else if (modeButton.dataset.authMode === 'signup') {
-      sessionStorage.removeItem(PREFER_SIGNIN_KEY);
-    }
-  }, true);
-
-  const observer = new MutationObserver(scanAuthUi);
+  const observer = new MutationObserver(() => {
+    scanAuthUi();
+  });
   observer.observe(appRoot, { childList: true, subtree: true });
   scanAuthUi();
 })();

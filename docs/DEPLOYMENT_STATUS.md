@@ -10,6 +10,7 @@ Formcraft production is connected to its dedicated Supabase project.
 - Private file storage: configured
 - Realtime workspace state: enabled
 - `invite-member` Edge Function: deployed with JWT verification
-- Netlify runtime variables: configured
+- Netlify runtime variables: verified in the production context
+- Production rebuild requested after environment verification: `2026-07-30T04:22:00Z`
 
-This file also records the deployment handoff that triggered the first production build with the live backend configuration.
+This status record triggers the production rebuild that embeds the verified Supabase URL and publishable key into Formcraft's generated runtime configuration.

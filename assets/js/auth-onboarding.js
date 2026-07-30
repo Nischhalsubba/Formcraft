@@ -9,6 +9,7 @@
   let pendingCredentials = null;
   let ownerStateCache = null;
   let ownerStateRequest = null;
+  let transitionPending = false;
 
   function randomIndex(max) {
     const values = new Uint32Array(1);
@@ -21,7 +22,7 @@
       'ABCDEFGHJKLMNPQRSTUVWXYZ',
       'abcdefghijkmnopqrstuvwxyz',
       '23456789',
-      '!@#$%*_-
+      '!@#$%*_-'
     ];
     const all = groups.join('');
     const characters = groups.map(group => group[randomIndex(group.length)]);
@@ -161,21 +162,19 @@
     }, true);
   }
 
-  function switchToSignup() {
-    const signupButton = document.querySelector('[data-auth-mode="signup"]');
-    if (!signupButton) return false;
-    signupButton.click();
-    return true;
-  }
-
-  function switchToSignin() {
-    const signinButton = document.querySelector('[data-auth-mode="signin"]');
-    if (!signinButton) return false;
-    signinButton.click();
+  function clickMode(mode) {
+    const button = document.querySelector(`[data-auth-mode="${mode}"]`);
+    if (!button) return false;
+    transitionPending = true;
+    window.setTimeout(() => {
+      if (button.isConnected) button.click();
+      transitionPending = false;
+    }, 0);
     return true;
   }
 
   async function scanAuthUi() {
+    if (transitionPending) return;
     const form = document.querySelector('[data-auth-form]');
     if (!form) return;
 
@@ -185,22 +184,21 @@
         return;
       }
 
-      if (!switchToSignup()) {
+      if (!clickMode('signup')) {
         decorateForm(form);
         return;
       }
 
-      const status = document.querySelector('[data-backend-status]');
-      if (status) status.textContent = 'Checking whether this Formcraft installation already has an owner…';
-
       const exists = await ownerAccountExists(true);
       if (exists === true) {
-        switchToSignin();
+        window.setTimeout(() => clickMode('signin'), 20);
       } else {
-        const nextStatus = document.querySelector('[data-backend-status]');
-        if (nextStatus) nextStatus.textContent = exists === false
-          ? 'No owner account exists yet. Create the first Formcraft account below.'
-          : 'Owner status could not be verified. Create an account or try again.';
+        window.setTimeout(() => {
+          const status = document.querySelector('[data-backend-status]');
+          if (status) status.textContent = exists === false
+            ? 'No owner account exists yet. Create the first Formcraft account below.'
+            : 'Owner status could not be verified. Create an account or try again.';
+        }, 20);
       }
       return;
     }
@@ -208,9 +206,7 @@
     decorateForm(form);
   }
 
-  const observer = new MutationObserver(() => {
-    scanAuthUi();
-  });
+  const observer = new MutationObserver(scanAuthUi);
   observer.observe(appRoot, { childList: true, subtree: true });
   scanAuthUi();
 })();

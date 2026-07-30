@@ -25,8 +25,7 @@ try:
             errors = []
             page.on('console', lambda msg, errors=errors: errors.append(f'console:{msg.type}:{msg.text}') if msg.type == 'error' else None)
             page.on('pageerror', lambda exc, errors=errors: errors.append(f'page:{exc}'))
-            page.route('https://fonts.googleapis.com/**', lambda route: route.abort())
-            page.route('https://fonts.gstatic.com/**', lambda route: route.abort())
+            page.route('https://fonts.googleapis.com/**', lambda route: route.fulfill(status=200, content_type='text/css', body=''))
             page.goto(f'{base_url}/#dashboard', wait_until='domcontentloaded')
             page.wait_for_timeout(450)
 

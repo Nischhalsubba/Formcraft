@@ -1,107 +1,140 @@
 # Formcraft
 
-Formcraft is a full-featured admin dashboard and application workspace with an original design system, responsive layouts, browser-persisted data, and a growing set of operational modules.
+Formcraft is an authenticated, multi-user admin workspace for projects, tasks, communication, files, invoices, reporting, and administration.
 
-> A focused operating system for projects, communication, files, billing, data, and administration.
+> A focused operating system for real workspace data, not a static dashboard demo.
 
-## Current implementation
+## Current architecture
 
-The current application is an original Formcraft build. The uploaded Greeva CodeIgniter package is being used as a feature reference, not as public source code or visual branding.
+- **Frontend:** semantic HTML, CSS, and JavaScript
+- **Hosting:** Netlify
+- **Database:** Supabase Postgres
+- **Authentication:** Supabase Auth
+- **File storage:** private Supabase Storage bucket
+- **Realtime:** Postgres changes on versioned workspace state
+- **Security:** Row-Level Security, tenant membership, and role checks
+- **Invitations:** authenticated Supabase Edge Function
+- **Testing:** static architecture assertions and authenticated Chromium smoke tests
 
-### Core workspace features
+## Dynamic-data contract
 
-- Dashboard metrics and project activity visualization
-- Project creation, editing, filtering, progress tracking, and deletion
-- Task creation, editing, completion, filtering, and deletion
-- Project-linked task data
-- Team member overview and invitation flow
-- Reports generated from live workspace data
-- Workspace activity history
-- Workspace and notification settings
-- Light and dark themes with persistent preferences
-- Global project and task search
-- JSON workspace export and demo-data reset
-- Responsive desktop, tablet, and mobile navigation
+Production Formcraft contains no seeded projects, tasks, people, messages, events, files, invoices, metrics, or activity.
 
-### Operations modules
+A new workspace begins empty. Every number on the dashboard is calculated from the authenticated workspace, and every supported mutation is persisted remotely.
 
-- Functional month calendar with event create, edit, and delete flows
-- Email inbox, sent, drafts, starred, archive, and trash folders
-- Email reading, compose, draft, send, star, archive, and trash actions
-- File manager with folders, uploads, search, rename, star, nested navigation, and deletion
-- Invoice dashboard with totals, search, status filtering, create, edit, view, duplicate, mark-paid, print, and delete actions
-- Persistent browser data for events, messages, files, and invoices
+Browser storage is not the source of business data. The generated runtime configuration contains only the public Supabase URL and publishable key. Service-role credentials remain server-side.
 
-## Formcraft visual system
+## Functional modules
 
-The product uses the following palette:
+- Dashboard metrics and activity visualization
+- Project CRUD, filtering, sorting, views, progress, and deadlines
+- Task CRUD, priorities, statuses, completion, and project links
+- Team roles and invitation flow
+- Period-based reports generated from workspace data
+- Calendar event CRUD and responsive agenda view
+- Internal workspace mailbox with drafts, folders, batch actions, and cloud attachments
+- Private file manager with folders, uploads, downloads, rename, star, and deletion
+- Invoice CRUD, filters, statuses, duplication, payment updates, print, and export
+- Activity history
+- Workspace, notification, theme, currency, and data settings
+- Global search and contextual create actions
+- Desktop, tablet, and mobile navigation
+- Light and dark themes
 
-- `#264653` Ink
-- `#2A9D8F` Teal
-- `#E9C46A` Gold
-- `#F4A261` Orange
-- `#E76F51` Coral
+## Backend model
 
-The palette is mapped semantically across navigation, actions, status states, notifications, and charts. See [`docs/DESIGN_SYSTEM.md`](docs/DESIGN_SYSTEM.md).
+The first dynamic release stores the complete working application state in a versioned `workspace_state` JSONB record. This converts every existing module to authenticated remote persistence without maintaining two competing front-end state systems.
 
-## Full feature-parity target
+Supporting relational tables provide:
 
-The uploaded package contains 104 top-level views covering applications, authentication, charts, forms, tables, maps, layouts, system pages, icons, and UI components. Every useful feature is included in the Formcraft implementation scope.
+- profiles
+- workspaces
+- workspace members
+- invitations
+- activity logs
+- private file policies
 
-See [`docs/FEATURE_PARITY.md`](docs/FEATURE_PARITY.md) for the complete audited feature inventory, delivery phases, and definition of done.
+High-value domains can later be normalized behind the same runtime interface without changing the visual application.
 
-## Persistence and backend direction
+See [`docs/DYNAMIC_ARCHITECTURE.md`](docs/DYNAMIC_ARCHITECTURE.md).
 
-The current implementation uses `localStorage`, making the dashboard immediately usable without a server. File uploads currently persist metadata rather than binary file contents.
+## Supabase setup
 
-The production backend target is:
+Create a dedicated Supabase project, then apply the migrations in order:
 
-- CodeIgniter 4
-- SQLite for local development and MySQL compatibility
-- Explicit routes
-- Session authentication and password hashing
-- Database migrations and seeders
-- Server-side validation and CSRF protection
-- Role-based authorization
-- File-storage abstraction
-- Audit logging
-- JSON endpoints for widgets, tables, and reports
-- PHPUnit coverage for critical behavior
+```text
+supabase/migrations/20260730030000_formcraft_dynamic_backend.sql
+supabase/migrations/20260730030100_invitation_activation.sql
+```
 
-## Development
+Deploy the authenticated invitation function:
 
-Open `index.html` directly, or serve the repository with any static file server:
+```text
+supabase/functions/invite-member/
+```
+
+The migration creates:
+
+- tenant tables and indexes
+- workspace bootstrap and optimistic-update RPC functions
+- Row-Level Security policies
+- private Storage bucket policies
+- realtime publication
+- invitation activation behavior
+
+## Netlify environment
+
+Configure these environment variables:
+
+```text
+SUPABASE_URL
+SUPABASE_PUBLISHABLE_KEY
+```
+
+Netlify runs:
+
+```bash
+npm run build
+```
+
+This creates `assets/js/runtime-config.js`, which is ignored by Git and served with `Cache-Control: no-store`.
+
+## Local development
+
+Create a local runtime config from environment variables:
+
+```bash
+SUPABASE_URL="https://your-project.supabase.co" \
+SUPABASE_PUBLISHABLE_KEY="sb_publishable_..." \
+npm run build
+```
+
+Then serve the repository:
 
 ```bash
 python3 -m http.server 8080
 ```
 
-Then open `http://localhost:8080`.
+Open `http://localhost:8080`.
 
-Useful direct routes:
+## Verification
 
-```text
-#dashboard
-#projects
-#tasks
-#calendar
-#email
-#files
-#invoices
-#team
-#reports
-#activity
-#settings
+```bash
+npm run test:syntax
+npm test
+python tests/browser-smoke.py
 ```
 
-## Active branch
+The browser test uses a test-only authenticated Supabase fixture. No test fixture is loaded in production.
 
-```text
-agent/full-feature-formcraft
-```
+## Design system
+
+Formcraft uses the merged Maven-inspired visual system with rounded operational cards, strong numerical hierarchy, contextual actions, responsive bottom navigation, light/dark themes, and accessible interaction states.
+
+See [`docs/MAVEN_DESIGN_SYSTEM.md`](docs/MAVEN_DESIGN_SYSTEM.md).
 
 ## Authorship
 
 Product design and development by **Nischhal Raj Subba**.
 
-Any third-party dependencies introduced later will retain the attribution and licensing required by their respective owners. The commercial source package and proprietary bundled assets will not be redistributed publicly unless their license explicitly permits it.
+Third-party dependencies retain their required attribution and licensing. Purchased template source and proprietary bundled assets are not redistributed unless their license explicitly permits it.

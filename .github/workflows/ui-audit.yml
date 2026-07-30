@@ -1,10 +1,10 @@
-name: UI audit remediation
+name: Dynamic UI validation
 
 on:
   pull_request:
     branches: [main]
   push:
-    branches: [feat/maven-design-system]
+    branches: [feat/dynamic-supabase-backend]
 
 permissions:
   contents: read
@@ -12,6 +12,9 @@ permissions:
 jobs:
   ui-validation:
     runs-on: ubuntu-latest
+    env:
+      SUPABASE_URL: https://formcraft-test.supabase.co
+      SUPABASE_PUBLISHABLE_KEY: sb_publishable_formcraft_browser_test_key_1234567890
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
@@ -23,20 +26,15 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: '3.12'
+      - name: Generate runtime configuration
+        run: npm run build
       - name: Check JavaScript syntax
-        run: |
-          node --check assets/js/app-core.js
-          node --check assets/js/app-pages.js
-          node --check assets/js/app-actions.js
-          node --check assets/js/app-modules.js
-          node --check assets/js/final-ui-fixes.js
-          node --check assets/js/header-popover-fixes.js
-          node --check assets/js/maven-system.js
-      - name: Run static UI audit checks
+        run: npm run test:syntax
+      - name: Run static architecture checks
         run: npm test
       - name: Install browser test dependencies
         run: |
           python -m pip install playwright==1.54.0
           python -m playwright install --with-deps chromium
-      - name: Run browser regression checks
+      - name: Run authenticated browser regression checks
         run: python tests/browser-smoke.py

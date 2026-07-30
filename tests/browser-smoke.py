@@ -7,6 +7,7 @@ from playwright.sync_api import sync_playwright
 root = Path(__file__).resolve().parents[1]
 routes = ['dashboard', 'projects', 'tasks', 'team', 'reports', 'calendar', 'email', 'files', 'invoices', 'activity', 'settings']
 secondary_routes = ['calendar', 'email', 'files', 'invoices', 'activity', 'settings']
+supabase_mock = (root / 'tests' / 'supabase-browser-mock.js').read_text(encoding='utf-8')
 
 class QuietHandler(SimpleHTTPRequestHandler):
     def log_message(self, *_args):
@@ -26,9 +27,15 @@ try:
             errors = []
             page.on('console', lambda msg, errors=errors: errors.append(f'console:{msg.type}:{msg.text}') if msg.type == 'error' else None)
             page.on('pageerror', lambda exc, errors=errors: errors.append(f'page:{exc}'))
+            page.add_init_script(supabase_mock)
             page.route('https://fonts.googleapis.com/**', lambda route: route.fulfill(status=200, content_type='text/css', body=''))
+            page.route('https://cdn.jsdelivr.net/**', lambda route: route.fulfill(status=200, content_type='application/javascript', body=''))
             page.goto(f'{base_url}/#dashboard', wait_until='domcontentloaded')
-            page.wait_for_timeout(500)
+            try:
+                page.wait_for_function("document.documentElement.dataset.backend === 'ready'")
+            except Exception:
+                raise AssertionError({'backend': page.locator('html').get_attribute('data-backend'), 'errors': errors, 'body': page.locator('body').inner_text()[:1000]})
+            page.wait_for_timeout(250)
 
             assert page.locator('html.maven-system').count() == 1
             assert page.locator('[data-route-heading]').count() == 1
@@ -37,8 +44,9 @@ try:
             assert page.locator('.maven-feature-card').is_visible()
             assert page.locator('.maven-quick-card').is_visible()
             assert page.locator('[data-maven-action]').count() == 4
-            assert page.locator('.focus-card').evaluate("el => getComputedStyle(el).color") != 'rgb(255, 255, 255)'
-            assert 'gradient' in page.locator('.metric-card').first.evaluate("el => getComputedStyle(el).backgroundImage")
+            assert page.locator('[data-workspace-brand]').inner_text() == 'Test workspace'
+            assert 'Test User' in page.locator('.hero-title').inner_text()
+            assert page.evaluate("localStorage.getItem('formcraft-admin-v3')") is None
 
             page.locator('[data-maven-action="project"]').click()
             assert page.locator('dialog[open]').count() == 1
@@ -83,6 +91,7 @@ try:
                 avatar.click()
                 account = page.locator('[data-account-popover]')
                 assert account.is_visible()
+                assert account.locator('[data-dynamic-sign-out]').count() == 1
                 avatar_box = avatar.bounding_box()
                 account_box = account.bounding_box()
                 assert avatar_box and account_box
@@ -185,4 +194,4 @@ finally:
     server.shutdown()
     server.server_close()
 
-print('Browser smoke checks passed across all routes, Maven surfaces, mobile navigation, and header states.')
+print('Browser smoke checks passed across authenticated dynamic routes and responsive states.')

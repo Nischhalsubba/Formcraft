@@ -6,6 +6,7 @@ from playwright.sync_api import sync_playwright
 
 root = Path(__file__).resolve().parents[1]
 routes = ['dashboard', 'projects', 'tasks', 'team', 'reports', 'calendar', 'email', 'files', 'invoices', 'activity', 'settings']
+secondary_routes = ['calendar', 'email', 'files', 'invoices', 'activity', 'settings']
 
 class QuietHandler(SimpleHTTPRequestHandler):
     def log_message(self, *_args):
@@ -21,7 +22,7 @@ try:
     with sync_playwright() as p:
         browser = p.chromium.launch(headless=True)
         for name, width, height in [('desktop', 1440, 1100), ('mobile', 390, 844)]:
-            page = browser.new_page(viewport={'width': width, 'height': height})
+            page = browser.new_page(viewport={'width': width, 'height': height}, accept_downloads=True)
             errors = []
             page.on('console', lambda msg, errors=errors: errors.append(f'console:{msg.type}:{msg.text}') if msg.type == 'error' else None)
             page.on('pageerror', lambda exc, errors=errors: errors.append(f'page:{exc}'))
@@ -33,12 +34,66 @@ try:
             assert page.locator('.metric-card').count() == 4
             assert page.locator('.focus-card').evaluate("el => getComputedStyle(el).color") != 'rgb(255, 255, 255)'
 
+            header_box = page.locator('.app-header').bounding_box()
+            first_metric_box = page.locator('.metric-card').first.bounding_box()
+            assert header_box and first_metric_box
+            assert first_metric_box['y'] >= header_box['y'] + header_box['height'] + 16
+
             for route in routes:
                 page.evaluate(f"navigate('{route}')")
                 page.wait_for_timeout(90)
                 assert page.locator('[data-route-heading]').count() == 1
                 assert page.locator('main').is_visible()
                 assert page.locator('[data-context-create]').is_visible()
+
+            if width >= 1240:
+                for route in secondary_routes:
+                    page.evaluate("navigate('reports')")
+                    page.locator('details.more-menu > summary').click()
+                    menu = page.locator('details.more-menu .popover-menu')
+                    assert menu.is_visible()
+                    summary_box = page.locator('details.more-menu > summary').bounding_box()
+                    menu_box = menu.bounding_box()
+                    assert summary_box and menu_box
+                    assert menu_box['y'] >= summary_box['y'] + summary_box['height'] - 1
+                    assert menu_box['x'] >= 0
+                    assert menu_box['x'] + menu_box['width'] <= width
+                    menu.locator(f'[data-route="{route}"]').click()
+                    page.wait_for_timeout(70)
+                    assert page.evaluate('ui.route') == route
+
+                page.evaluate("navigate('reports')")
+                avatar = page.locator('[data-toggle-account]')
+                avatar.click()
+                account = page.locator('[data-account-popover]')
+                assert account.is_visible()
+                avatar_box = avatar.bounding_box()
+                account_box = account.bounding_box()
+                assert avatar_box and account_box
+                assert account_box['y'] >= avatar_box['y'] + avatar_box['height'] - 1
+                assert account_box['x'] >= 0
+                assert account_box['x'] + account_box['width'] <= width
+                account.locator('[data-account-settings]').click()
+                page.wait_for_timeout(70)
+                assert page.evaluate('ui.route') == 'settings'
+
+                page.evaluate("navigate('reports')")
+                page.locator('[data-toggle-account]').click()
+                with page.expect_download() as download_info:
+                    page.locator('[data-account-popover] [data-export-data]').click()
+                assert download_info.value.suggested_filename.endswith('.json')
+
+                page.evaluate("navigate('reports')")
+                bell = page.locator('[data-toggle-notifications]')
+                bell.click()
+                notifications = page.locator('[data-notifications-popover]')
+                assert notifications.is_visible()
+                bell_box = bell.bounding_box()
+                notifications_box = notifications.bounding_box()
+                assert bell_box and notifications_box
+                assert notifications_box['y'] >= bell_box['y'] + bell_box['height'] - 1
+                assert notifications_box['x'] >= 0
+                assert notifications_box['x'] + notifications_box['width'] <= width
 
             page.evaluate("navigate('reports')")
             search_button = page.locator('[data-search-focus]')
@@ -104,4 +159,4 @@ finally:
     server.shutdown()
     server.server_close()
 
-print('Browser smoke checks passed across all routes and final audit gaps.')
+print('Browser smoke checks passed across all routes, dropdowns, and header layering states.')

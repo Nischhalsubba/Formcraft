@@ -47,7 +47,7 @@ try:
             search_button.click()
             assert page.locator('dialog[open]').count() == 1
             assert page.locator('[data-workspace-search]').is_visible()
-            page.locator('[data-workspace-search]').fill('invoice')
+            page.locator('[data-workspace-search]').fill('FC-1004')
             assert page.locator('[data-workspace-search-route="invoices"]').count() >= 1
             page.locator('[data-close-modal]').first.click()
 

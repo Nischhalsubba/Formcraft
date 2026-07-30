@@ -46,8 +46,17 @@ with sync_playwright() as p:
             assert page.locator('[data-context-create]').is_visible()
 
         page.evaluate("navigate('reports')")
-        page.locator('[data-search-focus]').click()
-        assert page.locator('dialog[open]').count() == 1
+        search_button = page.locator('[data-search-focus]')
+        assert search_button.count() == 1
+        search_button.click()
+        page.wait_for_timeout(120)
+        if page.locator('dialog[open]').count() != 1:
+            raise AssertionError({
+                'errors': errors,
+                'route': page.evaluate('ui.route'),
+                'button': search_button.evaluate('el => el.outerHTML'),
+                'dialog_open': page.locator('dialog').get_attribute('open')
+            })
         assert page.locator('[data-workspace-search]').is_visible()
         page.locator('[data-workspace-search]').fill('invoice')
         assert page.locator('[data-workspace-search-route="invoices"]').count() >= 1

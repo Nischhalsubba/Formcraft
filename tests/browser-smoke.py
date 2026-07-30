@@ -27,10 +27,14 @@ try:
             errors = []
             page.on('console', lambda msg, errors=errors: errors.append(f'console:{msg.type}:{msg.text}') if msg.type == 'error' else None)
             page.on('pageerror', lambda exc, errors=errors: errors.append(f'page:{exc}'))
+            page.add_init_script(supabase_mock)
             page.route('https://fonts.googleapis.com/**', lambda route: route.fulfill(status=200, content_type='text/css', body=''))
-            page.route('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2', lambda route: route.fulfill(status=200, content_type='application/javascript', body=supabase_mock))
+            page.route('https://cdn.jsdelivr.net/**', lambda route: route.fulfill(status=200, content_type='application/javascript', body=''))
             page.goto(f'{base_url}/#dashboard', wait_until='domcontentloaded')
-            page.wait_for_function("document.documentElement.dataset.backend === 'ready'")
+            try:
+                page.wait_for_function("document.documentElement.dataset.backend === 'ready'")
+            except Exception:
+                raise AssertionError({'backend': page.locator('html').get_attribute('data-backend'), 'errors': errors, 'body': page.locator('body').inner_text()[:1000]})
             page.wait_for_timeout(250)
 
             assert page.locator('html.maven-system').count() == 1

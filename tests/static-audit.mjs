@@ -3,12 +3,18 @@ import assert from 'node:assert/strict';
 
 const html = fs.readFileSync(new URL('../index.html', import.meta.url), 'utf8');
 const css = fs.readFileSync(new URL('../assets/css/app.css', import.meta.url), 'utf8');
-const js = ['app-core.js','app-pages.js','app-actions.js','app-modules.js'].map(name => fs.readFileSync(new URL(`../assets/js/${name}`, import.meta.url), 'utf8')).join('\n');
+const fixesCss = fs.readFileSync(new URL('../assets/css/final-ui-fixes.css', import.meta.url), 'utf8');
+const baseScripts = ['app-core.js', 'app-pages.js', 'app-actions.js', 'app-modules.js'];
+const js = baseScripts.map(name => fs.readFileSync(new URL(`../assets/js/${name}`, import.meta.url), 'utf8')).join('\n');
+const fixesJs = fs.readFileSync(new URL('../assets/js/final-ui-fixes.js', import.meta.url), 'utf8');
 
-assert.equal((html.match(/rel="stylesheet"/g) || []).length, 2, 'Only the font and canonical app stylesheet should load');
+assert.equal((html.match(/rel="stylesheet"/g) || []).length, 3, 'Only the font, canonical stylesheet, and final remediation stylesheet should load');
 assert.match(html, /assets\/css\/app\.css/);
-for (const name of ['app-core.js','app-pages.js','app-actions.js','app-modules.js']) assert.ok(html.includes(`assets/js/${name}`), `${name} must load`);
+assert.match(html, /assets\/css\/final-ui-fixes\.css/);
+for (const name of baseScripts) assert.ok(html.includes(`assets/js/${name}`), `${name} must load`);
+assert.match(html, /assets\/js\/final-ui-fixes\.js/);
 assert.doesNotMatch(html, /planiq|flexxeriin|ui-scale-refinement|modules\.css/);
+
 assert.match(css, /@media \(max-width: 700px\)/);
 assert.match(css, /@media \(prefers-reduced-motion: reduce\)/);
 assert.match(css, /\.agenda-list/);
@@ -22,8 +28,23 @@ assert.doesNotMatch(js, /window\.prompt|window\.confirm/);
 assert.doesNotMatch(js, /2026-07-29/);
 assert.doesNotMatch(js, /⌂|▦|◎|◷|⚙|⌫|✎/);
 
-const cssOpen = (css.match(/{/g) || []).length;
-const cssClose = (css.match(/}/g) || []).length;
-assert.equal(cssOpen, cssClose, 'CSS braces must balance');
+assert.match(fixesJs, /createdAt/);
+assert.match(fixesJs, /completedAt/);
+assert.match(fixesJs, /inTimestampRange/);
+assert.match(fixesJs, /periodTasks/);
+assert.match(fixesJs, /openWorkspaceSearch/);
+assert.match(fixesJs, /data-workspace-search/);
+assert.match(fixesJs, /aria-describedby/);
+assert.match(fixesJs, /aria-errormessage/);
+assert.match(fixesJs, /window\.addEventListener\('popstate'/);
+assert.match(fixesCss, /\.notification-button \{ display: inline-grid; \}/);
+assert.match(fixesCss, /\.focus-card/);
+assert.match(fixesCss, /background: var\(--surface\)/);
+
+for (const source of [css, fixesCss]) {
+  const open = (source.match(/{/g) || []).length;
+  const close = (source.match(/}/g) || []).length;
+  assert.equal(open, close, 'CSS braces must balance');
+}
 
 console.log('Static Formcraft remediation checks passed.');

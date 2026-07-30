@@ -59,7 +59,7 @@
 
   async function ownerAccountExists(force = false) {
     if (!force && typeof ownerStateCache === 'boolean') return ownerStateCache;
-    if (!force && ownerStateRequest) return ownerStateRequest;
+    if (ownerStateRequest) return ownerStateRequest;
 
     const client = window.FormcraftBackend?.client;
     if (!client) return null;
@@ -161,26 +161,48 @@
     }, true);
   }
 
+  function switchToSignup() {
+    const signupButton = document.querySelector('[data-auth-mode="signup"]');
+    if (!signupButton) return false;
+    signupButton.click();
+    return true;
+  }
+
+  function switchToSignin() {
+    const signinButton = document.querySelector('[data-auth-mode="signin"]');
+    if (!signinButton) return false;
+    signinButton.click();
+    return true;
+  }
+
   async function scanAuthUi() {
     const form = document.querySelector('[data-auth-form]');
     if (!form) return;
 
     if (form.dataset.mode === 'signin') {
-      const currentForm = form;
-      const exists = await ownerAccountExists(true);
-      if (!currentForm.isConnected || document.querySelector('[data-auth-form]') !== currentForm) return;
-
-      if (exists === false) {
-        const signupButton = document.querySelector('[data-auth-mode="signup"]');
-        if (signupButton) {
-          signupButton.click();
-          queueMicrotask(() => {
-            const status = document.querySelector('[data-backend-status]');
-            if (status) status.textContent = 'No owner account exists yet. Create the first Formcraft account below.';
-          });
-          return;
-        }
+      if (ownerStateCache === true) {
+        decorateForm(form);
+        return;
       }
+
+      if (!switchToSignup()) {
+        decorateForm(form);
+        return;
+      }
+
+      const status = document.querySelector('[data-backend-status]');
+      if (status) status.textContent = 'Checking whether this Formcraft installation already has an owner…';
+
+      const exists = await ownerAccountExists(true);
+      if (exists === true) {
+        switchToSignin();
+      } else {
+        const nextStatus = document.querySelector('[data-backend-status]');
+        if (nextStatus) nextStatus.textContent = exists === false
+          ? 'No owner account exists yet. Create the first Formcraft account below.'
+          : 'Owner status could not be verified. Create an account or try again.';
+      }
+      return;
     }
 
     decorateForm(form);

@@ -3,6 +3,9 @@
 .env.*
 !.env.example
 
+# Generated public runtime configuration
+assets/js/runtime-config.js
+
 # Dependencies
 node_modules/
 vendor/
@@ -12,6 +15,10 @@ vendor/
 dist/
 build/
 *.log
+
+# Supabase local development
+.supabase/
+supabase/.temp/
 
 # CodeIgniter writable runtime
 writable/cache/*

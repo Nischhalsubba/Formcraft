@@ -28,11 +28,26 @@ try:
             page.on('pageerror', lambda exc, errors=errors: errors.append(f'page:{exc}'))
             page.route('https://fonts.googleapis.com/**', lambda route: route.fulfill(status=200, content_type='text/css', body=''))
             page.goto(f'{base_url}/#dashboard', wait_until='domcontentloaded')
-            page.wait_for_timeout(450)
+            page.wait_for_timeout(500)
 
+            assert page.locator('html.maven-system').count() == 1
             assert page.locator('[data-route-heading]').count() == 1
             assert page.locator('.metric-card').count() == 4
+            assert page.locator('.maven-overview-grid').is_visible()
+            assert page.locator('.maven-feature-card').is_visible()
+            assert page.locator('.maven-quick-card').is_visible()
+            assert page.locator('[data-maven-action]').count() == 4
             assert page.locator('.focus-card').evaluate("el => getComputedStyle(el).color") != 'rgb(255, 255, 255)'
+            assert 'gradient' in page.locator('.metric-card').first.evaluate("el => getComputedStyle(el).backgroundImage")
+
+            page.locator('[data-maven-action="project"]').click()
+            assert page.locator('dialog[open]').count() == 1
+            assert 'Create project' in page.locator('#modal-title').inner_text()
+            if width <= 800:
+                modal_box = page.locator('dialog[open]').bounding_box()
+                assert modal_box
+                assert modal_box['y'] + modal_box['height'] >= height - 2
+            page.locator('[data-close-modal]').first.click()
 
             header_box = page.locator('.app-header').bounding_box()
             first_metric_box = page.locator('.metric-card').first.bounding_box()
@@ -47,6 +62,7 @@ try:
                 assert page.locator('[data-context-create]').is_visible()
 
             if width >= 1240:
+                assert not page.locator('.maven-bottom-nav').is_visible()
                 for route in secondary_routes:
                     page.evaluate("navigate('reports')")
                     page.locator('details.more-menu > summary').click()
@@ -141,6 +157,16 @@ try:
 
             if width <= 430:
                 assert page.locator('[data-toggle-notifications]').is_visible()
+                assert page.locator('.maven-bottom-nav').is_visible()
+                page.locator('.maven-bottom-nav [data-maven-route="projects"]').click()
+                assert page.evaluate('ui.route') == 'projects'
+                page.locator('.maven-bottom-create').click()
+                assert page.locator('dialog[open]').count() == 1
+                assert 'Create in Formcraft' in page.locator('#modal-title').inner_text()
+                page.locator('[data-close-modal]').first.click()
+                page.locator('[data-maven-more]').click()
+                assert 'drawer-open' in page.locator('body').get_attribute('class')
+                page.locator('[data-close-drawer]').click()
                 page.evaluate("navigate('tasks')")
                 assert page.locator('.mobile-card-list').is_visible()
                 page.evaluate("navigate('calendar')")
@@ -159,4 +185,4 @@ finally:
     server.shutdown()
     server.server_close()
 
-print('Browser smoke checks passed across all routes, dropdowns, and header layering states.')
+print('Browser smoke checks passed across all routes, Maven surfaces, mobile navigation, and header states.')

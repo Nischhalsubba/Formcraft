@@ -5,6 +5,6 @@
   "scripts": {
     "build": "node scripts/build-runtime-config.mjs",
     "test": "node tests/static-audit.mjs",
-    "test:syntax": "node --check assets/js/app-core.js && node --check assets/js/app-pages.js && node --check assets/js/app-actions.js && node --check assets/js/app-modules.js && node --check assets/js/final-ui-fixes.js && node --check assets/js/header-popover-fixes.js && node --check assets/js/maven-system.js && node --check assets/js/dynamic-backend.js"
+    "test:syntax": "node --check assets/js/app-core.js && node --check assets/js/app-pages.js && node --check assets/js/app-actions.js && node --check assets/js/app-modules.js && node --check assets/js/final-ui-fixes.js && node --check assets/js/header-popover-fixes.js && node --check assets/js/maven-system.js && node --check assets/js/dynamic-backend.js && node --check assets/js/dynamic-workflows.js"
   }
 }

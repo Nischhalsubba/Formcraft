@@ -4,9 +4,10 @@
   const addDays = days => { const date = new Date(now); date.setDate(date.getDate() + days); return date; };
   const workspaceId = '11111111-1111-4111-8111-111111111111';
   const userId = '22222222-2222-4222-8222-222222222222';
+  const ownerSetupTest = location.search.includes('owner-setup-test=1');
   let version = 1;
-  let ownerCreated = window.__FORMCRAFT_TEST_OWNER_EXISTS__ !== false;
-  const noSession = window.__FORMCRAFT_TEST_NO_SESSION__ === true;
+  let ownerCreated = ownerSetupTest ? false : window.__FORMCRAFT_TEST_OWNER_EXISTS__ !== false;
+  const noSession = ownerSetupTest || window.__FORMCRAFT_TEST_NO_SESSION__ === true;
   let snapshot = {
     projects: [{ id: 'project-1', name: 'Test project', client: 'Test client', status: 'active', progress: 50, dueDate: dateKey(addDays(14)), description: 'Authenticated browser fixture.' }],
     tasks: [{ id: 'task-1', title: 'Test task', projectId: 'project-1', priority: 'medium', status: 'todo', dueDate: dateKey(addDays(2)), createdAt: now.toISOString(), completedAt: null }],

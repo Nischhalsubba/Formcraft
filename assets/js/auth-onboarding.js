@@ -4,11 +4,12 @@
   const appRoot = document.querySelector('#app');
   if (!appRoot) return;
 
-  const OWNER_CREATED_KEY = 'formcraft-owner-account-created';
   const REMEMBERED_EMAIL_KEY = 'formcraft-remembered-email';
-  const PREFER_SIGNIN_KEY = 'formcraft-prefer-signin';
   const initializedForms = new WeakSet();
   let pendingCredentials = null;
+  let ownerStateCache = null;
+  let ownerStateRequest = null;
+  let transitionPending = false;
 
   function randomIndex(max) {
     const values = new Uint32Array(1);
@@ -57,9 +58,37 @@
     }
   }
 
+  async function ownerAccountExists(force = false) {
+    if (!force && typeof ownerStateCache === 'boolean') return ownerStateCache;
+    if (ownerStateRequest) return ownerStateRequest;
+
+    const client = window.FormcraftBackend?.client;
+    if (!client) return null;
+
+    ownerStateRequest = client
+      .from('installation_state')
+      .select('owner_created')
+      .eq('id', true)
+      .single()
+      .then(({ data, error }) => {
+        if (error) throw error;
+        ownerStateCache = Boolean(data?.owner_created);
+        return ownerStateCache;
+      })
+      .catch(error => {
+        console.error('Could not read Formcraft installation state.', error);
+        return null;
+      })
+      .finally(() => {
+        ownerStateRequest = null;
+      });
+
+    return ownerStateRequest;
+  }
+
   function decorateSignupPassword(form, passwordField) {
     passwordField.autocomplete = 'new-password';
-    passwordField.value = generateStrongPassword();
+    if (!passwordField.value) passwordField.value = generateStrongPassword();
 
     const tools = document.createElement('div');
     tools.className = 'backend-password-tools';
@@ -128,42 +157,60 @@
 
       if (mode === 'signup' && passwordField) {
         pendingCredentials = { email, password: passwordField.value };
-      }
-
-      if (mode === 'signin') {
-        localStorage.setItem(OWNER_CREATED_KEY, 'true');
+        ownerStateCache = null;
       }
     }, true);
   }
 
-  function scanAuthUi() {
+  function clickMode(mode) {
+    const button = document.querySelector(`[data-auth-mode="${mode}"]`);
+    if (!button) return false;
+    transitionPending = true;
+    window.setTimeout(() => {
+      if (button.isConnected) button.click();
+      transitionPending = false;
+    }, 0);
+    return true;
+  }
+
+  async function scanAuthUi() {
+    if (transitionPending) return;
     const form = document.querySelector('[data-auth-form]');
     if (!form) return;
 
-    const ownerExistsInThisBrowser = localStorage.getItem(OWNER_CREATED_KEY) === 'true';
-    const userPrefersSignin = sessionStorage.getItem(PREFER_SIGNIN_KEY) === 'true';
-
-    if (form.dataset.mode === 'signin' && !ownerExistsInThisBrowser && !userPrefersSignin) {
-      const signupButton = document.querySelector('[data-auth-mode="signup"]');
-      if (signupButton) {
-        queueMicrotask(() => signupButton.click());
+    if (form.dataset.mode === 'signin') {
+      if (pendingCredentials) {
+        ownerStateCache = true;
+        decorateForm(form);
         return;
       }
+
+      if (ownerStateCache === true) {
+        decorateForm(form);
+        return;
+      }
+
+      if (!clickMode('signup')) {
+        decorateForm(form);
+        return;
+      }
+
+      const exists = await ownerAccountExists(true);
+      if (exists === true) {
+        window.setTimeout(() => clickMode('signin'), 20);
+      } else {
+        window.setTimeout(() => {
+          const status = document.querySelector('[data-backend-status]');
+          if (status) status.textContent = exists === false
+            ? 'No owner account exists yet. Create the first Formcraft account below.'
+            : 'Owner status could not be verified. Create an account or try again.';
+        }, 20);
+      }
+      return;
     }
 
     decorateForm(form);
   }
-
-  document.addEventListener('click', event => {
-    const modeButton = event.target.closest('[data-auth-mode]');
-    if (!modeButton) return;
-
-    if (modeButton.dataset.authMode === 'signin') {
-      sessionStorage.setItem(PREFER_SIGNIN_KEY, 'true');
-    } else if (modeButton.dataset.authMode === 'signup') {
-      sessionStorage.removeItem(PREFER_SIGNIN_KEY);
-    }
-  }, true);
 
   const observer = new MutationObserver(scanAuthUi);
   observer.observe(appRoot, { childList: true, subtree: true });

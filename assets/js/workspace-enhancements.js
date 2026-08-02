@@ -176,7 +176,7 @@
 
   renderShell = function renderEnhancedWorkspace(...args) {
     const result = baseRenderShell.apply(this, args);
-    queueEnhancement();
+    enhanceWorkspace();
     return result;
   };
 
@@ -283,7 +283,7 @@
     restoreInitialRoute();
   });
 
-  queueEnhancement();
+  enhanceWorkspace();
   window.setTimeout(restoreInitialRoute, 120);
 
   window.FormcraftFeatures = Object.freeze({

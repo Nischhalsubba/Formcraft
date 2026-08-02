@@ -61,6 +61,14 @@ def navigate_sidebar(page, route):
     assert page.locator('[data-route-heading]').count() == 1
 
 
+def open_menu_action(page, container_selector, action_selector):
+    container = visible(page, container_selector)
+    container.locator('details.menu summary').click()
+    action = container.locator(f'{action_selector}:visible').first
+    assert action.is_visible()
+    action.click()
+
+
 def assert_no_overflow(page):
     assert page.evaluate('document.documentElement.scrollWidth <= window.innerWidth + 1')
 
@@ -173,7 +181,8 @@ def run_desktop(browser, base_url):
         visible(page, f'[data-project-filter="{value}"]').click()
 
     navigate_sidebar(page, 'tasks')
-    visible(page, '[data-edit-task="task-1"]').click()
+    task_row = 'tr:has([data-toggle-task="task-1"])'
+    open_menu_action(page, task_row, '[data-edit-task="task-1"]')
     assert visible(page, '[data-modal-form]').is_visible()
     close_dialog(page)
     visible(page, '[data-toggle-task="task-1"]').check()
@@ -191,9 +200,8 @@ def run_desktop(browser, base_url):
     close_dialog(page)
 
     navigate_sidebar(page, 'team')
-    visible(page, '[data-edit-member]').click()
-    assert visible(page, '[data-modal-form]').is_visible()
-    close_dialog(page)
+    assert visible(page, '.member-card').is_visible()
+    assert page.locator('.member-card [data-edit-member]').count() == 0
 
     navigate_sidebar(page, 'files')
     visible(page, '[data-create-folder]').click()
@@ -208,8 +216,9 @@ def run_desktop(browser, base_url):
     })
     page.wait_for_timeout(150)
     assert page.evaluate("state.files.some(file => file.name === 'qa.txt')")
-    visible(page, '[data-star-file]').click()
-    visible(page, '[data-rename-file]').click()
+    file_card = '.file-card:has([data-star-file])'
+    visible(page, f'{file_card} [data-star-file]').click()
+    open_menu_action(page, file_card, '[data-rename-file]')
     assert visible(page, '[data-modal-form]').is_visible()
     close_dialog(page)
 

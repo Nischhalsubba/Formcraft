@@ -128,7 +128,7 @@ def run_desktop(browser, base_url):
     visible(page, 'dialog[open] button[type="submit"]').click()
     page.wait_for_function(
         "id => FormcraftERP.collection('contacts').find(item => item.id === id).comments.length === 1",
-        contact_id,
+        arg=contact_id,
     )
 
     visible(page, '[data-erp-workflow="contact-create-lead"]').click()
@@ -150,14 +150,14 @@ def run_desktop(browser, base_url):
     visible(page, '[data-erp-workflow="sales-confirm"]').click()
     page.wait_for_function(
         "id => FormcraftERP.collection('sales').find(item => item.id === id).status === 'confirmed'",
-        order_id,
+        arg=order_id,
     )
     page.wait_for_selector('[data-erp-workflow="sales-invoice"]')
     invoice_count = page.evaluate('state.invoices.length')
     visible(page, '[data-erp-workflow="sales-invoice"]').click()
     page.wait_for_function(
         "([id, before]) => FormcraftERP.collection('sales').find(item => item.id === id).status === 'invoiced' && state.invoices.length === before + 1",
-        [order_id, invoice_count],
+        arg=[order_id, invoice_count],
     )
     assert page.evaluate(
         "id => FormcraftERP.collection('accounting').some(item => item.sourceRecordId === id)",
@@ -182,7 +182,7 @@ def run_desktop(browser, base_url):
         visible(page, f'[data-erp-workflow="{action}"]').click()
         page.wait_for_function(
             "([id, status]) => FormcraftERP.collection('purchase').find(item => item.id === id).status === status",
-            [purchase_id, expected],
+            arg=[purchase_id, expected],
         )
     vendor_bill_id = page.evaluate(
         "id => FormcraftERP.collection('vendorBills').find(item => item.purchaseOrderId === id)?.id || ''",
@@ -219,12 +219,12 @@ def run_desktop(browser, base_url):
     visible(page, '[data-erp-workflow="payroll-compute"]').click()
     page.wait_for_function(
         "id => { const run = FormcraftERP.collection('payroll').find(item => item.id === id); return run.status === 'computed' && run.employeeCount >= 1 && run.gross >= 50000; }",
-        payroll_id,
+        arg=payroll_id,
     )
     visible(page, '[data-erp-workflow="payroll-approve"]').click()
     page.wait_for_function(
         "id => FormcraftERP.collection('payroll').find(item => item.id === id).status === 'approved'",
-        payroll_id,
+        arg=payroll_id,
     )
 
     open_app(page, 'helpdesk')

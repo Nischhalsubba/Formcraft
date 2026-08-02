@@ -179,34 +179,67 @@
     };
   }
 
-  function openEnhancedComposeForm() {
-    openFormModal('Compose message', 'Write a workspace message and save it to the shared mailbox.', composeFields(), async form => {
-      const record = messageRecord(form, 'sent');
-      state.messages.unshift(record);
-      logActivity('email', 'Message sent', record.subject);
+  function setComposeBusy(form, busy, label = 'Send message') {
+    form.querySelectorAll('button, input, select, textarea').forEach(control => { control.disabled = busy; });
+    const submitLabel = form.querySelector('[data-compose-submit-label]');
+    if (submitLabel) submitLabel.textContent = busy ? 'Sending…' : label;
+  }
+
+  async function commitMessage(form, folder) {
+    const record = messageRecord(form, folder);
+    state.messages.unshift(record);
+    logActivity('email', folder === 'sent' ? 'Message sent' : 'Draft saved', record.subject);
+    try {
       await saveState();
-      ui.emailFolder = 'sent';
-      ui.selectedEmail = null;
-      closeModal();
-      renderShell();
-      toast('Message sent.');
-    }, [{
-      label: 'Save draft',
-      tone: 'secondary',
-      onClick: async () => {
-        const form = document.querySelector('[data-modal-form]');
-        if (!form || !validateForm(form, ['to', 'subject'])) return;
-        const record = messageRecord(form, 'drafts');
-        state.messages.unshift(record);
-        logActivity('email', 'Draft saved', record.subject);
-        await saveState();
-        ui.emailFolder = 'drafts';
-        ui.selectedEmail = null;
-        closeModal();
-        renderShell();
-        toast('Draft saved.');
+    } catch (error) {
+      state.messages = state.messages.filter(message => message.id !== record.id);
+      throw error;
+    }
+    ui.emailFolder = folder;
+    ui.selectedEmail = null;
+    closeModal();
+    renderShell();
+    toast(folder === 'sent' ? 'Message sent.' : 'Draft saved.');
+  }
+
+  function openEnhancedComposeForm() {
+    openModal(`<form class="modal-card form-modal" data-enhanced-compose-form novalidate>
+      <div class="modal-head">
+        <div><p class="modal-eyebrow">Workspace message</p><h2 id="modal-title">Compose message</h2><p>Write a workspace message and save it to the shared mailbox.</p></div>
+        <button class="icon-button" type="button" data-close-modal aria-label="Close dialog">${icon('close', 18)}</button>
+      </div>
+      <div class="modal-body">${composeFields()}</div>
+      <div class="modal-actions">
+        <div class="modal-actions-leading"><button class="button button-secondary" type="button" data-save-message-draft>Save draft</button></div>
+        <div class="modal-actions-trailing"><button class="button button-secondary" type="button" data-close-modal>Cancel</button><button class="button button-primary" type="submit"><span data-compose-submit-label>Send message</span></button></div>
+      </div>
+    </form>`);
+
+    const form = document.querySelector('[data-enhanced-compose-form]');
+    if (!form) return;
+
+    form.addEventListener('submit', async event => {
+      event.preventDefault();
+      if (!validateForm(form)) return;
+      setComposeBusy(form, true);
+      try {
+        await commitMessage(form, 'sent');
+      } catch (error) {
+        setComposeBusy(form, false);
+        toast(error.message || 'The message could not be sent.', 'error');
       }
-    }]);
+    });
+
+    form.querySelector('[data-save-message-draft]')?.addEventListener('click', async () => {
+      if (!validateForm(form, ['to', 'subject'])) return;
+      setComposeBusy(form, true, 'Save draft');
+      try {
+        await commitMessage(form, 'drafts');
+      } catch (error) {
+        setComposeBusy(form, false, 'Save draft');
+        toast(error.message || 'The draft could not be saved.', 'error');
+      }
+    });
   }
 
   openComposeForm = openEnhancedComposeForm;

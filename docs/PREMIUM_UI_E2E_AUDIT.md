@@ -25,6 +25,7 @@ This document lists every defect found during this design, development, and prod
 | DES-013 | The launcher consumed excessive vertical space before users reached applications. | Users scrolled more than necessary. | Compressed the hero, summary, filters, and card spacing while preserving readable grouping. | Resolved |
 | DES-014 | Mobile inherited too much desktop density. | App discovery and navigation felt cramped. | Added one-column cards, compact metrics, mobile state markers, safe-area spacing, and drawer-specific hierarchy. | Resolved |
 | DES-015 | Dark mode did not have intentional group tones or premium icon contrast. | Semantic colours became muddy or too dim. | Added dark-mode-specific tones, soft surfaces, and foreground values for every app family. | Resolved |
+| DES-016 | Activities and Activity, plus Attendance and Timesheets, initially had different names but identical SVG shapes. | The interface technically had different identifiers while still looking duplicated to humans, the group we inconveniently design for. | Replaced both duplicated pairs with distinct clock, calendar, pulse, and timesheet shapes; E2E now compares actual SVG path signatures rather than names alone. | Resolved |
 
 ## Developer review
 
@@ -45,6 +46,7 @@ This document lists every defect found during this design, development, and prod
 | DEV-013 | Wide-desktop and mobile overflow were not both covered for the new card system. | A premium layout could still clip or create horizontal scroll. | Added overflow assertions at 1536, 1366, and 390 px viewports. | Resolved |
 | DEV-014 | Motion had no explicit reduced-motion override for new icon/card transitions. | Users requesting reduced motion could still receive hover animation. | Added `prefers-reduced-motion` overrides for the new transitions. | Resolved |
 | DEV-015 | Accessible labels on app-card open controls depended only on nested visible text. | The action name was less robust for assistive technology. | Runtime adds explicit “Open [app]” labels to app-card actions. | Resolved |
+| DEV-016 | Premium CSS widened the rail and contextual sidebar without updating the architecture width variables used by positioning and main-content offsets. | The rail could overlap the sidebar by 4 px and the sidebar could overlap or leave a gap beside content by up to 12 px at desktop breakpoints. | Added a final geometry contract that keeps rendered widths, CSS variables, sidebar position, and main margin synchronized at desktop and tablet widths; Chromium verifies the computed geometry. | Resolved |
 
 ## Product-owner review
 
@@ -58,14 +60,14 @@ This document lists every defect found during this design, development, and prod
 | PO-006 | The app catalogue produced unnecessary scrolling. | Users reached operational work more slowly. | Reduced hero/filter height and increased useful card density at wide breakpoints. | Resolved |
 | PO-007 | A visual-only redesign could have broken project, invoice, calendar, or ERP workflows. | Release risk would outweigh cosmetic improvement. | Kept the existing record/workflow engines and reran authenticated business-flow regressions alongside premium UI tests. | Resolved |
 | PO-008 | No single release artifact listed UX, engineering, and product findings. | Stakeholders could not review what was fixed or why. | This audit is committed with the implementation and referenced by the PR. | Resolved |
-| PO-009 | “Premium” was subjective and had no acceptance criteria. | Review could become taste-based and endless. | Added measurable criteria: icon uniqueness, generic-fallback count, font hierarchy, state semantics, contrast cues, responsive overflow, and zero browser errors. | Resolved |
+| PO-009 | “Premium” was subjective and had no acceptance criteria. | Review could become taste-based and endless. | Added measurable criteria: icon uniqueness, generic-fallback count, actual SVG-shape uniqueness, font hierarchy, state semantics, contrast cues, synchronized shell geometry, responsive overflow, and zero browser errors. | Resolved |
 | PO-010 | The release could be described as bug-free without evidence. | Overclaiming would create avoidable trust and support risk. | Release language is limited to “No known release-blocking defects in the tested scope.” | Resolved |
 
 ## End-to-end acceptance matrix
 
 | Flow | Automated evidence |
 |---|---|
-| Open Apps on wide desktop | Launcher, 61 cards, layout, typography, unique icons, and no overflow verified. |
+| Open Apps on wide desktop | Launcher, 61 cards, layout, typography, unique icon names, unique SVG shapes, synchronized shell geometry, and no overflow verified. |
 | Compare app families | Finance and Sales cards verified to use different semantic tones. |
 | Open CRM | Apps rail becomes parent-active; CRM becomes active; Sales remains inactive. |
 | Dashboard navigation | Eleven native routes verified to render eleven distinct semantic icons. |
@@ -76,11 +78,13 @@ This document lists every defect found during this design, development, and prod
 ## Definition of done
 
 - Every launcher app has a semantic icon.
+- Every launcher app has a visually unique SVG shape.
 - Every native workspace route has a semantic icon.
 - Every app family has a distinct but restrained tone.
 - Active, parent-active, hover, focus, inactive, and disabled states are visually different.
 - Apps is not falsely marked as the current page while an ERP module is open.
 - Display and UI typography form a consistent hierarchy.
+- Rail, sidebar, and main-content offsets use the same computed geometry.
 - The launcher works at wide desktop, standard desktop, tablet, and mobile widths.
 - No tested page produces horizontal overflow.
 - No tested flow produces a browser console or page error.
@@ -88,6 +92,6 @@ This document lists every defect found during this design, development, and prod
 
 ## Release assessment
 
-**No known release-blocking defects** remain in the tested iconography, navigation-state, typography, launcher-layout, and responsive scope.
+**No known release-blocking defects** remain in the tested iconography, navigation-state, typography, launcher-layout, shell-geometry, and responsive scope.
 
 Residual risk remains in untested combinations of browser extensions, very long translated labels, unusual custom app definitions, and future modules added without updating the icon contract. The fail-closed audit is intended to catch the last case before deployment.

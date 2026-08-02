@@ -89,6 +89,24 @@ def run_desktop(browser, base_url):
     page.close()
 
 
+def run_tablet(browser, base_url):
+    page, errors = prepare_page(browser, width=960, height=900)
+    page.goto(f'{base_url}/#apps', wait_until='domcontentloaded')
+    wait_ready(page, errors)
+
+    assert visible(page, '.fc3-app-rail').is_visible()
+    assert not page.locator('.fc3-context-sidebar').is_visible()
+    visible(page, '.fc3-topbar [data-fc3-toggle-sidebar]').click()
+    page.wait_for_function("document.body.classList.contains('fc3-context-open')")
+    assert visible(page, '.fc3-context-sidebar').is_visible()
+    page.keyboard.press('Escape')
+    page.wait_for_function("!document.body.classList.contains('fc3-context-open')")
+    assert not page.locator('.fc3-context-sidebar').is_visible()
+    assert_no_overflow(page)
+    assert not errors, errors
+    page.close()
+
+
 def run_mobile(browser, base_url):
     page, errors = prepare_page(browser, width=390, height=844)
     page.goto(f'{base_url}/#apps', wait_until='domcontentloaded')
@@ -126,10 +144,11 @@ try:
     with sync_playwright() as playwright:
         browser = playwright.chromium.launch(headless=True)
         run_desktop(browser, base_url)
+        run_tablet(browser, base_url)
         run_mobile(browser, base_url)
         browser.close()
 finally:
     server.shutdown()
     server.server_close()
 
-print('Workspace architecture v3 browser checks passed for desktop rail, contextual navigation, module flow, search, collapse, mobile drawer, and bottom navigation.')
+print('Workspace architecture v3 browser checks passed for desktop rail, contextual navigation, module flow, search, collapse, tablet overlay, mobile drawer, and bottom navigation.')

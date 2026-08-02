@@ -15,7 +15,7 @@
       return;
     }
 
-    openModal(`<form class="modal-card form-modal" data-ops-time-form novalidate>
+    openModal(`<form class="modal-card form-modal" data-modal-form data-ops-time-form novalidate>
       <div class="modal-head">
         <div><p class="modal-eyebrow">${escapeHtml(task.key)}</p><h2 id="modal-title">Log time</h2><p>Add work to the task and its connected project report.</p></div>
         <button class="icon-button" type="button" data-close-modal aria-label="Close dialog">${icon('close', 18)}</button>
@@ -68,6 +68,7 @@
         return;
       }
 
+      const billable = Boolean(form.elements.billable?.checked);
       submitting = true;
       form.querySelectorAll('button, input, textarea').forEach(control => { control.disabled = true; });
       const entry = {
@@ -78,7 +79,7 @@
         date,
         hours: C.round(hours),
         description,
-        billable: Boolean(form.elements.billable?.checked),
+        billable,
         createdAt: C.now()
       };
       state.timeEntries.unshift(entry);

@@ -1,0 +1,131 @@
+/* Formcraft motion support and larger calendar interaction targets. */
+
+html.motion-enhanced dialog.modal,
+html.motion-enhanced .utility-popover,
+html.motion-enhanced .popover-menu,
+html.motion-enhanced .menu-panel,
+html.motion-enhanced .toast,
+html.motion-enhanced .mobile-drawer,
+html.motion-enhanced .drawer-backdrop,
+html.motion-enhanced #main-content > * {
+  will-change: transform, opacity;
+}
+
+html.motion-enhanced .mobile-drawer {
+  transition: none;
+}
+
+html.motion-enhanced dialog.modal[open]::backdrop {
+  animation: formcraft-backdrop-in 220ms ease-out both;
+}
+
+@keyframes formcraft-backdrop-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.button,
+.icon-button,
+.utility-button,
+.action-button,
+.menu-button,
+.workspace-create-button,
+.filter-chip,
+.card-link,
+.text-button,
+.command-button,
+.workspace-nav-link,
+.bright-bottom-nav-link,
+.calendar-event,
+.calendar-more {
+  transition:
+    transform 150ms ease,
+    border-color 150ms ease,
+    background-color 150ms ease,
+    color 150ms ease,
+    box-shadow 150ms ease;
+}
+
+.button:active,
+.icon-button:active,
+.utility-button:active,
+.action-button:active,
+.menu-button:active,
+.workspace-create-button:active,
+.filter-chip:active,
+.card-link:active,
+.text-button:active,
+.command-button:active,
+.workspace-nav-link:active,
+.bright-bottom-nav-link:active,
+.calendar-event:active,
+.calendar-more:active {
+  transform: scale(.98);
+}
+
+/* The date button is the cell-sized hit target. Event controls sit above it. */
+.calendar-day {
+  position: relative;
+  isolation: isolate;
+  padding: 48px 9px 9px;
+  overflow: hidden;
+}
+
+.calendar-date-button {
+  position: absolute;
+  z-index: 0;
+  inset: 0;
+  display: flex;
+  width: 100%;
+  height: 100%;
+  align-items: flex-start;
+  justify-content: flex-start;
+  margin: 0;
+  padding: 12px 14px;
+  border-radius: 0;
+  text-align: left;
+}
+
+.calendar-date-button:hover {
+  background: color-mix(in srgb, var(--primary) 8%, transparent);
+}
+
+.calendar-date-button:focus-visible {
+  border-radius: 0;
+  outline: 3px solid var(--focus);
+  outline-offset: -3px;
+}
+
+.calendar-event,
+.calendar-more {
+  position: relative;
+  z-index: 2;
+}
+
+.calendar-day.is-outside .calendar-date-button:hover {
+  background: color-mix(in srgb, var(--primary) 6%, var(--surface-soft));
+}
+
+@media (hover: hover) {
+  .calendar-event:hover,
+  .agenda-event:hover {
+    transform: translateY(-1px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html.motion-enhanced dialog.modal,
+  html.motion-enhanced .utility-popover,
+  html.motion-enhanced .popover-menu,
+  html.motion-enhanced .menu-panel,
+  html.motion-enhanced .toast,
+  html.motion-enhanced .mobile-drawer,
+  html.motion-enhanced .drawer-backdrop,
+  html.motion-enhanced #main-content > * {
+    will-change: auto;
+  }
+
+  html.motion-enhanced dialog.modal[open]::backdrop {
+    animation: none;
+  }
+}

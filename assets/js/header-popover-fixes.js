@@ -27,6 +27,34 @@
     popover.style.setProperty('--popover-right', `${rightOffset}px`);
   }
 
+  function clampPopoverToViewport(popover, viewportWidth, viewportHeight) {
+    let rect = popover.getBoundingClientRect();
+    let left = Number.parseFloat(popover.style.left) || rect.left;
+    let top = Number.parseFloat(popover.style.top) || rect.top;
+
+    if (rect.right > viewportWidth - VIEWPORT_MARGIN) {
+      left -= rect.right - (viewportWidth - VIEWPORT_MARGIN);
+    }
+    if (rect.left < VIEWPORT_MARGIN) {
+      left += VIEWPORT_MARGIN - rect.left;
+    }
+    if (rect.bottom > viewportHeight - VIEWPORT_MARGIN) {
+      top -= rect.bottom - (viewportHeight - VIEWPORT_MARGIN);
+    }
+    if (rect.top < VIEWPORT_MARGIN) {
+      top += VIEWPORT_MARGIN - rect.top;
+    }
+
+    popover.style.left = `${Math.round(left)}px`;
+    popover.style.top = `${Math.round(top)}px`;
+    rect = popover.getBoundingClientRect();
+
+    if (rect.bottom > viewportHeight - VIEWPORT_MARGIN) {
+      const availableHeight = Math.max(160, viewportHeight - rect.top - VIEWPORT_MARGIN);
+      popover.style.maxHeight = `${Math.floor(availableHeight)}px`;
+    }
+  }
+
   function positionAccountPopover(trigger, popover) {
     if (!trigger || !popover || popover.hidden) return;
 
@@ -34,33 +62,36 @@
     const viewportWidth = document.documentElement.clientWidth;
     const viewportHeight = document.documentElement.clientHeight;
     const width = Math.min(320, Math.max(220, viewportWidth - VIEWPORT_MARGIN * 2));
-    const maxHeight = Math.max(180, viewportHeight - VIEWPORT_MARGIN * 2);
+    const maxHeight = Math.max(160, viewportHeight - VIEWPORT_MARGIN * 2);
 
     Object.assign(popover.style, {
       position: 'fixed',
+      inset: 'auto',
       zIndex: '400',
-      right: 'auto',
-      bottom: 'auto',
+      boxSizing: 'border-box',
       width: `${width}px`,
+      maxWidth: `calc(100vw - ${VIEWPORT_MARGIN * 2}px)`,
       maxHeight: `${maxHeight}px`,
       overflowY: 'auto',
+      overscrollBehavior: 'contain',
       visibility: 'hidden'
     });
 
-    const measuredHeight = Math.min(popover.offsetHeight, maxHeight);
+    const measuredHeight = Math.min(popover.scrollHeight, maxHeight);
     const preferredRight = triggerRect.right + ACCOUNT_GAP;
     const preferredLeft = triggerRect.left - width - ACCOUNT_GAP;
     const left = preferredRight + width <= viewportWidth - VIEWPORT_MARGIN
       ? preferredRight
       : Math.max(VIEWPORT_MARGIN, preferredLeft);
-    const top = Math.min(
-      Math.max(VIEWPORT_MARGIN, triggerRect.bottom - measuredHeight),
-      Math.max(VIEWPORT_MARGIN, viewportHeight - measuredHeight - VIEWPORT_MARGIN)
+    const top = Math.max(
+      VIEWPORT_MARGIN,
+      Math.min(triggerRect.bottom - measuredHeight, viewportHeight - measuredHeight - VIEWPORT_MARGIN)
     );
 
     popover.style.left = `${Math.round(left)}px`;
     popover.style.top = `${Math.round(top)}px`;
     popover.style.visibility = '';
+    clampPopoverToViewport(popover, viewportWidth, viewportHeight);
   }
 
   function alignOpenPopovers() {

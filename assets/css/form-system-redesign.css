@@ -1,0 +1,580 @@
+/* Formcraft app-wide form system redesign.
+   Loaded last so every form uses one predictable, responsive language. */
+
+:root {
+  --form-dialog-max: 1080px;
+  --form-dialog-gutter: clamp(16px, 3vw, 32px);
+  --form-section-gap: 28px;
+  --form-field-gap-x: 18px;
+  --form-field-gap-y: 20px;
+  --form-control-height: 46px;
+}
+
+/* Complex forms are workspaces, not cramped side drawers. */
+dialog.modal:has(.form-modal) {
+  position: fixed;
+  inset: 50% auto auto 50%;
+  width: min(var(--form-dialog-max), calc(100vw - 40px));
+  max-width: none;
+  height: min(900px, calc(100dvh - 40px));
+  max-height: calc(100dvh - 40px);
+  margin: 0;
+  padding: 0;
+  transform: translate(-50%, -50%);
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  background: var(--surface);
+  box-shadow: 0 30px 90px rgb(15 23 42 / .22);
+}
+
+dialog.modal:has(.form-modal)::backdrop {
+  background: rgb(15 23 42 / .42);
+  backdrop-filter: blur(3px);
+}
+
+dialog.modal:has(.form-modal) > [data-modal-content],
+.form-modal {
+  width: 100%;
+  height: 100%;
+  max-height: 100%;
+}
+
+.form-modal {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  background: var(--surface);
+}
+
+.form-modal .modal-head {
+  display: flex;
+  min-width: 0;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 24px;
+  margin: 0;
+  padding: 24px var(--form-dialog-gutter) 20px;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface);
+}
+
+.form-modal .modal-head > div:first-child {
+  min-width: 0;
+}
+
+.form-modal .modal-head h2 {
+  margin: 0;
+  color: var(--ink);
+  font-size: clamp(22px, 2vw, 28px);
+  font-weight: 750;
+  line-height: 1.2;
+  letter-spacing: -.035em;
+}
+
+.form-modal .modal-head p {
+  max-width: 720px;
+  margin: 7px 0 0;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.55;
+}
+
+.form-modal .modal-head .icon-button {
+  flex: 0 0 auto;
+}
+
+.form-modal .modal-body {
+  min-height: 0;
+  padding: 26px var(--form-dialog-gutter) 40px;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-gutter: stable;
+}
+
+.form-modal .modal-actions {
+  position: static;
+  display: flex;
+  min-height: 76px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  margin: 0;
+  padding: 14px var(--form-dialog-gutter);
+  border-top: 1px solid var(--border);
+  background: rgb(255 255 255 / .96);
+  box-shadow: 0 -8px 24px rgb(15 23 42 / .04);
+  backdrop-filter: blur(12px);
+}
+
+html[data-theme="dark"] .form-modal .modal-actions {
+  background: rgb(24 28 34 / .96);
+}
+
+.modal-actions-leading {
+  min-width: 0;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.modal-actions-trailing {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+/* Shared section hierarchy. */
+.bright-form-sections,
+.nepal-invoice-form .modal-body {
+  display: grid;
+  gap: var(--form-section-gap);
+}
+
+.bright-form-section {
+  min-width: 0;
+  margin: 0;
+  padding: 22px;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: var(--surface);
+}
+
+.bright-form-section + .bright-form-section {
+  padding-top: 22px;
+  border-top: 1px solid var(--border);
+}
+
+.bright-form-section legend {
+  width: auto;
+  margin: 0 0 18px;
+  padding: 0 8px 0 0;
+  color: var(--ink);
+  font-size: 16px;
+  font-weight: 720;
+  letter-spacing: -.02em;
+}
+
+.bright-form-section-copy {
+  margin: -8px 0 18px;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.55;
+}
+
+.field-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--form-field-gap-y) var(--form-field-gap-x);
+}
+
+.field-grid > *,
+.field {
+  min-width: 0;
+}
+
+.field {
+  display: grid;
+  align-content: start;
+  gap: 7px;
+  color: var(--ink);
+  font-size: 12px;
+  font-weight: 650;
+  line-height: 1.4;
+}
+
+.field.span-2,
+.field-grid > .span-2 {
+  grid-column: 1 / -1;
+}
+
+.field input,
+.field select,
+.field textarea,
+.backend-field input,
+.backend-field textarea {
+  width: 100%;
+  min-width: 0;
+  min-height: var(--form-control-height);
+  padding-inline: 13px;
+  border: 1px solid var(--border-strong);
+  border-radius: 9px;
+  background: var(--surface);
+  color: var(--ink);
+  font: inherit;
+  font-weight: 500;
+  line-height: 1.4;
+  box-shadow: 0 1px 2px rgb(15 23 42 / .02);
+  transition: border-color .15s ease, box-shadow .15s ease, background-color .15s ease;
+}
+
+.field textarea,
+.backend-field textarea {
+  min-height: 120px;
+  padding-block: 12px;
+  resize: vertical;
+}
+
+.field input:hover,
+.field select:hover,
+.field textarea:hover,
+.backend-field input:hover,
+.backend-field textarea:hover {
+  border-color: #98a2b3;
+}
+
+.field input:focus,
+.field select:focus,
+.field textarea:focus,
+.backend-field input:focus,
+.backend-field textarea:focus {
+  border-color: var(--primary);
+  outline: 0;
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary) 18%, transparent);
+}
+
+.field input[readonly],
+.field input:disabled,
+.field select:disabled,
+.field textarea:disabled {
+  border-color: var(--border);
+  background: var(--surface-soft);
+  color: var(--muted);
+  cursor: not-allowed;
+}
+
+.field input::placeholder,
+.field textarea::placeholder {
+  color: var(--muted-2);
+  opacity: 1;
+}
+
+.field-hint,
+.field-error {
+  min-height: 17px;
+  font-size: 11px;
+  font-weight: 500;
+  line-height: 1.45;
+}
+
+.field-hint { color: var(--muted); }
+.field-error { color: var(--danger); }
+
+.field [aria-invalid="true"] {
+  border-color: var(--danger);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--danger) 14%, transparent);
+}
+
+/* Toggle rows now align with normal fields. */
+.setting-row.nepal-inline-check,
+.nepal-inline-check {
+  display: flex;
+  min-width: 0;
+  min-height: 74px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  margin: 0;
+  padding: 14px 15px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--surface-soft);
+}
+
+.nepal-inline-check .setting-copy {
+  min-width: 0;
+}
+
+.nepal-inline-check .setting-copy strong {
+  color: var(--ink);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.nepal-inline-check .setting-copy p {
+  margin: 3px 0 0;
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1.45;
+}
+
+.nepal-inline-check .switch {
+  flex: 0 0 auto;
+}
+
+/* Invoice form gets enough width and a readable content/summary composition. */
+dialog.modal:has(.nepal-invoice-form) {
+  width: min(1240px, calc(100vw - 40px));
+  height: min(940px, calc(100dvh - 32px));
+  max-height: calc(100dvh - 32px);
+}
+
+.nepal-invoice-form .nepal-form-alert {
+  padding: 14px 16px;
+  border-radius: 10px;
+}
+
+.nepal-line-items {
+  display: grid;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.nepal-line-item-row {
+  display: grid;
+  min-width: 0;
+  grid-template-columns: minmax(220px, 2.4fr) minmax(82px, .65fr) minmax(100px, .8fr) minmax(112px, 1fr) minmax(112px, 1fr) 42px;
+  align-items: end;
+  gap: 12px;
+  padding: 15px;
+  overflow: visible;
+  border: 1px solid var(--border);
+  border-radius: 11px;
+  background: var(--surface-soft);
+}
+
+.nepal-line-item-row .field {
+  gap: 6px;
+}
+
+.nepal-line-item-row .field input {
+  min-height: 42px;
+}
+
+.nepal-remove-line {
+  width: 42px;
+  height: 42px;
+  margin: 0;
+}
+
+.nepal-invoice-live-summary {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--surface-soft);
+}
+
+.nepal-invoice-live-summary > div {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  padding: 13px 15px;
+  border-top: 1px solid var(--border);
+}
+
+.nepal-invoice-live-summary > div:nth-child(-n+2) {
+  border-top: 0;
+}
+
+.nepal-invoice-live-summary > div:nth-child(even) {
+  border-left: 1px solid var(--border);
+}
+
+.nepal-invoice-live-summary span {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.nepal-invoice-live-summary strong {
+  min-width: 0;
+  overflow: hidden;
+  color: var(--ink);
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.nepal-invoice-live-summary .is-total {
+  background: var(--surface);
+}
+
+.nepal-invoice-live-summary .is-total strong {
+  color: var(--primary);
+  font-size: 15px;
+}
+
+/* Generic short forms remain compact without inheriting invoice density. */
+dialog.modal:has(.form-modal:not(.nepal-invoice-form)) {
+  width: min(860px, calc(100vw - 40px));
+  height: auto;
+  max-height: calc(100dvh - 40px);
+}
+
+dialog.modal:has(.form-modal:not(.nepal-invoice-form)) .form-modal {
+  max-height: calc(100dvh - 40px);
+}
+
+/* Auth/onboarding forms use the same field quality. */
+.backend-card,
+.workspace-onboarding {
+  border-radius: 16px;
+}
+
+.backend-form {
+  gap: 18px;
+}
+
+/* Responsive form behavior. */
+@media (max-width: 1100px) {
+  dialog.modal:has(.form-modal),
+  dialog.modal:has(.nepal-invoice-form) {
+    width: calc(100vw - 28px);
+    height: calc(100dvh - 28px);
+    max-height: calc(100dvh - 28px);
+  }
+
+  .nepal-line-item-row {
+    grid-template-columns: minmax(0, 2fr) repeat(2, minmax(100px, 1fr)) 42px;
+  }
+
+  .nepal-line-description {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 760px) {
+  :root {
+    --form-dialog-gutter: 18px;
+    --form-section-gap: 18px;
+    --form-field-gap-y: 16px;
+  }
+
+  dialog.modal:has(.form-modal),
+  dialog.modal:has(.nepal-invoice-form),
+  dialog.modal:has(.form-modal:not(.nepal-invoice-form)) {
+    inset: 0;
+    width: 100vw;
+    height: 100dvh;
+    max-height: 100dvh;
+    margin: 0;
+    transform: none;
+    border: 0;
+    border-radius: 0;
+  }
+
+  .form-modal .modal-head {
+    padding-top: max(18px, env(safe-area-inset-top));
+  }
+
+  .form-modal .modal-head h2 {
+    font-size: 22px;
+  }
+
+  .form-modal .modal-body {
+    padding-bottom: 28px;
+  }
+
+  .form-modal .modal-actions {
+    align-items: stretch;
+    flex-direction: column;
+    padding-bottom: max(14px, env(safe-area-inset-bottom));
+  }
+
+  .modal-actions-leading {
+    order: 2;
+    text-align: center;
+  }
+
+  .modal-actions-trailing {
+    width: 100%;
+  }
+
+  .modal-actions-trailing .button {
+    flex: 1 1 0;
+  }
+
+  .bright-form-section {
+    padding: 18px;
+    border-radius: 12px;
+  }
+
+  .field-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .field.span-2,
+  .field-grid > .span-2 {
+    grid-column: auto;
+  }
+
+  .nepal-inline-check.span-2 {
+    grid-column: auto;
+  }
+
+  .nepal-line-item-row {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px 12px;
+    padding: 14px;
+  }
+
+  .nepal-line-description {
+    grid-column: 1 / -1;
+  }
+
+  .nepal-remove-line {
+    grid-column: 2;
+    justify-self: end;
+  }
+
+  .nepal-invoice-live-summary {
+    grid-template-columns: 1fr;
+  }
+
+  .nepal-invoice-live-summary > div,
+  .nepal-invoice-live-summary > div:nth-child(-n+2) {
+    border-top: 1px solid var(--border);
+    border-left: 0;
+  }
+
+  .nepal-invoice-live-summary > div:first-child {
+    border-top: 0;
+  }
+}
+
+@media (max-width: 480px) {
+  .form-modal .modal-head,
+  .form-modal .modal-body,
+  .form-modal .modal-actions {
+    padding-inline: 14px;
+  }
+
+  .bright-form-section {
+    padding: 15px;
+  }
+
+  .nepal-line-item-row {
+    grid-template-columns: 1fr;
+  }
+
+  .nepal-line-description,
+  .nepal-remove-line {
+    grid-column: auto;
+  }
+
+  .nepal-remove-line {
+    justify-self: start;
+  }
+
+  .modal-actions-trailing {
+    flex-direction: column-reverse;
+  }
+
+  .modal-actions-trailing .button {
+    width: 100%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .field input,
+  .field select,
+  .field textarea {
+    transition: none;
+  }
+}

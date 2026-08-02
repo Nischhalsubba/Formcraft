@@ -54,15 +54,20 @@ const criticalContracts = [
   ['sidebar account placement', /data-account-popover/, /positionAccountPopover/],
   ['notification trigger', /data-toggle-notifications/, /togglePopover\('notifications'\)/],
   ['primary navigation', /data-route=/, /navigate\(link\.dataset\.route\)/],
+  ['restored source navigation', /data-source-route=/, /restoreSourceNavigation/],
   ['mobile navigation', /data-bright-route=/, /navigate\(link\.dataset\.brightRoute\)/],
   ['workspace search', /data-search-focus/, /openWorkspaceSearch/],
   ['workspace search result target', /data-workspace-search-id=/, /openWorkspaceSearchResult/],
   ['project actions', /data-edit-project/, /openProjectForm/],
   ['task actions', /data-edit-task/, /openTaskForm/],
   ['calendar actions', /data-event-id/, /openEventForm/],
+  ['email actions', /data-email-folder/, /openComposeForm/],
+  ['report actions', /data-report-period/, /renderReports/],
   ['file actions', /data-open-file/, /bindFiles/],
   ['invoice actions', /data-view-invoice/, /openInvoiceDetail/],
   ['settings actions', /data-settings-form/, /bindSettings/],
+  ['onboarding trigger', /data-start-product-tour/, /FormcraftOnboarding/],
+  ['onboarding completion', /data-complete-product-tour/, /complete\('completed'\)/],
   ['modal close', /data-close-modal/, /closeModal/],
   ['authenticated sign out', /data-dynamic-sign-out/, /signOut/]
 ];
@@ -81,5 +86,16 @@ const interactionFix = fs.readFileSync(path.join(jsDirectory, 'interaction-fixes
 assert.match(interactionFix, /stopImmediatePropagation/, 'Search result fallback must prevent the old route-only handler');
 assert.match(interactionFix, /openProjectDetail/, 'Project search results must open the matched record');
 assert.match(interactionFix, /openInvoiceDetail/, 'Invoice search results must open the matched record');
+assert.match(interactionFix, /ui\.selectedEmail = message\.id/, 'Email search results must open the matched message');
+
+const featureEnhancement = fs.readFileSync(path.join(jsDirectory, 'workspace-enhancements.js'), 'utf8');
+assert.match(featureEnhancement, /secondaryRoutes = \['reports', 'email', 'files', 'invoices', 'activity', 'settings'\]/, 'Every source tool must be represented in navigation');
+assert.match(featureEnhancement, /missingDesktop/, 'Desktop navigation completeness must be auditable');
+assert.match(featureEnhancement, /missingMobile/, 'Mobile navigation completeness must be auditable');
+
+const onboarding = fs.readFileSync(path.join(jsDirectory, 'onboarding-tour.js'), 'utf8');
+assert.match(onboarding, /window\.driver\?\.js\?\.driver/, 'The product tour must use Driver.js when it is available');
+assert.match(onboarding, /navigator\.webdriver/, 'Automated browser checks must not be blocked by automatic onboarding');
+assert.match(onboarding, /prefers-reduced-motion: reduce/, 'The product tour must respect reduced-motion preferences');
 
 console.log(`Interaction audit passed for ${actionAttributes.size} interactive data attributes.`);

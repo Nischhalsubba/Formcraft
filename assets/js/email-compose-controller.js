@@ -1,0 +1,1 @@
+/* Email composition is handled by assets/js/interaction-fixes.js. */

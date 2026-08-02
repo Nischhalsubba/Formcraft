@@ -1,0 +1,231 @@
+/* Route-based operational record pages and production interaction refinements. */
+:root {
+  --ops-content-max: 1580px;
+  --ops-record-top: 64px;
+}
+
+body.ops-record-open .workspace-page-header { display: none; }
+body.ops-record-open .workspace-content { width: 100%; max-width: none; padding: 0; }
+body.ops-record-open #main-content { min-width: 0; }
+
+.ops-record-page {
+  display: grid;
+  min-height: calc(100dvh - var(--ops-record-top));
+  grid-template-rows: auto minmax(0, 1fr);
+  overflow: visible;
+  background: var(--canvas);
+  color: var(--ink);
+}
+
+.ops-record-header {
+  position: sticky;
+  top: var(--ops-record-top);
+  z-index: 20;
+  display: flex;
+  min-width: 0;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 24px;
+  padding: 20px clamp(20px, 3vw, 38px);
+  border-bottom: 1px solid var(--border);
+  background: color-mix(in srgb, var(--surface) 96%, transparent);
+  backdrop-filter: blur(14px);
+}
+
+.ops-record-heading { min-width: 0; }
+.ops-record-heading > div { display: flex; min-width: 0; align-items: center; gap: 10px; }
+.ops-record-heading h1 {
+  min-width: 0;
+  margin: 0;
+  overflow: hidden;
+  color: var(--ink);
+  font-size: clamp(24px, 2.2vw, 32px);
+  font-weight: 760;
+  line-height: 1.15;
+  letter-spacing: -.035em;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.ops-record-heading > p:last-child { margin: 7px 0 0; color: var(--muted); font-size: 13px; }
+.ops-record-actions { display: flex; flex: 0 0 auto; flex-wrap: wrap; justify-content: flex-end; gap: 8px; }
+.ops-record-body { min-height: 0; padding-bottom: 72px; }
+
+.ops-summary-strip,
+.ops-task-commandbar,
+.ops-task-layout,
+.ops-record-tabs,
+.ops-record-content {
+  width: min(var(--ops-content-max), calc(100% - 48px));
+}
+
+.ops-summary-strip { margin: 22px auto 0; }
+.ops-record-tabs {
+  position: sticky;
+  top: calc(var(--ops-record-top) + 89px);
+  z-index: 15;
+  margin: 18px auto 0;
+}
+.ops-record-content { margin: 18px auto 0; }
+.ops-task-commandbar { margin: 22px auto 0; }
+.ops-task-layout { margin: 18px auto 0; }
+
+.ops-record-heading .workspace-breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 7px;
+  color: var(--muted);
+  font-size: 12px;
+}
+.ops-record-heading .workspace-breadcrumb button {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+  font: inherit;
+}
+.ops-record-heading .workspace-breadcrumb button:hover {
+  color: var(--ink);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.ops-task-commandbar {
+  grid-template-columns: 190px 220px 170px repeat(3, minmax(110px, 1fr));
+}
+
+.ops-task-card[draggable="true"] { cursor: grab; }
+.ops-task-card.is-dragging { opacity: .55; cursor: grabbing; }
+.ops-task-column { transition: border-color .15s ease, box-shadow .15s ease, background-color .15s ease; }
+.ops-task-column.is-drop-target {
+  border-color: var(--primary);
+  background: color-mix(in srgb, var(--primary-soft) 36%, var(--surface));
+  box-shadow: 0 0 0 3px var(--focus);
+}
+
+.ops-linked-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  border-top: 1px solid var(--border);
+}
+.ops-linked-row:first-child { border-top: 0; }
+.ops-linked-row > button:first-child { border-top: 0; }
+
+.ops-row-remove,
+.ops-time-value button,
+.ops-checklist > div > button {
+  display: grid;
+  width: 28px;
+  height: 28px;
+  place-items: center;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+}
+.ops-row-remove:hover,
+.ops-time-value button:hover,
+.ops-checklist > div > button:hover {
+  background: var(--danger-soft);
+  color: var(--danger);
+}
+
+.ops-time-value { display: flex; flex: 0 0 auto; align-items: center; gap: 6px; }
+.ops-checklist > div {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 0;
+  border-top: 1px solid var(--border);
+}
+.ops-checklist > div:first-child { border-top: 0; }
+.ops-checklist label { min-width: 0; }
+
+.ops-global-task-toolbar {
+  display: flex;
+  min-width: 0;
+  align-items: end;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 12px 20px;
+  border: 1px solid var(--border);
+  border-radius: var(--ops-card-radius);
+  background: var(--surface-soft);
+}
+.ops-global-task-toolbar > .toolbar-group { min-width: 0; flex-wrap: wrap; }
+.ops-global-task-toolbar .search-control { flex: 1 1 280px; }
+.ops-global-task-toolbar .ops-compact-filter {
+  display: grid;
+  min-width: 150px;
+  gap: 5px;
+  color: var(--muted);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .03em;
+  text-transform: uppercase;
+}
+.ops-global-task-toolbar select {
+  width: 100%;
+  min-height: 38px;
+  padding: 0 34px 0 10px;
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  background: var(--surface);
+  color: var(--ink);
+  font: inherit;
+  font-size: 12px;
+}
+.ops-global-tasks .ops-task-board,
+.ops-global-tasks .ops-task-table-wrap {
+  overflow: auto;
+  border: 1px solid var(--border);
+  border-radius: var(--ops-card-radius);
+  background: var(--surface);
+}
+
+.ops-report-stack { display: grid; gap: 24px; }
+.ops-portfolio-report { width: min(100%, var(--ops-content-max)); margin-inline: auto; }
+.ops-portfolio-report .ops-linked-table { border: 1px solid var(--border); border-radius: var(--ops-card-radius); }
+
+/* Complex edit forms require an explicit Cancel or Close action. */
+dialog.modal[data-surface="form"]::backdrop { background: rgb(23 26 31 / .3); }
+
+@media (max-width: 1180px) {
+  .ops-task-commandbar { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+
+@media (max-width: 1080px) {
+  :root { --ops-record-top: 58px; }
+}
+
+@media (max-width: 900px) {
+  .ops-record-header { align-items: stretch; flex-direction: column; }
+  .ops-record-actions { justify-content: flex-start; }
+  .ops-record-tabs { top: calc(var(--ops-record-top) + 153px); overflow-x: auto; }
+  .ops-global-task-toolbar,
+  .ops-global-task-toolbar > .toolbar-group { align-items: stretch; flex-direction: column; }
+  .ops-global-task-toolbar .ops-compact-filter,
+  .ops-global-task-toolbar .search-control { width: 100%; min-width: 0; }
+  .ops-global-task-toolbar .ops-view-switch { align-self: flex-start; }
+}
+
+@media (max-width: 720px) {
+  .ops-record-page { min-height: calc(100dvh - 58px); }
+  .ops-record-header { position: static; padding: 16px; }
+  .ops-record-heading > div { align-items: flex-start; flex-direction: column; }
+  .ops-record-heading h1 { max-width: 100%; font-size: 23px; white-space: normal; }
+  .ops-record-actions .button { flex: 1 1 auto; }
+  .ops-summary-strip,
+  .ops-task-commandbar,
+  .ops-task-layout,
+  .ops-record-tabs,
+  .ops-record-content { width: calc(100% - 24px); }
+  .ops-record-tabs { position: static; overflow-x: auto; }
+  .ops-record-tabs button { flex: 1 0 auto; }
+  .ops-task-commandbar { grid-template-columns: 1fr 1fr; }
+  .ops-task-board { grid-template-columns: repeat(6, minmax(260px, 82vw)); }
+}

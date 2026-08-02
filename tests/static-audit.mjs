@@ -9,6 +9,7 @@ const headerCss = read('assets/css/header-popover-fixes.css');
 const dynamicCss = read('assets/css/dynamic-backend.css');
 const productCss = read('assets/css/formcraft-v2.css');
 const directionCss = read('assets/css/formcraft-product-direction.css');
+const dashboardCss = read('assets/css/formcraft-bright-dashboard.css');
 const appCore = read('assets/js/app-core.js');
 const baseScripts = ['app-pages.js', 'app-actions.js', 'app-modules.js'];
 const js = baseScripts.map(name => read(`assets/js/${name}`)).join('\n');
@@ -19,18 +20,19 @@ const dynamicJs = read('assets/js/dynamic-backend.js');
 const dynamicWorkflows = read('assets/js/dynamic-workflows.js');
 const productRuntime = read('assets/js/formcraft-v2-runtime.js');
 const directionRuntime = read('assets/js/formcraft-product-direction.js');
+const dashboardRuntime = read('assets/js/formcraft-bright-dashboard.js');
 const migration = read('supabase/migrations/20260730030000_formcraft_dynamic_backend.sql');
 const invitationMigration = read('supabase/migrations/20260730030100_invitation_activation.sql');
 const inviteFunction = read('supabase/functions/invite-member/index.ts');
 const buildConfig = read('scripts/build-runtime-config.mjs');
 const gitignore = read('.gitignore');
 
-assert.equal((html.match(/rel="stylesheet"/g) || []).length, 7, 'The font and six application stylesheets should load');
-for (const stylesheet of ['app.css', 'final-ui-fixes.css', 'header-popover-fixes.css', 'dynamic-backend.css', 'formcraft-v2.css', 'formcraft-product-direction.css']) {
+assert.equal((html.match(/rel="stylesheet"/g) || []).length, 8, 'The font and seven application stylesheets should load');
+for (const stylesheet of ['app.css', 'final-ui-fixes.css', 'header-popover-fixes.css', 'dynamic-backend.css', 'formcraft-v2.css', 'formcraft-product-direction.css', 'formcraft-bright-dashboard.css']) {
   assert.ok(html.includes(`assets/css/${stylesheet}`), `${stylesheet} must load`);
 }
 assert.doesNotMatch(html, /maven-system\.css|formcraft-components\.css/);
-for (const name of ['app-core.js', ...baseScripts, 'final-ui-fixes.js', 'header-popover-fixes.js', 'formcraft-v2-shell.js', 'dynamic-backend.js', 'dynamic-workflows.js', 'auth-onboarding.js', 'formcraft-v2-runtime.js', 'formcraft-product-direction.js']) {
+for (const name of ['app-core.js', ...baseScripts, 'final-ui-fixes.js', 'header-popover-fixes.js', 'formcraft-v2-shell.js', 'dynamic-backend.js', 'dynamic-workflows.js', 'auth-onboarding.js', 'formcraft-v2-runtime.js', 'formcraft-product-direction.js', 'formcraft-bright-dashboard.js']) {
   assert.ok(html.includes(`assets/js/${name}`), `${name} must load`);
 }
 assert.doesNotMatch(html, /maven-system\.js/);
@@ -92,6 +94,13 @@ assert.match(directionCss, /@media \(max-width: 760px\)/);
 assert.match(directionCss, /@media \(prefers-reduced-motion: reduce\)/);
 assert.doesNotMatch(directionCss, /linear-gradient|radial-gradient|glassmorphism|#7c3aed|#8b5cf6/i);
 
+assert.match(dashboardCss, /\.product-today-grid/);
+assert.match(dashboardCss, /\.product-summary-strip/);
+assert.match(dashboardCss, /\.product-dashboard-bottom/);
+assert.match(dashboardCss, /\.product-project-table/);
+assert.match(dashboardCss, /@media \(max-width: 760px\)/);
+assert.doesNotMatch(dashboardCss, /linear-gradient|radial-gradient|glassmorphism|#7c3aed|#8b5cf6/i);
+
 assert.match(productRuntime, /persistDynamicWorkspace/);
 assert.match(productRuntime, /FormcraftBackend\?\.flush/);
 assert.match(productRuntime, /Automatic from tasks/);
@@ -119,6 +128,14 @@ assert.match(directionRuntime, /Due date must be on or after the start date/);
 assert.match(directionRuntime, /Due date must be on or after the issue date/);
 assert.match(directionRuntime, /That unfinished module has been removed/);
 assert.doesNotMatch(directionRuntime, /purple|gradient|glassmorphism/i);
+
+assert.match(dashboardRuntime, /renderBrightTaskFirstDashboard/);
+assert.match(dashboardRuntime, /Active projects/);
+assert.match(dashboardRuntime, /Outstanding invoices/);
+assert.match(dashboardRuntime, /Quick actions/);
+assert.match(dashboardRuntime, /data-toggle-task/);
+assert.match(dashboardRuntime, /data-event-id/);
+assert.doesNotMatch(dashboardRuntime, /purple|gradient|glassmorphism/i);
 
 assert.match(dynamicCss, /\.backend-gate/);
 assert.match(dynamicCss, /html\[data-backend="offline"\]/);
@@ -152,7 +169,7 @@ assert.match(buildConfig, /SUPABASE_URL/);
 assert.match(buildConfig, /SUPABASE_PUBLISHABLE_KEY/);
 assert.match(gitignore, /assets\/js\/runtime-config\.js/);
 
-for (const source of [css, fixesCss, headerCss, dynamicCss, productCss, directionCss]) {
+for (const source of [css, fixesCss, headerCss, dynamicCss, productCss, directionCss, dashboardCss]) {
   const open = (source.match(/{/g) || []).length;
   const close = (source.match(/}/g) || []).length;
   assert.equal(open, close, 'CSS braces must balance');

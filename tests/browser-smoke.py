@@ -4,8 +4,9 @@ from pathlib import Path
 from threading import Thread
 from playwright.sync_api import sync_playwright
 
-root = Path(__file__).resolve().parents[1]
-supabase_mock = (root / 'tests' / 'supabase-browser-mock.js').read_text(encoding='utf-8')
+ROOT = Path(__file__).resolve().parents[1]
+SUPABASE_MOCK = (ROOT / 'tests' / 'supabase-browser-mock.js').read_text(encoding='utf-8')
+DESKTOP_ROUTES = ['dashboard', 'projects', 'tasks', 'calendar', 'team', 'files', 'invoices', 'activity', 'settings']
 
 
 class QuietHandler(SimpleHTTPRequestHandler):
@@ -18,11 +19,10 @@ def prepare_page(browser, width, height, owner_setup=False):
     errors = []
     page.on('console', lambda msg: errors.append(f'console:{msg.type}:{msg.text}') if msg.type == 'error' else None)
     page.on('pageerror', lambda exc: errors.append(f'page:{exc}'))
+    prefix = ''
     if owner_setup:
-        setup = "window.__FORMCRAFT_TEST_OWNER_SETUP__ = true; window.__FORMCRAFT_TEST_OWNER_EXISTS__ = false; window.__FORMCRAFT_TEST_NO_SESSION__ = true;\n"
-        page.add_init_script(setup + supabase_mock)
-    else:
-        page.add_init_script(supabase_mock)
+        prefix = "window.__FORMCRAFT_TEST_OWNER_SETUP__ = true; window.__FORMCRAFT_TEST_OWNER_EXISTS__ = false; window.__FORMCRAFT_TEST_NO_SESSION__ = true;\n"
+    page.add_init_script(prefix + SUPABASE_MOCK)
     page.route('https://fonts.googleapis.com/**', lambda route: route.fulfill(status=200, content_type='text/css', body=''))
     page.route('https://fonts.gstatic.com/**', lambda route: route.fulfill(status=200, body=b''))
     page.route('https://cdn.jsdelivr.net/**', lambda route: route.fulfill(status=200, content_type='application/javascript', body=''))
@@ -42,264 +42,247 @@ def wait_for_ready(page, errors):
     page.wait_for_timeout(120)
 
 
+def visible(page, selector):
+    return page.locator(f'{selector}:visible').first
+
+
 def close_dialog(page):
     if page.locator('dialog[open]').count():
-        page.locator('dialog[open] [data-close-modal]').first.click()
+        visible(page, 'dialog[open] [data-close-modal]').click()
         page.wait_for_timeout(60)
 
 
-def click_sidebar_route(page, route):
-    control = page.locator(f'.workspace-sidebar [data-route="{route}"]').first
+def navigate_sidebar(page, route):
+    control = visible(page, f'.workspace-sidebar [data-route="{route}"]')
     assert control.is_visible(), f'{route} sidebar link should be visible'
     control.click()
-    page.wait_for_timeout(90)
+    page.wait_for_timeout(80)
     assert page.evaluate('ui.route') == route
     assert page.locator('[data-route-heading]').count() == 1
-    assert page.locator('main').is_visible()
 
 
-handler = partial(QuietHandler, directory=str(root))
+def assert_no_overflow(page):
+    assert page.evaluate('document.documentElement.scrollWidth <= window.innerWidth + 1')
+
+
+def run_owner_setup(browser, base_url):
+    page, errors = prepare_page(browser, 1280, 900, owner_setup=True)
+    page.goto(f'{base_url}/?owner-setup-test=1', wait_until='domcontentloaded')
+    page.wait_for_selector('[data-auth-form]', timeout=10000)
+    if page.locator('[data-auth-form]').get_attribute('data-mode') != 'signup':
+        visible(page, '[data-auth-mode="signup"]').click()
+    page.wait_for_selector('[data-auth-form][data-mode="signup"]', timeout=10000)
+    password = page.locator('[data-auth-form] input[name="password"]').input_value()
+    assert len(password) >= 20
+    assert visible(page, '[data-copy-generated-password]').is_visible()
+    page.locator('[data-auth-form] input[name="fullName"]').fill('Owner User')
+    page.locator('[data-auth-form] input[name="email"]').fill('owner@example.com')
+    visible(page, '[data-auth-form] button[type="submit"]').click()
+    page.wait_for_selector('[data-auth-form][data-mode="signin"]')
+    assert page.locator('[data-auth-form] input[name="email"]').input_value() == 'owner@example.com'
+    assert page.locator('[data-auth-form] input[name="password"]').input_value() == password
+    assert 'Account created' in page.locator('[data-backend-status]').inner_text()
+    assert errors == []
+    page.close()
+
+
+def run_desktop(browser, base_url):
+    page, errors = prepare_page(browser, 1440, 1000)
+    page.goto(f'{base_url}/#dashboard', wait_until='domcontentloaded')
+    wait_for_ready(page, errors)
+
+    assert visible(page, '.workspace-sidebar').is_visible()
+    assert visible(page, '.product-dashboard').is_visible()
+    assert visible(page, '.product-today-grid').is_visible()
+    assert visible(page, '.product-summary-strip').is_visible()
+    assert page.locator('.workspace-sidebar [data-route="email"]').count() == 0
+    assert page.locator('.workspace-sidebar [data-route="reports"]').count() == 0
+    assert page.locator('[data-workspace-brand]').inner_text() == 'Test workspace'
+
+    for route in DESKTOP_ROUTES:
+        navigate_sidebar(page, route)
+        assert_no_overflow(page)
+
+    navigate_sidebar(page, 'dashboard')
+    account_trigger = visible(page, '[data-toggle-account]')
+    account_trigger.click()
+    account = visible(page, '[data-account-popover]')
+    assert account.is_visible()
+    for selector in ['[data-account-settings]', '[data-export-data]', '[data-dynamic-sign-out]']:
+        assert account.locator(selector).count() == 1
+    trigger_box = account_trigger.bounding_box()
+    account_box = account.bounding_box()
+    assert trigger_box and account_box
+    assert account_box['x'] >= trigger_box['x'] + trigger_box['width'] - 2
+    assert account_box['x'] >= 0 and account_box['x'] + account_box['width'] <= 1440
+    assert account_box['y'] >= 0 and account_box['y'] + account_box['height'] <= 1000
+    account.locator('[data-account-settings]').click()
+    page.wait_for_timeout(80)
+    assert page.evaluate('ui.route') == 'settings'
+
+    navigate_sidebar(page, 'dashboard')
+    visible(page, '[data-toggle-account]').click()
+    with page.expect_download() as download_info:
+        visible(page, '[data-account-popover] [data-export-data]').click()
+    assert download_info.value.suggested_filename.endswith('.json')
+
+    visible(page, '[data-toggle-notifications]').click()
+    notifications = visible(page, '[data-notifications-popover]')
+    assert notifications.is_visible()
+    notification_box = notifications.bounding_box()
+    assert notification_box and notification_box['x'] >= 0
+    assert notification_box['x'] + notification_box['width'] <= 1440
+    visible(page, 'main').click(position={'x': 4, 'y': 4})
+    assert page.locator('[data-notifications-popover]').is_hidden()
+
+    visible(page, '[data-search-focus]').click()
+    page.locator('[data-workspace-search]').fill('Test project')
+    visible(page, '[data-workspace-search-route="projects"][data-workspace-search-id="project-1"]').click()
+    page.wait_for_selector('dialog[open] .full-detail-view')
+    assert page.locator('#modal-title').inner_text() == 'Test project'
+    close_dialog(page)
+
+    visible(page, '[data-search-focus]').click()
+    page.locator('[data-workspace-search]').fill('FC-1004')
+    visible(page, '[data-workspace-search-route="invoices"][data-workspace-search-id="invoice-1"]').click()
+    page.wait_for_selector('dialog[open] .bright-invoice-detail')
+    assert page.locator('#modal-title').inner_text() == 'FC-1004'
+    close_dialog(page)
+
+    for route, title in {
+        'projects': 'Create project',
+        'tasks': 'Create task',
+        'calendar': 'Create event',
+        'team': 'Invite member',
+        'invoices': 'Create invoice'
+    }.items():
+        navigate_sidebar(page, route)
+        visible(page, '[data-context-create]').click()
+        page.wait_for_selector('dialog[open]')
+        assert page.locator('#modal-title').inner_text() == title
+        close_dialog(page)
+
+    navigate_sidebar(page, 'projects')
+    visible(page, '[data-view-project="project-1"]').click()
+    assert visible(page, 'dialog[open] .full-detail-view').is_visible()
+    close_dialog(page)
+    visible(page, '[data-edit-project="project-1"]').click()
+    assert visible(page, '[data-modal-form]').is_visible()
+    close_dialog(page)
+    project_filters = page.locator('[data-project-filter]').evaluate_all("nodes => [...new Set(nodes.map(node => node.dataset.projectFilter))]")
+    for value in project_filters:
+        visible(page, f'[data-project-filter="{value}"]').click()
+
+    navigate_sidebar(page, 'tasks')
+    visible(page, '[data-edit-task="task-1"]').click()
+    assert visible(page, '[data-modal-form]').is_visible()
+    close_dialog(page)
+    visible(page, '[data-toggle-task="task-1"]').check()
+    page.wait_for_timeout(100)
+    assert page.evaluate("state.tasks.find(task => task.id === 'task-1').status") == 'done'
+    task_filters = page.locator('[data-task-filter]').evaluate_all("nodes => [...new Set(nodes.map(node => node.dataset.taskFilter))]")
+    for value in task_filters:
+        visible(page, f'[data-task-filter="{value}"]').click()
+
+    navigate_sidebar(page, 'calendar')
+    for selector in ['[data-calendar-next]', '[data-calendar-prev]', '[data-calendar-today]']:
+        visible(page, selector).click()
+    visible(page, '[data-context-create]').click()
+    assert page.locator('#modal-title').inner_text() == 'Create event'
+    close_dialog(page)
+
+    navigate_sidebar(page, 'team')
+    visible(page, '[data-edit-member]').click()
+    assert visible(page, '[data-modal-form]').is_visible()
+    close_dialog(page)
+
+    navigate_sidebar(page, 'files')
+    visible(page, '[data-create-folder]').click()
+    page.locator('[data-modal-form] [name="name"]').fill('QA folder')
+    visible(page, '[data-modal-form] button[type="submit"]').click()
+    page.wait_for_timeout(120)
+    assert page.evaluate("state.files.some(file => file.name === 'QA folder')")
+    page.locator('[data-file-upload]').first.set_input_files({
+        'name': 'qa.txt',
+        'mimeType': 'text/plain',
+        'buffer': b'Formcraft interaction check'
+    })
+    page.wait_for_timeout(150)
+    assert page.evaluate("state.files.some(file => file.name === 'qa.txt')")
+    visible(page, '[data-star-file]').click()
+    visible(page, '[data-rename-file]').click()
+    assert visible(page, '[data-modal-form]').is_visible()
+    close_dialog(page)
+
+    navigate_sidebar(page, 'invoices')
+    visible(page, '[data-view-invoice="invoice-1"]').click()
+    assert visible(page, 'dialog[open] .bright-invoice-detail').is_visible()
+    close_dialog(page)
+    visible(page, '[data-edit-invoice="invoice-1"]').click()
+    assert visible(page, '[data-modal-form]').is_visible()
+    close_dialog(page)
+
+    navigate_sidebar(page, 'activity')
+    visible(page, '[data-clear-activity]').click()
+    assert visible(page, '[data-confirm-action]').is_visible()
+    close_dialog(page)
+
+    navigate_sidebar(page, 'settings')
+    tabs = page.locator('[data-settings-tab]').evaluate_all("nodes => [...new Set(nodes.map(node => node.dataset.settingsTab))]")
+    for tab in tabs:
+        visible(page, f'[data-settings-tab="{tab}"]').click()
+    if page.locator('[data-theme-option="dark"]:visible').count():
+        visible(page, '[data-theme-option="dark"]').click()
+        assert page.locator('html').get_attribute('data-theme') == 'dark'
+        visible(page, '[data-theme-option="light"]').click()
+        assert page.locator('html').get_attribute('data-theme') == 'light'
+    visible(page, '[data-reset-data]').click()
+    assert visible(page, '[data-confirm-action]').is_visible()
+    close_dialog(page)
+
+    assert page.evaluate("FormcraftInteractions.audit().unnamedButtons.length") == 0
+    assert errors == []
+    page.close()
+
+
+def run_mobile(browser, base_url):
+    page, errors = prepare_page(browser, 390, 844)
+    page.goto(f'{base_url}/#dashboard', wait_until='domcontentloaded')
+    wait_for_ready(page, errors)
+    assert visible(page, '.bright-bottom-nav').is_visible()
+    for route in ['projects', 'tasks', 'calendar', 'dashboard']:
+        visible(page, f'[data-bright-route="{route}"]').click()
+        assert page.evaluate('ui.route') == route
+    visible(page, '[data-bright-more]').click()
+    assert 'drawer-open' in (page.locator('body').get_attribute('class') or '')
+    visible(page, '.mobile-drawer [data-route="files"]').click()
+    assert page.evaluate('ui.route') == 'files'
+    page.evaluate("navigate('dashboard')")
+    visible(page, '[data-bright-context-create]').click()
+    assert page.locator('#modal-title').inner_text() == 'Create project'
+    modal_box = page.locator('dialog[open]').bounding_box()
+    assert modal_box and modal_box['width'] >= 389
+    close_dialog(page)
+    for route in DESKTOP_ROUTES:
+        page.evaluate(f"navigate('{route}')")
+        assert_no_overflow(page)
+    assert page.evaluate("FormcraftInteractions.audit().unnamedButtons.length") == 0
+    assert errors == []
+    page.close()
+
+
+handler = partial(QuietHandler, directory=str(ROOT))
 server = ThreadingHTTPServer(('127.0.0.1', 0), handler)
 thread = Thread(target=server.serve_forever, daemon=True)
 thread.start()
 base_url = f'http://127.0.0.1:{server.server_port}'
 
 try:
-    with sync_playwright() as p:
-        browser = p.chromium.launch(headless=True)
-
-        owner_page, owner_errors = prepare_page(browser, 1280, 900, owner_setup=True)
-        owner_page.goto(f'{base_url}/?owner-setup-test=1', wait_until='domcontentloaded')
-        try:
-            owner_page.wait_for_selector('[data-auth-form]', timeout=10000)
-            if owner_page.locator('[data-auth-form]').get_attribute('data-mode') != 'signup':
-                owner_page.locator('[data-auth-mode="signup"]').click()
-            owner_page.wait_for_selector('[data-auth-form][data-mode="signup"]', timeout=10000)
-        except Exception as exc:
-            raise AssertionError({
-                'message': str(exc),
-                'errors': owner_errors,
-                'body': owner_page.locator('body').inner_text()[:1600]
-            })
-        generated_password = owner_page.locator('[data-auth-form] input[name="password"]').input_value()
-        assert len(generated_password) >= 20
-        assert owner_page.locator('[data-copy-generated-password]').is_visible()
-        owner_page.locator('[data-auth-form] input[name="fullName"]').fill('Owner User')
-        owner_page.locator('[data-auth-form] input[name="email"]').fill('owner@example.com')
-        owner_page.locator('[data-auth-form] button[type="submit"]').click()
-        owner_page.wait_for_selector('[data-auth-form][data-mode="signin"]')
-        assert owner_page.locator('[data-auth-form] input[name="email"]').input_value() == 'owner@example.com'
-        assert owner_page.locator('[data-auth-form] input[name="password"]').input_value() == generated_password
-        assert 'Account created' in owner_page.locator('[data-backend-status]').inner_text()
-        assert owner_errors == []
-        owner_page.close()
-
-        desktop, desktop_errors = prepare_page(browser, 1440, 1000)
-        desktop.goto(f'{base_url}/#dashboard', wait_until='domcontentloaded')
-        wait_for_ready(desktop, desktop_errors)
-
-        assert desktop.locator('.workspace-sidebar').is_visible()
-        assert desktop.locator('.product-dashboard').is_visible()
-        assert desktop.locator('.product-today-grid').is_visible()
-        assert desktop.locator('.product-summary-strip').is_visible()
-        assert desktop.locator('.workspace-sidebar [data-route="email"]').count() == 0
-        assert desktop.locator('.workspace-sidebar [data-route="reports"]').count() == 0
-        assert desktop.locator('[data-workspace-brand]').inner_text() == 'Test workspace'
-
-        for route in ['dashboard', 'projects', 'tasks', 'calendar', 'team', 'files', 'invoices', 'activity', 'settings']:
-            click_sidebar_route(desktop, route)
-
-        click_sidebar_route(desktop, 'dashboard')
-        account_trigger = desktop.locator('[data-toggle-account]')
-        account_trigger.click()
-        account = desktop.locator('[data-account-popover]')
-        assert account.is_visible()
-        assert account.locator('[data-account-settings]').count() == 1
-        assert account.locator('[data-export-data]').count() == 1
-        assert account.locator('[data-dynamic-sign-out]').count() == 1
-        trigger_box = account_trigger.bounding_box()
-        account_box = account.bounding_box()
-        assert trigger_box and account_box
-        assert account_box['x'] >= trigger_box['x'] + trigger_box['width'] - 2
-        assert account_box['x'] >= 0
-        assert account_box['x'] + account_box['width'] <= 1440
-        assert account_box['y'] >= 0
-        assert account_box['y'] + account_box['height'] <= 1000
-        account.locator('[data-account-settings]').click()
-        desktop.wait_for_timeout(90)
-        assert desktop.evaluate('ui.route') == 'settings'
-
-        click_sidebar_route(desktop, 'dashboard')
-        desktop.locator('[data-toggle-account]').click()
-        with desktop.expect_download() as download_info:
-            desktop.locator('[data-account-popover] [data-export-data]').click()
-        assert download_info.value.suggested_filename.endswith('.json')
-
-        bell = desktop.locator('[data-toggle-notifications]')
-        bell.click()
-        notifications = desktop.locator('[data-notifications-popover]')
-        assert notifications.is_visible()
-        notification_box = notifications.bounding_box()
-        assert notification_box
-        assert notification_box['x'] >= 0
-        assert notification_box['x'] + notification_box['width'] <= 1440
-        desktop.locator('main').click(position={'x': 4, 'y': 4})
-        desktop.wait_for_timeout(50)
-        assert notifications.is_hidden()
-
-        desktop.locator('[data-search-focus]').click()
-        desktop.locator('[data-workspace-search]').fill('Test project')
-        project_result = desktop.locator('[data-workspace-search-route="projects"][data-workspace-search-id="project-1"]')
-        assert project_result.is_visible()
-        project_result.click()
-        desktop.wait_for_selector('dialog[open] .full-detail-view')
-        assert desktop.locator('#modal-title').inner_text() == 'Test project'
-        close_dialog(desktop)
-
-        desktop.locator('[data-search-focus]').click()
-        desktop.locator('[data-workspace-search]').fill('FC-1004')
-        invoice_result = desktop.locator('[data-workspace-search-route="invoices"][data-workspace-search-id="invoice-1"]')
-        assert invoice_result.is_visible()
-        invoice_result.click()
-        desktop.wait_for_selector('dialog[open] .bright-invoice-detail')
-        assert desktop.locator('#modal-title').inner_text() == 'FC-1004'
-        close_dialog(desktop)
-
-        create_expectations = {
-            'projects': 'Create project',
-            'tasks': 'Create task',
-            'calendar': 'Create event',
-            'team': 'Invite member',
-            'invoices': 'Create invoice'
-        }
-        for route, title in create_expectations.items():
-            click_sidebar_route(desktop, route)
-            desktop.locator('[data-context-create]').click()
-            desktop.wait_for_selector('dialog[open]')
-            assert desktop.locator('#modal-title').inner_text() == title
-            close_dialog(desktop)
-
-        click_sidebar_route(desktop, 'projects')
-        desktop.locator('[data-view-project="project-1"]').first.click()
-        assert desktop.locator('dialog[open] .full-detail-view').is_visible()
-        close_dialog(desktop)
-        desktop.locator('[data-edit-project="project-1"]').first.click()
-        assert desktop.locator('[data-modal-form]').is_visible()
-        close_dialog(desktop)
-        project_filters = desktop.locator('[data-project-filter]').evaluate_all("nodes => [...new Set(nodes.map(node => node.dataset.projectFilter))]")
-        for value in project_filters:
-            desktop.locator(f'[data-project-filter="{value}"]').first.click()
-        if desktop.locator('[data-project-sort]').count():
-            desktop.locator('[data-project-sort]').first.select_option(index=0)
-
-        click_sidebar_route(desktop, 'tasks')
-        desktop.locator('[data-edit-task="task-1"]').first.click()
-        assert desktop.locator('[data-modal-form]').is_visible()
-        close_dialog(desktop)
-        task_checkbox = desktop.locator('[data-toggle-task="task-1"]').first
-        task_checkbox.check()
-        desktop.wait_for_timeout(100)
-        assert desktop.evaluate("state.tasks.find(task => task.id === 'task-1').status") == 'done'
-        task_filters = desktop.locator('[data-task-filter]').evaluate_all("nodes => [...new Set(nodes.map(node => node.dataset.taskFilter))]")
-        for value in task_filters:
-            desktop.locator(f'[data-task-filter="{value}"]').first.click()
-
-        click_sidebar_route(desktop, 'calendar')
-        desktop.locator('[data-calendar-next]').first.click()
-        desktop.locator('[data-calendar-prev]').first.click()
-        desktop.locator('[data-calendar-today]').first.click()
-        desktop.locator('[data-context-create]').click()
-        assert desktop.locator('#modal-title').inner_text() == 'Create event'
-        close_dialog(desktop)
-
-        click_sidebar_route(desktop, 'team')
-        desktop.locator('[data-edit-member]').first.click()
-        assert desktop.locator('[data-modal-form]').is_visible()
-        close_dialog(desktop)
-
-        click_sidebar_route(desktop, 'files')
-        desktop.locator('[data-create-folder]').first.click()
-        desktop.locator('[data-modal-form] [name="name"]').fill('QA folder')
-        desktop.locator('[data-modal-form] button[type="submit"]').click()
-        desktop.wait_for_timeout(120)
-        assert desktop.evaluate("state.files.some(file => file.name === 'QA folder')")
-        desktop.locator('[data-file-upload]').first.set_input_files({
-            'name': 'qa.txt',
-            'mimeType': 'text/plain',
-            'buffer': b'Formcraft interaction check'
-        })
-        desktop.wait_for_timeout(150)
-        assert desktop.evaluate("state.files.some(file => file.name === 'qa.txt')")
-        desktop.locator('[data-star-file]').first.click()
-        desktop.locator('[data-rename-file]').first.click()
-        assert desktop.locator('[data-modal-form]').is_visible()
-        close_dialog(desktop)
-
-        click_sidebar_route(desktop, 'invoices')
-        desktop.locator('[data-view-invoice="invoice-1"]').first.click()
-        assert desktop.locator('dialog[open] .bright-invoice-detail').is_visible()
-        close_dialog(desktop)
-        desktop.locator('[data-edit-invoice="invoice-1"]').first.click()
-        assert desktop.locator('[data-modal-form]').is_visible()
-        close_dialog(desktop)
-        if desktop.locator('[data-invoice-filter]').count():
-            desktop.locator('[data-invoice-filter]').first.select_option(index=0)
-
-        click_sidebar_route(desktop, 'activity')
-        if desktop.locator('[data-activity-filter]').count():
-            desktop.locator('[data-activity-filter]').first.select_option(index=0)
-        if desktop.locator('[data-activity-period]').count():
-            desktop.locator('[data-activity-period]').first.select_option(index=0)
-        desktop.locator('[data-clear-activity]').first.click()
-        assert desktop.locator('[data-confirm-action]').is_visible()
-        desktop.locator('[data-close-modal]').first.click()
-
-        click_sidebar_route(desktop, 'settings')
-        tab_names = desktop.locator('[data-settings-tab]').evaluate_all("nodes => [...new Set(nodes.map(node => node.dataset.settingsTab))]")
-        for tab in tab_names:
-            desktop.locator(f'[data-settings-tab="{tab}"]').first.click()
-            desktop.wait_for_timeout(50)
-        if desktop.locator('[data-theme-option="dark"]').count():
-            desktop.locator('[data-theme-option="dark"]').first.click()
-            assert desktop.locator('html').get_attribute('data-theme') == 'dark'
-            desktop.locator('[data-theme-option="light"]').first.click()
-            assert desktop.locator('html').get_attribute('data-theme') == 'light'
-        desktop.locator('[data-reset-data]').first.click()
-        assert desktop.locator('[data-confirm-action]').is_visible()
-        desktop.locator('[data-close-modal]').first.click()
-
-        assert desktop.evaluate("FormcraftInteractions.audit().unnamedButtons.length") == 0
-        assert desktop_errors == []
-        desktop.close()
-
-        mobile, mobile_errors = prepare_page(browser, 390, 844)
-        mobile.goto(f'{base_url}/#dashboard', wait_until='domcontentloaded')
-        wait_for_ready(mobile, mobile_errors)
-        assert mobile.locator('.bright-bottom-nav').is_visible()
-        for route in ['projects', 'tasks', 'calendar', 'dashboard']:
-            mobile.locator(f'[data-bright-route="{route}"]').first.click()
-            mobile.wait_for_timeout(70)
-            assert mobile.evaluate('ui.route') == route
-        mobile.locator('[data-bright-more]').first.click()
-        assert 'drawer-open' in (mobile.locator('body').get_attribute('class') or '')
-        mobile.locator('.mobile-drawer [data-route="files"]').first.click()
-        mobile.wait_for_timeout(70)
-        assert mobile.evaluate('ui.route') == 'files'
-        mobile.evaluate("navigate('dashboard')")
-        mobile.locator('[data-bright-context-create]').first.click()
-        assert mobile.locator('#modal-title').inner_text() == 'Create project'
-        modal_box = mobile.locator('dialog[open]').bounding_box()
-        assert modal_box
-        assert modal_box['width'] >= 389
-        close_dialog(mobile)
-        for route in ['dashboard', 'projects', 'tasks', 'calendar', 'team', 'files', 'invoices', 'activity', 'settings']:
-            mobile.evaluate(f"navigate('{route}')")
-            mobile.wait_for_timeout(40)
-            assert mobile.evaluate('document.documentElement.scrollWidth <= window.innerWidth + 1')
-        assert mobile.evaluate("FormcraftInteractions.audit().unnamedButtons.length") == 0
-        assert mobile_errors == []
-        mobile.close()
-
+    with sync_playwright() as playwright:
+        browser = playwright.chromium.launch(headless=True)
+        run_owner_setup(browser, base_url)
+        run_desktop(browser, base_url)
+        run_mobile(browser, base_url)
         browser.close()
 finally:
     server.shutdown()

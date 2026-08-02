@@ -180,32 +180,34 @@ try:
             close_dialog(desktop)
 
         click_sidebar_route(desktop, 'projects')
-        desktop.locator('[data-view-project="project-1"]').click()
+        desktop.locator('[data-view-project="project-1"]').first.click()
         assert desktop.locator('dialog[open] .full-detail-view').is_visible()
         close_dialog(desktop)
-        desktop.locator('[data-edit-project="project-1"]').click()
+        desktop.locator('[data-edit-project="project-1"]').first.click()
         assert desktop.locator('[data-modal-form]').is_visible()
         close_dialog(desktop)
-        for control in desktop.locator('[data-project-filter]').all():
-            control.click()
+        project_filters = desktop.locator('[data-project-filter]').evaluate_all("nodes => [...new Set(nodes.map(node => node.dataset.projectFilter))]")
+        for value in project_filters:
+            desktop.locator(f'[data-project-filter="{value}"]').first.click()
         if desktop.locator('[data-project-sort]').count():
-            desktop.locator('[data-project-sort]').select_option(index=0)
+            desktop.locator('[data-project-sort]').first.select_option(index=0)
 
         click_sidebar_route(desktop, 'tasks')
-        desktop.locator('[data-edit-task="task-1"]').click()
+        desktop.locator('[data-edit-task="task-1"]').first.click()
         assert desktop.locator('[data-modal-form]').is_visible()
         close_dialog(desktop)
-        task_checkbox = desktop.locator('[data-toggle-task="task-1"]')
+        task_checkbox = desktop.locator('[data-toggle-task="task-1"]').first
         task_checkbox.check()
         desktop.wait_for_timeout(100)
         assert desktop.evaluate("state.tasks.find(task => task.id === 'task-1').status") == 'done'
-        for control in desktop.locator('[data-task-filter]').all():
-            control.click()
+        task_filters = desktop.locator('[data-task-filter]').evaluate_all("nodes => [...new Set(nodes.map(node => node.dataset.taskFilter))]")
+        for value in task_filters:
+            desktop.locator(f'[data-task-filter="{value}"]').first.click()
 
         click_sidebar_route(desktop, 'calendar')
-        desktop.locator('[data-calendar-next]').click()
-        desktop.locator('[data-calendar-prev]').click()
-        desktop.locator('[data-calendar-today]').click()
+        desktop.locator('[data-calendar-next]').first.click()
+        desktop.locator('[data-calendar-prev]').first.click()
+        desktop.locator('[data-calendar-today]').first.click()
         desktop.locator('[data-context-create]').click()
         assert desktop.locator('#modal-title').inner_text() == 'Create event'
         close_dialog(desktop)
@@ -216,12 +218,12 @@ try:
         close_dialog(desktop)
 
         click_sidebar_route(desktop, 'files')
-        desktop.locator('[data-create-folder]').click()
+        desktop.locator('[data-create-folder]').first.click()
         desktop.locator('[data-modal-form] [name="name"]').fill('QA folder')
         desktop.locator('[data-modal-form] button[type="submit"]').click()
         desktop.wait_for_timeout(120)
         assert desktop.evaluate("state.files.some(file => file.name === 'QA folder')")
-        desktop.locator('[data-file-upload]').set_input_files({
+        desktop.locator('[data-file-upload]').first.set_input_files({
             'name': 'qa.txt',
             'mimeType': 'text/plain',
             'buffer': b'Formcraft interaction check'
@@ -234,35 +236,35 @@ try:
         close_dialog(desktop)
 
         click_sidebar_route(desktop, 'invoices')
-        desktop.locator('[data-view-invoice="invoice-1"]').click()
+        desktop.locator('[data-view-invoice="invoice-1"]').first.click()
         assert desktop.locator('dialog[open] .bright-invoice-detail').is_visible()
         close_dialog(desktop)
-        desktop.locator('[data-edit-invoice="invoice-1"]').click()
+        desktop.locator('[data-edit-invoice="invoice-1"]').first.click()
         assert desktop.locator('[data-modal-form]').is_visible()
         close_dialog(desktop)
         if desktop.locator('[data-invoice-filter]').count():
-            desktop.locator('[data-invoice-filter]').select_option(index=0)
+            desktop.locator('[data-invoice-filter]').first.select_option(index=0)
 
         click_sidebar_route(desktop, 'activity')
         if desktop.locator('[data-activity-filter]').count():
-            desktop.locator('[data-activity-filter]').select_option(index=0)
+            desktop.locator('[data-activity-filter]').first.select_option(index=0)
         if desktop.locator('[data-activity-period]').count():
-            desktop.locator('[data-activity-period]').select_option(index=0)
-        desktop.locator('[data-clear-activity]').click()
+            desktop.locator('[data-activity-period]').first.select_option(index=0)
+        desktop.locator('[data-clear-activity]').first.click()
         assert desktop.locator('[data-confirm-action]').is_visible()
         desktop.locator('[data-close-modal]').first.click()
 
         click_sidebar_route(desktop, 'settings')
-        tab_names = desktop.locator('[data-settings-tab]').evaluate_all("nodes => nodes.map(node => node.dataset.settingsTab)")
+        tab_names = desktop.locator('[data-settings-tab]').evaluate_all("nodes => [...new Set(nodes.map(node => node.dataset.settingsTab))]")
         for tab in tab_names:
-            desktop.locator(f'[data-settings-tab="{tab}"]').click()
+            desktop.locator(f'[data-settings-tab="{tab}"]').first.click()
             desktop.wait_for_timeout(50)
         if desktop.locator('[data-theme-option="dark"]').count():
-            desktop.locator('[data-theme-option="dark"]').click()
+            desktop.locator('[data-theme-option="dark"]').first.click()
             assert desktop.locator('html').get_attribute('data-theme') == 'dark'
-            desktop.locator('[data-theme-option="light"]').click()
+            desktop.locator('[data-theme-option="light"]').first.click()
             assert desktop.locator('html').get_attribute('data-theme') == 'light'
-        desktop.locator('[data-reset-data]').click()
+        desktop.locator('[data-reset-data]').first.click()
         assert desktop.locator('[data-confirm-action]').is_visible()
         desktop.locator('[data-close-modal]').first.click()
 
@@ -275,16 +277,16 @@ try:
         wait_for_ready(mobile, mobile_errors)
         assert mobile.locator('.bright-bottom-nav').is_visible()
         for route in ['projects', 'tasks', 'calendar', 'dashboard']:
-            mobile.locator(f'[data-bright-route="{route}"]').click()
+            mobile.locator(f'[data-bright-route="{route}"]').first.click()
             mobile.wait_for_timeout(70)
             assert mobile.evaluate('ui.route') == route
-        mobile.locator('[data-bright-more]').click()
+        mobile.locator('[data-bright-more]').first.click()
         assert 'drawer-open' in (mobile.locator('body').get_attribute('class') or '')
-        mobile.locator('.mobile-drawer [data-route="files"]').click()
+        mobile.locator('.mobile-drawer [data-route="files"]').first.click()
         mobile.wait_for_timeout(70)
         assert mobile.evaluate('ui.route') == 'files'
         mobile.evaluate("navigate('dashboard')")
-        mobile.locator('[data-bright-context-create]').click()
+        mobile.locator('[data-bright-context-create]').first.click()
         assert mobile.locator('#modal-title').inner_text() == 'Create project'
         modal_box = mobile.locator('dialog[open]').bounding_box()
         assert modal_box

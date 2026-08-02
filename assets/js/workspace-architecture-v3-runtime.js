@@ -108,6 +108,8 @@
     if (toggle && isTablet()) {
       event.preventDefault();
       event.stopImmediatePropagation();
+      document.body.classList.remove('fc3-sidebar-collapsed');
+      try { window.localStorage.setItem('formcraft:workspace-architecture-v3:sidebar', 'expanded'); } catch {}
       document.body.classList.toggle('fc3-context-open');
       syncResponsiveNavigation();
       return;

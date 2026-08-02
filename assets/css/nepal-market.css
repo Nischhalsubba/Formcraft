@@ -1,0 +1,201 @@
+/* Nepal market controls, dual-calendar presentation and fiscal document layouts. */
+
+.nepal-market-chip {
+  display: inline-flex;
+  min-height: 30px;
+  align-items: center;
+  padding: 0 10px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--surface-soft);
+  color: var(--muted);
+  font-size: 10px;
+  font-weight: 750;
+  letter-spacing: .025em;
+  white-space: nowrap;
+}
+
+.nepal-market-banner {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 18px 20px;
+  border: 1px solid color-mix(in srgb, var(--primary) 25%, var(--border));
+  border-radius: 13px;
+  background: linear-gradient(135deg, var(--primary-soft), var(--surface));
+}
+
+.nepal-market-banner > div { min-width: 0; }
+.nepal-market-banner strong,
+.nepal-market-banner p,
+.nepal-market-kicker { display: block; }
+.nepal-market-banner strong { margin-top: 3px; color: var(--ink); font-size: 17px; letter-spacing: -.02em; }
+.nepal-market-banner p { max-width: 780px; margin: 5px 0 0; color: var(--muted); font-size: 12px; }
+.nepal-market-kicker { color: var(--primary); font-size: 10px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
+
+.nepal-compliance-badge {
+  display: inline-flex;
+  min-height: 30px;
+  flex: 0 0 auto;
+  align-items: center;
+  padding: 0 10px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--muted);
+  font-size: 10px;
+  font-weight: 750;
+  white-space: nowrap;
+}
+.nepal-compliance-badge.is-approved { border-color: color-mix(in srgb, var(--success) 35%, var(--border)); background: var(--success-soft); color: var(--success); }
+.nepal-compliance-badge.is-warning { border-color: color-mix(in srgb, var(--warning) 35%, var(--border)); background: var(--warning-soft); color: var(--warning); }
+.nepal-bs-range,
+.nepal-date-preview,
+.nepal-retention-note { margin: 5px 0 0; color: var(--muted); font-size: 11px; }
+
+.nepal-calendar-day { min-width: 0; }
+.nepal-calendar-day.is-nepal-weekend { background: color-mix(in srgb, var(--danger-soft) 54%, var(--surface)); }
+.calendar-head .is-nepal-weekend,
+.nepal-calendar-day.is-nepal-weekend .calendar-date-button > span:first-child { color: var(--danger); }
+.nepal-date-button { display: grid; width: auto; min-width: 38px; height: auto; min-height: 36px; align-content: center; justify-items: start; gap: 1px; padding: 3px 6px; }
+.nepal-date-button small { color: var(--muted-2); font-size: 8px; font-weight: 650; line-height: 1.1; }
+.nepal-holiday-chip { display: block; overflow: hidden; margin: 2px 4px 4px; padding: 3px 5px; border-radius: 5px; background: var(--danger-soft); color: var(--danger); font-size: 8px; font-weight: 750; line-height: 1.25; text-overflow: ellipsis; white-space: nowrap; }
+.nepal-calendar-lower { display: grid; grid-template-columns: minmax(0, .8fr) minmax(0, 1.2fr); gap: 18px; }
+.nepal-holiday-list { display: grid; }
+.nepal-holiday-list > div { display: grid; grid-template-columns: minmax(150px, auto) minmax(0, 1fr); align-items: center; gap: 14px; padding: 11px 0; border-top: 1px solid var(--border); }
+.nepal-holiday-list > div:first-child { border-top: 0; }
+.nepal-holiday-list time { color: var(--muted); font-size: 11px; }
+.nepal-holiday-list span,
+.nepal-holiday-list strong,
+.nepal-holiday-list small { display: block; min-width: 0; }
+.nepal-holiday-list strong { color: var(--ink); font-size: 13px; }
+.nepal-holiday-list small { margin-top: 2px; color: var(--muted-2); font-size: 10px; text-transform: capitalize; }
+
+.nepal-document-badge { display: inline-flex; min-height: 24px; align-items: center; padding: 0 8px; border-radius: 999px; background: var(--surface-soft); color: var(--muted); font-size: 9px; font-weight: 750; white-space: nowrap; }
+.nepal-document-badge[data-type="tax-invoice"] { background: var(--primary-soft); color: var(--primary); }
+.nepal-document-badge[data-type="credit-note"] { background: var(--danger-soft); color: var(--danger); }
+.nepal-document-badge[data-type="debit-note"] { background: var(--warning-soft); color: var(--warning); }
+
+.nepal-form-alert { display: grid; gap: 3px; padding: 13px 15px; border: 1px solid color-mix(in srgb, var(--warning) 30%, var(--border)); border-radius: 10px; background: var(--warning-soft); color: var(--warning); }
+.nepal-form-alert strong { font-size: 12px; }
+.nepal-form-alert span { color: color-mix(in srgb, var(--warning) 78%, var(--ink)); font-size: 11px; line-height: 1.55; }
+.nepal-invoice-form .modal-body { display: grid; gap: 22px; }
+.nepal-inline-check { min-height: 72px; padding: 13px 14px; border: 1px solid var(--border); border-radius: 10px; background: var(--surface-soft); }
+.nepal-inline-check .setting-copy p { margin: 3px 0 0; }
+.nepal-line-items { display: grid; gap: 10px; margin-bottom: 12px; }
+.nepal-line-item-row { display: grid; min-width: 0; grid-template-columns: minmax(180px, 2.4fr) minmax(72px, .65fr) minmax(90px, .8fr) minmax(105px, 1fr) minmax(105px, 1fr) 40px; align-items: end; gap: 10px; padding: 13px; border: 1px solid var(--border); border-radius: 10px; background: var(--surface-soft); }
+.nepal-line-item-row .field { gap: 5px; }
+.nepal-line-item-row .field input { min-height: 40px; }
+.nepal-remove-line { margin-bottom: 1px; }
+
+.nepal-invoice-live-summary { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); overflow: hidden; border: 1px solid var(--border); border-radius: 11px; background: var(--surface-soft); }
+.nepal-invoice-live-summary > div { display: flex; min-width: 0; justify-content: space-between; gap: 16px; padding: 11px 14px; border-top: 1px solid var(--border); }
+.nepal-invoice-live-summary > div:nth-child(-n+2) { border-top: 0; }
+.nepal-invoice-live-summary > div:nth-child(even) { border-left: 1px solid var(--border); }
+.nepal-invoice-live-summary span { color: var(--muted); font-size: 11px; }
+.nepal-invoice-live-summary strong { overflow: hidden; color: var(--ink); font-size: 12px; text-overflow: ellipsis; white-space: nowrap; }
+.nepal-invoice-live-summary .is-total { background: var(--surface); }
+.nepal-invoice-live-summary .is-total strong { color: var(--primary); font-size: 14px; }
+.nepal-form-error { min-height: 18px; }
+
+.nepal-invoice-detail .bright-detail-body { background: var(--canvas); }
+.nepal-invoice-screen-summary { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-bottom: 16px; }
+.nepal-invoice-screen-summary > span:not(.nepal-compliance-badge) { padding: 6px 9px; border: 1px solid var(--border); border-radius: 7px; background: var(--surface); color: var(--muted); font-size: 11px; }
+.nepal-invoice-print-stack { display: grid; gap: 18px; }
+.nepal-copy:not(:first-child) { display: none; }
+.nepal-legal-invoice { width: min(100%, 920px); margin-inline: auto; padding: 34px; border: 1px solid var(--border); background: #fff; color: #17202a; box-shadow: var(--shadow-sm); }
+.nepal-invoice-header { display: grid; grid-template-columns: minmax(0, 1fr) minmax(220px, auto); gap: 24px; padding-bottom: 20px; border-bottom: 2px solid #17202a; }
+.nepal-invoice-header h2 { margin: 3px 0 12px; color: #17202a; font-size: 23px; letter-spacing: -.03em; }
+.nepal-invoice-header p,
+.nepal-invoice-id span,
+.nepal-invoice-parties p,
+.nepal-invoice-footer p { margin: 3px 0 0; color: #52606d; font-size: 11px; line-height: 1.45; }
+.nepal-invoice-copy-label { color: #b42318 !important; font-weight: 800; letter-spacing: .06em; }
+.nepal-invoice-id { display: grid; align-content: start; justify-items: end; text-align: right; }
+.nepal-invoice-id strong { font-size: 16px; }
+.nepal-print-warning { margin-top: 14px; padding: 9px 11px; border: 1px solid #fec84b; background: #fffaeb; color: #7a2e0e; font-size: 10px; font-weight: 650; }
+.nepal-invoice-parties { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 28px; padding: 22px 0; }
+.nepal-invoice-parties > div > span { display: block; margin-bottom: 5px; color: #667085; font-size: 9px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
+.nepal-adjustment-reference { display: grid; gap: 4px; margin-bottom: 18px; padding: 12px; border: 1px solid #d0d5dd; background: #f9fafb; font-size: 11px; }
+.nepal-adjustment-reference p { margin: 2px 0 0; }
+.nepal-invoice-table { width: 100%; border-collapse: collapse; font-size: 10px; }
+.nepal-invoice-table th,
+.nepal-invoice-table td { padding: 9px 7px; border: 1px solid #d0d5dd; text-align: left; vertical-align: top; }
+.nepal-invoice-table th { background: #f2f4f7; color: #344054; font-size: 9px; letter-spacing: .025em; }
+.nepal-invoice-table th:nth-last-child(-n+3),
+.nepal-invoice-table td:nth-last-child(-n+3) { text-align: right; }
+.nepal-invoice-totals { display: grid; width: min(100%, 390px); margin: 18px 0 0 auto; }
+.nepal-invoice-totals > div { display: flex; justify-content: space-between; gap: 20px; padding: 7px 0; border-top: 1px solid #e4e7ec; font-size: 11px; }
+.nepal-invoice-totals > div:first-child { border-top: 0; }
+.nepal-invoice-totals .is-grand { padding: 10px 0; border-top: 2px solid #17202a; font-size: 14px; }
+.nepal-invoice-footer { display: grid; grid-template-columns: minmax(0, 1fr) 220px; gap: 28px; margin-top: 34px; padding-top: 20px; border-top: 1px solid #d0d5dd; }
+.nepal-signature { display: flex; min-height: 72px; align-items: flex-end; justify-content: center; border-bottom: 1px solid #667085; color: #667085; font-size: 9px; }
+.nepal-issued-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 9px; width: min(100%, 920px); margin: 16px auto 0; padding: 14px; border: 1px solid var(--border); border-radius: 10px; background: var(--surface); }
+.nepal-issued-actions p { flex: 1 1 380px; margin: 0; color: var(--muted); font-size: 11px; }
+.nepal-audit-trail { width: min(100%, 920px); margin: 14px auto 0; padding: 13px 15px; border: 1px solid var(--border); border-radius: 10px; background: var(--surface); }
+.nepal-audit-trail summary { cursor: pointer; color: var(--ink); font-weight: 700; }
+.nepal-audit-trail p { display: grid; grid-template-columns: minmax(150px, auto) minmax(0, 1fr); gap: 12px; margin: 10px 0 0; color: var(--muted); font-size: 11px; }
+
+.nepal-market-settings { display: none; gap: 22px; }
+.nepal-market-settings.is-active { display: grid; }
+.nepal-market-settings .bright-form-section { margin: 0; }
+.nepal-custom-holidays { display: grid; margin-bottom: 12px; }
+.nepal-custom-holidays > div { display: flex; min-width: 0; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 0; border-top: 1px solid var(--border); }
+.nepal-custom-holidays > div:first-child { border-top: 0; }
+.nepal-custom-holidays span,
+.nepal-custom-holidays strong,
+.nepal-custom-holidays small { display: block; min-width: 0; }
+.nepal-custom-holidays small { margin-top: 2px; color: var(--muted); font-size: 10px; }
+.nepal-source-list { display: grid; gap: 7px; }
+.nepal-source-list a { display: flex; min-height: 40px; align-items: center; justify-content: space-between; gap: 12px; padding: 0 11px; border: 1px solid var(--border); border-radius: 8px; background: var(--surface-soft); color: var(--ink); font-size: 11px; font-weight: 650; text-decoration: none; }
+.nepal-source-list a:hover { border-color: var(--primary); color: var(--primary); }
+
+@media (max-width: 1080px) {
+  .nepal-calendar-lower { grid-template-columns: 1fr; }
+  .nepal-line-item-row { grid-template-columns: minmax(180px, 2fr) repeat(2, minmax(90px, 1fr)); }
+  .nepal-line-description { grid-column: 1 / -1; }
+}
+
+@media (max-width: 760px) {
+  .nepal-market-chip { display: none; }
+  .nepal-market-banner { align-items: flex-start; flex-direction: column; padding: 15px; }
+  .nepal-calendar-day { min-height: 76px; }
+  .nepal-holiday-chip { max-width: 72px; }
+  .nepal-holiday-list > div { grid-template-columns: 1fr; gap: 4px; }
+  .nepal-line-item-row { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .nepal-line-description { grid-column: 1 / -1; }
+  .nepal-remove-line { justify-self: end; }
+  .nepal-invoice-live-summary { grid-template-columns: 1fr; }
+  .nepal-invoice-live-summary > div,
+  .nepal-invoice-live-summary > div:nth-child(-n+2) { border-top: 1px solid var(--border); border-left: 0; }
+  .nepal-invoice-live-summary > div:first-child { border-top: 0; }
+  .nepal-legal-invoice { padding: 20px 14px; overflow-x: auto; }
+  .nepal-invoice-header,
+  .nepal-invoice-parties,
+  .nepal-invoice-footer { grid-template-columns: 1fr; }
+  .nepal-invoice-id { justify-items: start; text-align: left; }
+  .nepal-invoice-table { min-width: 720px; }
+  .nepal-audit-trail p { grid-template-columns: 1fr; gap: 3px; }
+}
+
+@media print {
+  body { padding: 0 !important; background: #fff !important; }
+  body > *:not(.modal),
+  .modal::backdrop,
+  .bright-detail-header,
+  .nepal-invoice-screen-summary,
+  .nepal-issued-actions,
+  .nepal-audit-trail { display: none !important; }
+  dialog.modal,
+  dialog.modal[open] { position: static !important; display: block !important; width: auto !important; max-width: none !important; height: auto !important; max-height: none !important; margin: 0 !important; overflow: visible !important; border: 0 !important; background: #fff !important; box-shadow: none !important; }
+  .modal [data-modal-content],
+  .full-detail-view,
+  .bright-detail-body,
+  .nepal-invoice-print-stack { display: block !important; width: 100% !important; height: auto !important; padding: 0 !important; overflow: visible !important; background: #fff !important; }
+  .nepal-copy,
+  .nepal-copy:not(:first-child) { display: block !important; width: 100% !important; max-width: none !important; margin: 0 !important; padding: 12mm !important; border: 0 !important; box-shadow: none !important; break-after: page; page-break-after: always; }
+  .nepal-copy:last-child { break-after: auto; page-break-after: auto; }
+  @page { size: A4 portrait; margin: 0; }
+}

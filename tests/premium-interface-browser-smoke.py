@@ -76,6 +76,12 @@ def run_desktop_launcher(browser, base_url):
     assert icon_map['crm'] != icon_map['sales']
     assert icon_map['inventory'] != icon_map['manufacturing']
 
+    shape_signatures = page.locator('.erp-app-card').evaluate_all(
+        "cards => cards.map(card => card.querySelector('.erp-app-icon svg')?.innerHTML.replace(/\\s+/g, ' ').trim() || '')"
+    )
+    assert len(shape_signatures) == 61, len(shape_signatures)
+    assert len(set(shape_signatures)) == 61, 'Every launcher app must have a visually unique SVG path signature.'
+
     heading_font = visible(page, '.erp-launcher-hero h2').evaluate('node => getComputedStyle(node).fontFamily')
     assert 'Manrope' in heading_font, heading_font
     title_size = visible(page, '.erp-app-copy strong').evaluate('node => parseFloat(getComputedStyle(node).fontSize)')
@@ -178,4 +184,4 @@ finally:
     server.shutdown()
     server.server_close()
 
-print('Premium interface E2E checks passed for unique iconography, typography, semantic group tones, explicit active/parent/inactive states, dashboard navigation, app launcher, and mobile flow.')
+print('Premium interface E2E checks passed for unique SVG shapes, iconography, typography, semantic group tones, explicit active/parent/inactive states, dashboard navigation, app launcher, and mobile flow.')

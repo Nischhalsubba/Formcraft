@@ -1,0 +1,91 @@
+'use strict';
+
+(() => {
+  const architecture = window.FormcraftWorkspaceArchitecture;
+  if (!architecture) throw new Error('Workspace architecture v3 must load before its responsive runtime.');
+
+  const TABLET_QUERY = '(min-width: 821px) and (max-width: 1100px)';
+  const isTablet = () => window.matchMedia(TABLET_QUERY).matches;
+
+  function closeTabletContext() {
+    document.body.classList.remove('fc3-context-open');
+  }
+
+  function normalizeNavigationState() {
+    const moduleActive = String(ui.route || '').startsWith('erp-');
+    document.querySelectorAll('.fc3-context-sidebar [data-erp-apps-nav], .fc3-mobile-drawer [data-erp-apps-nav]').forEach(link => {
+      const active = ui.route === 'apps';
+      link.classList.toggle('is-active', active);
+      if (active) link.setAttribute('aria-current', 'page');
+      else link.removeAttribute('aria-current');
+    });
+    document.querySelectorAll('.fc3-app-rail [data-erp-apps-nav]').forEach(link => {
+      const active = ui.route === 'apps' || moduleActive;
+      link.classList.toggle('is-active', active);
+      if (active) link.setAttribute('aria-current', 'page');
+      else link.removeAttribute('aria-current');
+    });
+  }
+
+  function syncResponsiveNavigation() {
+    normalizeNavigationState();
+    if (!isTablet()) closeTabletContext();
+    document.querySelectorAll('[data-fc3-toggle-sidebar]').forEach(button => {
+      if (isTablet()) {
+        const open = document.body.classList.contains('fc3-context-open');
+        button.setAttribute('aria-expanded', String(open));
+        button.setAttribute('aria-label', open ? 'Close contextual navigation' : 'Open contextual navigation');
+        button.title = open ? 'Close navigation' : 'Open navigation';
+      }
+    });
+  }
+
+  const previousRenderShell = renderShell;
+  renderShell = function renderWorkspaceArchitectureResponsive(...args) {
+    const result = previousRenderShell.apply(this, args);
+    requestAnimationFrame(syncResponsiveNavigation);
+    return result;
+  };
+
+  document.addEventListener('click', event => {
+    const target = event.target instanceof Element ? event.target : null;
+    if (!target) return;
+
+    const toggle = target.closest('[data-fc3-toggle-sidebar]');
+    if (toggle && isTablet()) {
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      document.body.classList.toggle('fc3-context-open');
+      syncResponsiveNavigation();
+      return;
+    }
+
+    if (isTablet() && document.body.classList.contains('fc3-context-open')) {
+      const navigated = target.closest('.fc3-context-sidebar [data-route], .fc3-context-sidebar [data-erp-open-app], .fc3-context-sidebar [data-erp-apps-nav]');
+      if (navigated) closeTabletContext();
+    }
+  }, true);
+
+  document.addEventListener('pointerdown', event => {
+    if (!isTablet() || !document.body.classList.contains('fc3-context-open')) return;
+    if (event.target.closest('.fc3-context-sidebar, [data-fc3-toggle-sidebar]')) return;
+    closeTabletContext();
+    syncResponsiveNavigation();
+  }, true);
+
+  document.addEventListener('keydown', event => {
+    if (event.key !== 'Escape' || !document.body.classList.contains('fc3-context-open')) return;
+    closeTabletContext();
+    syncResponsiveNavigation();
+    document.querySelector('.fc3-topbar [data-fc3-toggle-sidebar]')?.focus();
+  });
+
+  window.addEventListener('resize', () => requestAnimationFrame(syncResponsiveNavigation));
+  requestAnimationFrame(syncResponsiveNavigation);
+
+  window.FormcraftWorkspaceArchitectureRuntime = Object.freeze({
+    tabletQuery: TABLET_QUERY,
+    syncResponsiveNavigation,
+    closeTabletContext
+  });
+})();

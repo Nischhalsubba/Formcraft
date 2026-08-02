@@ -49,16 +49,55 @@
     return user?.user_metadata?.full_name || currentUserName() || user?.email || 'Workspace member';
   }
 
+  function fieldValue(form, name) {
+    return String(form.elements[name]?.value || '').trim();
+  }
+
+  function showFieldError(form, name, message) {
+    const control = form.elements[name];
+    const error = form.querySelector(`[data-error-for="${name}"]`);
+    control?.setAttribute('aria-invalid', 'true');
+    if (error) error.textContent = message;
+  }
+
+  function validateComposeForm(form, folder) {
+    form.querySelectorAll('[data-error-for]').forEach(error => { error.textContent = ''; });
+    form.querySelectorAll('[aria-invalid="true"]').forEach(control => control.removeAttribute('aria-invalid'));
+
+    const to = fieldValue(form, 'to');
+    const subject = fieldValue(form, 'subject');
+    const body = fieldValue(form, 'body');
+    let valid = true;
+
+    if (!to) {
+      showFieldError(form, 'to', 'This field is required.');
+      valid = false;
+    } else if (!/^\S+@\S+\.\S+$/.test(to)) {
+      showFieldError(form, 'to', 'Enter a valid email address.');
+      valid = false;
+    }
+    if (!subject) {
+      showFieldError(form, 'subject', 'This field is required.');
+      valid = false;
+    }
+    if (folder === 'sent' && !body) {
+      showFieldError(form, 'body', 'This field is required.');
+      valid = false;
+    }
+
+    if (!valid) form.querySelector('[aria-invalid="true"]')?.focus();
+    return valid;
+  }
+
   function buildMessage(form, folder) {
-    const values = formValues(form);
     const attachmentInput = form.elements.attachments;
     return {
-      id: uid(),
+      id: globalThis.crypto?.randomUUID?.() || `${Date.now()}-${Math.random().toString(16).slice(2)}`,
       folder,
       from: senderIdentity(),
-      to: values.to,
-      subject: values.subject,
-      body: values.body || '',
+      to: fieldValue(form, 'to'),
+      subject: fieldValue(form, 'subject'),
+      body: fieldValue(form, 'body'),
       date: new Date().toISOString(),
       unread: false,
       starred: false,
@@ -80,17 +119,21 @@
 
   async function commitEmailMessage(form, folder) {
     if (!form || committingForms.has(form)) return;
-    const requiredNames = folder === 'sent' ? null : ['to', 'subject'];
-    if (!validateForm(form, requiredNames)) return;
+    window.__FORMCRAFT_EMAIL_COMPOSE_STAGE__ = 'validating';
+    if (!validateComposeForm(form, folder)) {
+      window.__FORMCRAFT_EMAIL_COMPOSE_STAGE__ = 'invalid';
+      return;
+    }
 
     committingForms.add(form);
     setComposeBusy(form, true, folder);
 
     const record = buildMessage(form, folder);
-    state.messages.unshift(record);
+    state.messages = [record, ...(Array.isArray(state.messages) ? state.messages : [])];
     logActivity('email', folder === 'sent' ? 'Message sent' : 'Draft saved', record.subject);
     ui.emailFolder = folder;
     ui.selectedEmail = null;
+    window.__FORMCRAFT_EMAIL_COMPOSE_STAGE__ = 'committed';
 
     closeModal();
     renderShell();
@@ -98,12 +141,32 @@
     try {
       await Promise.resolve(saveState());
       record.syncState = 'synced';
+      window.__FORMCRAFT_EMAIL_COMPOSE_STAGE__ = 'synced';
       toast(folder === 'sent' ? 'Message sent.' : 'Draft saved.');
     } catch (error) {
       record.syncState = 'retry';
+      window.__FORMCRAFT_EMAIL_COMPOSE_STAGE__ = 'retry';
       toast('The message is saved and will retry syncing with the workspace.', 'warning');
     }
   }
+
+  function composeAction(event) {
+    const sendButton = event.target.closest('[data-send-message]');
+    const draftButton = event.target.closest('[data-save-message-draft]');
+    if (!sendButton && !draftButton) return false;
+
+    const form = event.target.closest('[data-enhanced-compose-form]');
+    if (!form) return false;
+
+    event.preventDefault();
+    event.stopImmediatePropagation();
+    commitEmailMessage(form, sendButton ? 'sent' : 'drafts');
+    return true;
+  }
+
+  document.addEventListener('pointerup', event => {
+    composeAction(event);
+  }, true);
 
   document.addEventListener('click', event => {
     const searchResult = event.target.closest('[data-workspace-search-route]');
@@ -114,16 +177,7 @@
       return;
     }
 
-    const sendButton = event.target.closest('[data-send-message]');
-    const draftButton = event.target.closest('[data-save-message-draft]');
-    if (!sendButton && !draftButton) return;
-
-    const form = event.target.closest('[data-enhanced-compose-form]');
-    if (!form) return;
-
-    event.preventDefault();
-    event.stopImmediatePropagation();
-    commitEmailMessage(form, sendButton ? 'sent' : 'drafts');
+    composeAction(event);
   }, true);
 
   document.addEventListener('submit', event => {
@@ -139,6 +193,9 @@
     commit: commitEmailMessage,
     isCommitting(form) {
       return Boolean(form && committingForms.has(form));
+    },
+    stage() {
+      return window.__FORMCRAFT_EMAIL_COMPOSE_STAGE__ || 'idle';
     }
   });
 

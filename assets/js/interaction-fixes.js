@@ -63,4 +63,12 @@
       };
     }
   });
+
+  if (!document.querySelector('script[data-email-compose-controller]')) {
+    const controller = document.createElement('script');
+    controller.src = 'assets/js/email-compose-controller.js';
+    controller.async = false;
+    controller.dataset.emailComposeController = '';
+    document.head.append(controller);
+  }
 })();

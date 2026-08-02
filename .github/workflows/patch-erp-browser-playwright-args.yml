@@ -1,0 +1,55 @@
+name: Patch ERP browser Playwright arguments
+
+on:
+  push:
+    branches:
+      - agent/nepal-erp-suite
+
+permissions:
+  contents: write
+
+jobs:
+  patch-test:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out branch
+        uses: actions/checkout@v4
+        with:
+          ref: agent/nepal-erp-suite
+          fetch-depth: 0
+
+      - name: Correct keyword-only Playwright arguments
+        shell: python
+        run: |
+          from pathlib import Path
+
+          path = Path('tests/erp-suite-browser-smoke.py')
+          text = path.read_text(encoding='utf-8')
+          replacements = {
+              "        contact_id,\n    )": "        arg=contact_id,\n    )",
+              "        order_id,\n    )\n    page.wait_for_selector('[data-erp-workflow=\"sales-invoice\"]')": "        arg=order_id,\n    )\n    page.wait_for_selector('[data-erp-workflow=\"sales-invoice\"]')",
+              "        [order_id, invoice_count],\n    )": "        arg=[order_id, invoice_count],\n    )",
+              "            [purchase_id, expected],\n        )": "            arg=[purchase_id, expected],\n        )",
+              "        payroll_id,\n    )\n    visible(page, '[data-erp-workflow=\"payroll-approve\"]')": "        arg=payroll_id,\n    )\n    visible(page, '[data-erp-workflow=\"payroll-approve\"]')",
+              "        payroll_id,\n    )\n\n    open_app(page, 'helpdesk')": "        arg=payroll_id,\n    )\n\n    open_app(page, 'helpdesk')",
+          }
+          for before, after in replacements.items():
+              if before not in text:
+                  raise SystemExit(f'Missing expected browser-test fragment: {before!r}')
+              text = text.replace(before, after, 1)
+          path.write_text(text, encoding='utf-8')
+
+      - name: Remove one-time patch workflow
+        run: rm -f .github/workflows/patch-erp-browser-playwright-args.yml
+
+      - name: Validate Python syntax
+        run: python -m py_compile tests/erp-suite-browser-smoke.py
+
+      - name: Commit corrected browser regression
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -A
+          git commit -m 'Correct ERP browser Playwright arguments'
+          git push origin HEAD:agent/nepal-erp-suite

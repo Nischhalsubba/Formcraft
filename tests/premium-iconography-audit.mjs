@@ -2,12 +2,13 @@ import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 
 const root = new URL('../', import.meta.url);
-const [html, iconography, uniqueness, runtime, css, packageJson, docs] = await Promise.all([
+const [html, iconography, uniqueness, runtime, css, geometry, packageJson, docs] = await Promise.all([
   readFile(new URL('index.html', root), 'utf8'),
   readFile(new URL('assets/js/premium-iconography.js', root), 'utf8'),
   readFile(new URL('assets/js/premium-iconography-uniqueness.js', root), 'utf8'),
   readFile(new URL('assets/js/premium-interface-runtime.js', root), 'utf8'),
   readFile(new URL('assets/css/premium-interface.css', root), 'utf8'),
+  readFile(new URL('assets/css/premium-interface-geometry.css', root), 'utf8'),
   readFile(new URL('package.json', root), 'utf8'),
   readFile(new URL('docs/PREMIUM_UI_E2E_AUDIT.md', root), 'utf8')
 ]);
@@ -16,9 +17,14 @@ for (const asset of [
   'assets/js/premium-iconography.js',
   'assets/js/premium-iconography-uniqueness.js',
   'assets/js/premium-interface-runtime.js',
-  'assets/css/premium-interface.css'
+  'assets/css/premium-interface.css',
+  'assets/css/premium-interface-geometry.css'
 ]) assert.ok(html.includes(asset), `Missing premium UI asset: ${asset}`);
 
+assert.ok(
+  html.indexOf('assets/css/premium-interface-geometry.css') > html.indexOf('assets/css/premium-interface.css'),
+  'Geometry guard must load after the premium visual layer.'
+);
 assert.ok(html.includes('family=Inter') && html.includes('family=Manrope'), 'Inter and Manrope typography must be loaded.');
 assert.ok(
   html.indexOf('assets/js/premium-iconography.js') > html.indexOf('assets/js/erp-suite-schema.js') &&
@@ -91,11 +97,20 @@ for (const selector of [
   '@media (prefers-reduced-motion: reduce)'
 ]) assert.ok(css.includes(selector), `Missing premium UI style contract: ${selector}`);
 
+for (const token of [
+  '--fc3-rail-width: 72px',
+  '--fc3-sidebar-width: 272px',
+  '.fc3-app-rail { width: var(--fc3-rail-width); }',
+  '.fc3-context-sidebar { width: var(--fc3-sidebar-width); }',
+  '@media (max-width: 1320px) and (min-width: 1101px)',
+  '@media (max-width: 1100px)'
+]) assert.ok(geometry.includes(token), `Missing navigation geometry contract: ${token}`);
+
 for (const group of ['essentials', 'finance', 'sales', 'websites', 'supply', 'hr', 'marketing', 'services', 'productivity']) {
   assert.ok(css.includes(`[data-app-group="${group}"]`), `Missing semantic group tone: ${group}`);
 }
 
-for (const bug of ['DES-001', 'DEV-001', 'PO-001', 'Resolved', 'No known release-blocking defects']) {
+for (const bug of ['DES-001', 'DEV-001', 'DEV-016', 'PO-001', 'Resolved', 'No known release-blocking defects']) {
   assert.ok(docs.includes(bug), `Missing E2E audit evidence: ${bug}`);
 }
 
@@ -107,5 +122,5 @@ assert.ok(pkg.scripts['test:premium'].includes('premium-iconography-uniqueness.j
 assert.ok(pkg.scripts['test:premium'].includes('premium-interface-runtime.js'), 'Premium runtime syntax must be checked.');
 assert.ok(pkg.scripts['test:premium'].includes('premium-iconography-audit.mjs'), 'Premium audit syntax must be checked.');
 
-assert.ok(!`${iconography}${uniqueness}${runtime}${css}`.includes('odoo.com'), 'Premium UI must not embed Odoo assets or source code.');
-console.log(`Premium iconography and interface contracts passed for ${expectedApps.length} ERP apps, ${nativeApps.length} native icons, and ${groupIcons.length} group icons.`);
+assert.ok(!`${iconography}${uniqueness}${runtime}${css}${geometry}`.includes('odoo.com'), 'Premium UI must not embed Odoo assets or source code.');
+console.log(`Premium iconography and interface contracts passed for ${expectedApps.length} ERP apps, ${nativeApps.length} native icons, ${groupIcons.length} group icons, and synchronized shell geometry.`);

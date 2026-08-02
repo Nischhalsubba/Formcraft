@@ -29,6 +29,7 @@
 
 .onboarding-feature-card {
   display: grid;
+  min-width: 0;
   grid-template-columns: auto minmax(0, 1fr);
   gap: 12px;
   align-items: start;
@@ -51,15 +52,18 @@
 .onboarding-feature-card strong,
 .onboarding-feature-card span {
   display: block;
+  min-width: 0;
 }
 
 .onboarding-feature-card strong {
+  overflow-wrap: anywhere;
   color: var(--ink);
   font-size: 14px;
 }
 
 .onboarding-feature-card span {
   margin-top: 4px;
+  overflow-wrap: anywhere;
   color: var(--muted);
   font-size: 12px;
   line-height: 1.5;
@@ -99,6 +103,7 @@
 
 .product-tour-fallback-item {
   display: grid;
+  min-width: 0;
   grid-template-columns: auto minmax(0, 1fr);
   gap: 10px;
   align-items: center;
@@ -113,6 +118,8 @@
 }
 
 .product-tour-fallback-item span {
+  min-width: 0;
+  overflow-wrap: anywhere;
   color: var(--ink);
   font-size: 13px;
   font-weight: 650;
@@ -221,6 +228,87 @@
 }
 
 @media (max-width: 760px) {
+  .workspace-shell,
+  .workspace-main,
+  #main-content,
+  .workspace-content,
+  .content-shell,
+  .page-stack,
+  .toolbar,
+  .toolbar-group,
+  .module-layout,
+  .module-sidebar,
+  .module-content,
+  .email-list,
+  .email-row,
+  .report-grid,
+  .report-row,
+  .settings-layout,
+  .settings-panel,
+  .onboarding-feature-grid,
+  .onboarding-feature-card,
+  .product-tour-fallback,
+  .product-tour-fallback-list,
+  .product-tour-fallback-item {
+    min-width: 0;
+    max-width: 100%;
+  }
+
+  .workspace-shell,
+  .workspace-main,
+  #main-content,
+  .workspace-content,
+  .content-shell,
+  .module-layout,
+  .module-sidebar,
+  .module-content,
+  .report-grid,
+  .settings-layout {
+    width: 100%;
+  }
+
+  .workspace-main,
+  #main-content,
+  .workspace-content,
+  .content-shell {
+    overflow-x: clip;
+  }
+
+  .module-sidebar {
+    overflow: hidden;
+  }
+
+  .folder-nav {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    overscroll-behavior-inline: contain;
+  }
+
+  .folder-nav button {
+    max-width: calc(100vw - 52px);
+  }
+
+  .email-row > *,
+  .email-open,
+  .email-sender,
+  .email-subject,
+  .email-preview,
+  .report-row > *,
+  .toolbar > *,
+  .toolbar-group > * {
+    min-width: 0;
+    max-width: 100%;
+  }
+
+  .email-sender,
+  .email-subject,
+  .email-preview,
+  .report-row strong,
+  .report-row > span {
+    overflow-wrap: anywhere;
+  }
+
   .onboarding-feature-grid,
   .product-tour-fallback-list {
     grid-template-columns: 1fr;

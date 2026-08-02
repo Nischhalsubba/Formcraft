@@ -162,7 +162,7 @@
 
   function updateFieldLabel(label, text) {
     const textNode = [...label.childNodes].find(node => node.nodeType === Node.TEXT_NODE && node.textContent.trim());
-    if (textNode) textNode.textContent = `${text} `;
+    if (textNode && textNode.textContent.trim() !== text) textNode.textContent = `${text} `;
   }
 
   function updateBsDateControl(input) {
@@ -176,14 +176,16 @@
     updateFieldLabel(label, DATE_FIELD_LABELS[input.name] || 'मिति (वि.सं.)');
     button.classList.add('np-bs-date-control');
     button.classList.remove('button-small');
-    button.textContent = bsText(NP.toBsParts(input.value || new Date()));
+    const nextButtonText = bsText(NP.toBsParts(input.value || new Date()));
+    if (button.textContent !== nextButtonText) button.textContent = nextButtonText;
     let reference = label.querySelector('.np-ad-date-reference');
     if (!reference) {
       reference = document.createElement('span');
       reference.className = 'np-ad-date-reference';
       button.insertAdjacentElement('afterend', reference);
     }
-    reference.textContent = input.value ? `AD: ${adLong(input.value)}` : 'AD date will be stored automatically';
+    const nextReferenceText = input.value ? `AD: ${adLong(input.value)}` : 'AD date will be stored automatically';
+    if (reference.textContent !== nextReferenceText) reference.textContent = nextReferenceText;
   }
 
   function syncLineCard(row, index) {
@@ -228,7 +230,8 @@
     const remove = row.querySelector('.nepal-remove-line');
     if (remove && remove.parentElement !== header) header.append(remove);
     const title = header.querySelector('strong');
-    if (title) title.textContent = `Item ${index + 1}`;
+    const nextTitle = `Item ${index + 1}`;
+    if (title && title.textContent !== nextTitle) title.textContent = nextTitle;
   }
 
   function groupAdvancedFields(form) {
@@ -277,8 +280,11 @@
     form.classList.add('np-clarified-invoice-form');
     const alert = form.querySelector('.nepal-form-alert');
     if (alert) {
-      alert.querySelector('strong').textContent = 'Before issuing';
-      alert.querySelector('span').textContent = 'Complete business identity and tax settings. Drafts remain editable; issued documents are locked.';
+      const heading = alert.querySelector('strong');
+      const copy = alert.querySelector('span');
+      if (heading && heading.textContent !== 'Before issuing') heading.textContent = 'Before issuing';
+      const nextCopy = 'Complete business identity and tax settings. Drafts remain editable; issued documents are locked.';
+      if (copy && copy.textContent !== nextCopy) copy.textContent = nextCopy;
     }
     form.querySelectorAll('input[type="date"]').forEach(updateBsDateControl);
     form.querySelectorAll('[data-line-item-row]').forEach((row, index) => syncLineCard(row, index));

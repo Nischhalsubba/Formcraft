@@ -1,0 +1,18 @@
+/* Keep rendered navigation geometry and the architecture offset variables identical.
+   Without this, a wider premium rail can overlap the contextual sidebar and main canvas. */
+
+:root {
+  --fc3-rail-width: 72px;
+  --fc3-sidebar-width: 272px;
+}
+
+.fc3-app-rail { width: var(--fc3-rail-width); }
+.fc3-context-sidebar { width: var(--fc3-sidebar-width); }
+
+@media (max-width: 1320px) and (min-width: 1101px) {
+  :root { --fc3-sidebar-width: 252px; }
+}
+
+@media (max-width: 1100px) {
+  :root { --fc3-sidebar-width: 248px; }
+}

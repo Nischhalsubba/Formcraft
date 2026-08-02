@@ -21,6 +21,12 @@
     return route ? routeToApp(route) : null;
   }
 
+  function replaceAppsGlyph(link) {
+    const inRail = Boolean(link.closest('.fc3-app-rail'));
+    const host = link.querySelector(inRail ? '.fc3-rail-icon' : '.workspace-nav-icon');
+    if (host && host.querySelector('svg')?.dataset.icon !== 'apps') host.innerHTML = icon('apps', inRail ? 20 : 17);
+  }
+
   function decorateAppCards() {
     document.querySelectorAll('.erp-app-card').forEach(card => {
       const opener = card.querySelector('[data-erp-open-app]');
@@ -46,6 +52,7 @@
       const description = directAppsLink.querySelector('.fc3-context-link-copy small');
       if (title) title.textContent = 'App launcher';
       if (description) description.textContent = 'Browse all applications';
+      replaceAppsGlyph(directAppsLink);
     }
 
     context.querySelectorAll('[data-erp-open-app], [data-route], [data-source-route]').forEach(item => {
@@ -64,6 +71,10 @@
       currentButton.dataset.appKey = current.key;
       currentButton.dataset.appGroup = current.group;
     }
+    if (currentButton && ui.route === 'apps') {
+      const iconHost = currentButton.querySelector('.fc3-current-app-icon');
+      if (iconHost) iconHost.innerHTML = icon('apps', 18);
+    }
   }
 
   function normalizeAppsState() {
@@ -72,6 +83,7 @@
       const inRail = Boolean(link.closest('.fc3-app-rail'));
       const actual = ui.route === 'apps';
       const parent = inRail && moduleActive;
+      replaceAppsGlyph(link);
       link.classList.toggle('is-active', actual);
       link.classList.toggle('is-parent-active', parent && !actual);
       link.dataset.navState = actual ? 'active' : parent ? 'parent' : 'inactive';

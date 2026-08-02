@@ -6,7 +6,7 @@ from playwright.sync_api import sync_playwright
 
 ROOT = Path(__file__).resolve().parents[1]
 SUPABASE_MOCK = (ROOT / 'tests' / 'supabase-browser-mock.js').read_text(encoding='utf-8')
-DESKTOP_ROUTES = ['dashboard', 'projects', 'tasks', 'calendar', 'team', 'files', 'invoices', 'activity', 'settings']
+DESKTOP_ROUTES = ['dashboard', 'projects', 'tasks', 'calendar', 'team', 'reports', 'email', 'files', 'invoices', 'activity', 'settings']
 
 
 class QuietHandler(SimpleHTTPRequestHandler):
@@ -25,7 +25,12 @@ def prepare_page(browser, width, height, owner_setup=False):
     page.add_init_script(prefix + SUPABASE_MOCK)
     page.route('https://fonts.googleapis.com/**', lambda route: route.fulfill(status=200, content_type='text/css', body=''))
     page.route('https://fonts.gstatic.com/**', lambda route: route.fulfill(status=200, body=b''))
-    page.route('https://cdn.jsdelivr.net/**', lambda route: route.fulfill(status=200, content_type='application/javascript', body=''))
+
+    def empty_cdn_asset(route):
+        content_type = 'text/css' if route.request.url.endswith('.css') else 'application/javascript'
+        route.fulfill(status=200, content_type=content_type, body='')
+
+    page.route('https://cdn.jsdelivr.net/**', empty_cdn_asset)
     return page, errors
 
 
@@ -39,7 +44,7 @@ def wait_for_ready(page, errors):
             'errors': errors,
             'body': page.locator('body').inner_text()[:1600]
         })
-    page.wait_for_timeout(120)
+    page.wait_for_timeout(180)
 
 
 def visible(page, selector):
@@ -56,7 +61,7 @@ def navigate_sidebar(page, route):
     control = visible(page, f'.workspace-sidebar [data-route="{route}"]')
     assert control.is_visible(), f'{route} sidebar link should be visible'
     control.click()
-    page.wait_for_timeout(80)
+    page.wait_for_timeout(100)
     assert page.evaluate('ui.route') == route
     assert page.locator('[data-route-heading]').count() == 1
 
@@ -94,6 +99,18 @@ def run_owner_setup(browser, base_url):
     page.close()
 
 
+def run_direct_source_route(browser, base_url):
+    page, errors = prepare_page(browser, 1280, 900)
+    page.goto(f'{base_url}/#email', wait_until='domcontentloaded')
+    wait_for_ready(page, errors)
+    page.wait_for_function("ui.route === 'email'", timeout=5000)
+    assert visible(page, '.workspace-sidebar [data-route="email"]').is_visible()
+    assert visible(page, '.workspace-sidebar [data-route="email"]').get_attribute('aria-current') == 'page'
+    assert visible(page, '.module-layout').is_visible()
+    assert errors == []
+    page.close()
+
+
 def run_desktop(browser, base_url):
     page, errors = prepare_page(browser, 1440, 1000)
     page.goto(f'{base_url}/#dashboard', wait_until='domcontentloaded')
@@ -103,9 +120,13 @@ def run_desktop(browser, base_url):
     assert visible(page, '.product-dashboard').is_visible()
     assert visible(page, '.product-today-grid').is_visible()
     assert visible(page, '.product-summary-strip').is_visible()
-    assert page.locator('.workspace-sidebar [data-route="email"]').count() == 0
-    assert page.locator('.workspace-sidebar [data-route="reports"]').count() == 0
+    assert visible(page, '.workspace-sidebar [data-route="email"]').is_visible()
+    assert visible(page, '.workspace-sidebar [data-route="reports"]').is_visible()
     assert page.locator('[data-workspace-brand]').inner_text() == 'Test workspace'
+    feature_audit = page.evaluate('FormcraftFeatures.audit()')
+    assert feature_audit['missingDesktop'] == []
+    assert feature_audit['missingMobile'] == []
+    assert page.evaluate('FormcraftOnboarding.version')
 
     for route in DESKTOP_ROUTES:
         navigate_sidebar(page, route)
@@ -116,7 +137,7 @@ def run_desktop(browser, base_url):
     account_trigger.click()
     account = visible(page, '[data-account-popover]')
     assert account.is_visible()
-    for selector in ['[data-account-settings]', '[data-export-data]', '[data-dynamic-sign-out]']:
+    for selector in ['[data-start-product-tour]', '[data-account-settings]', '[data-export-data]', '[data-dynamic-sign-out]']:
         assert account.locator(selector).count() == 1
     trigger_box = account_trigger.bounding_box()
     account_box = account.bounding_box()
@@ -124,7 +145,16 @@ def run_desktop(browser, base_url):
     assert account_box['x'] >= trigger_box['x'] + trigger_box['width'] - 2
     assert account_box['x'] >= 0 and account_box['x'] + account_box['width'] <= 1440
     assert account_box['y'] >= 0 and account_box['y'] + account_box['height'] <= 1000
-    account.locator('[data-account-settings]').click()
+
+    account.locator('[data-start-product-tour]').click()
+    page.wait_for_selector('dialog[open] .product-tour-fallback')
+    assert page.locator('#modal-title').inner_text() == 'Welcome to Formcraft'
+    visible(page, '[data-complete-product-tour]').click()
+    assert page.locator('dialog[open]').count() == 0
+    assert page.evaluate('FormcraftOnboarding.isComplete()')
+
+    visible(page, '[data-toggle-account]').click()
+    visible(page, '[data-account-popover] [data-account-settings]').click()
     page.wait_for_timeout(80)
     assert page.evaluate('ui.route') == 'settings'
 
@@ -195,13 +225,32 @@ def run_desktop(browser, base_url):
     navigate_sidebar(page, 'calendar')
     for selector in ['[data-calendar-next]', '[data-calendar-prev]', '[data-calendar-today]']:
         visible(page, selector).click()
-    visible(page, '[data-context-create]').click()
+    visible(page, '.calendar-date-button').click(position={'x': 80, 'y': 70})
     assert page.locator('#modal-title').inner_text() == 'Create event'
     close_dialog(page)
 
     navigate_sidebar(page, 'team')
     assert visible(page, '.member-card').is_visible()
     assert page.locator('.member-card [data-edit-member]').count() == 0
+
+    navigate_sidebar(page, 'reports')
+    visible(page, '[data-report-period]').select_option('7')
+    assert page.evaluate('ui.reportPeriod') == '7'
+    assert visible(page, '.report-grid').is_visible()
+
+    navigate_sidebar(page, 'email')
+    visible(page, '[data-context-create]').click()
+    assert page.locator('#modal-title').inner_text() == 'Compose message'
+    page.locator('[data-modal-form] [name="to"]').fill('client@example.com')
+    page.locator('[data-modal-form] [name="subject"]').fill('Browser test message')
+    page.locator('[data-modal-form] [name="body"]').fill('The restored email module is functional.')
+    visible(page, '[data-modal-form] button[type="submit"]').click()
+    page.wait_for_timeout(150)
+    assert page.evaluate("state.messages.some(message => message.subject === 'Browser test message' && message.folder === 'sent')")
+    visible(page, '[data-email-folder="sent"]').click()
+    visible(page, '[data-open-email]').click()
+    assert visible(page, '.email-reader').is_visible()
+    visible(page, '[data-email-back]').click()
 
     navigate_sidebar(page, 'files')
     visible(page, '[data-create-folder]').click()
@@ -243,11 +292,20 @@ def run_desktop(browser, base_url):
         assert page.locator('html').get_attribute('data-theme') == 'dark'
         visible(page, '[data-theme-option="light"]').click()
         assert page.locator('html').get_attribute('data-theme') == 'light'
+    visible(page, '[data-settings-onboarding]').click()
+    assert visible(page, '[data-onboarding-settings-panel]').is_visible()
+    visible(page, '[data-onboarding-settings-panel] [data-start-product-tour]').click()
+    page.wait_for_selector('dialog[open] .product-tour-fallback')
+    visible(page, '[data-dismiss-product-tour]').click()
+    visible(page, '[data-settings-onboarding]').click()
+    visible(page, '[data-settings-tab="data"]').click()
     visible(page, '[data-reset-data]').click()
     assert visible(page, '[data-confirm-action]').is_visible()
     close_dialog(page)
 
     assert page.evaluate("FormcraftInteractions.audit().unnamedButtons.length") == 0
+    assert page.evaluate("FormcraftFeatures.audit().missingDesktop.length") == 0
+    assert page.evaluate("FormcraftFeatures.audit().missingMobile.length") == 0
     assert errors == []
     page.close()
 
@@ -262,8 +320,13 @@ def run_mobile(browser, base_url):
         assert page.evaluate('ui.route') == route
     visible(page, '[data-bright-more]').click()
     assert 'drawer-open' in (page.locator('body').get_attribute('class') or '')
-    visible(page, '.mobile-drawer [data-route="files"]').click()
-    assert page.evaluate('ui.route') == 'files'
+    assert visible(page, '.mobile-drawer [data-route="reports"]').is_visible()
+    assert visible(page, '.mobile-drawer [data-route="email"]').is_visible()
+    visible(page, '.mobile-drawer [data-route="email"]').click()
+    assert page.evaluate('ui.route') == 'email'
+    visible(page, '[data-bright-context-create]').click()
+    assert page.locator('#modal-title').inner_text() == 'Compose message'
+    close_dialog(page)
     page.evaluate("navigate('dashboard')")
     visible(page, '[data-bright-context-create]').click()
     assert page.locator('#modal-title').inner_text() == 'Create project'
@@ -273,6 +336,8 @@ def run_mobile(browser, base_url):
     for route in DESKTOP_ROUTES:
         page.evaluate(f"navigate('{route}')")
         assert_no_overflow(page)
+    assert page.evaluate("FormcraftFeatures.audit().missingDesktop.length") == 0
+    assert page.evaluate("FormcraftFeatures.audit().missingMobile.length") == 0
     assert page.evaluate("FormcraftInteractions.audit().unnamedButtons.length") == 0
     assert errors == []
     page.close()
@@ -288,6 +353,7 @@ try:
     with sync_playwright() as playwright:
         browser = playwright.chromium.launch(headless=True)
         run_owner_setup(browser, base_url)
+        run_direct_source_route(browser, base_url)
         run_desktop(browser, base_url)
         run_mobile(browser, base_url)
         browser.close()
@@ -295,4 +361,4 @@ finally:
     server.shutdown()
     server.server_close()
 
-print('Browser interaction checks passed across authentication, desktop modules, account controls, search, CRUD entry points, and mobile navigation.')
+print('Browser interaction checks passed across authentication, onboarding, every source sidebar module, account controls, search, CRUD entry points, and mobile navigation.')

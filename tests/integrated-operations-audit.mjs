@@ -62,9 +62,12 @@ for (const token of [
 ]) assert.ok(guard.includes(token), `Missing operations boot guard: ${token}`);
 
 for (const token of [
+  'openProjectForm = function openDeterministicProjectForm',
+  'openTaskForm = function openDeterministicTaskForm',
   'function openTimeEntryForm',
-  'data-modal-form data-ops-time-form',
+  'data-modal-form data-ops-deterministic-form',
   'state.timeEntries.unshift(entry)',
+  'openRecord(returnType, returnId, { replace: true })',
   'window.FormcraftOperationsRuntime'
 ]) assert.ok(runtime.includes(token), `Missing deterministic operations runtime: ${token}`);
 
@@ -109,4 +112,4 @@ for (const token of [
 ]) assert.ok(roadmap.includes(token), `Missing UX/ERP roadmap section: ${token}`);
 
 assert.ok(!`${core}${views}${guard}${runtime}${actions}`.includes('odoo.com'), 'Runtime must not embed or copy Odoo assets or application code.');
-console.log('Integrated record pages, Jira-style tasks, cross-module operations, permissions, protected boot, deterministic time entry, and route contracts passed.');
+console.log('Integrated record pages, Jira-style tasks, cross-module operations, permissions, protected boot, deterministic forms, and route contracts passed.');

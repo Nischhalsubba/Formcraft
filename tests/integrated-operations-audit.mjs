@@ -2,10 +2,12 @@ import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 
 const root = new URL('../', import.meta.url);
-const [html, core, views, actions, legacyCss, routingCss, roadmap] = await Promise.all([
+const [html, core, views, guard, runtime, actions, legacyCss, routingCss, roadmap] = await Promise.all([
   readFile(new URL('index.html', root), 'utf8'),
   readFile(new URL('assets/js/integrated-operations-core.js', root), 'utf8'),
   readFile(new URL('assets/js/integrated-operations-views.js', root), 'utf8'),
+  readFile(new URL('assets/js/operations-boot-guard.js', root), 'utf8'),
+  readFile(new URL('assets/js/operations-runtime-fixes.js', root), 'utf8'),
   readFile(new URL('assets/js/integrated-operations-actions.js', root), 'utf8'),
   readFile(new URL('assets/css/integrated-operations.css', root), 'utf8'),
   readFile(new URL('assets/css/integrated-operations-routing.css', root), 'utf8'),
@@ -17,6 +19,8 @@ for (const token of [
   'assets/css/integrated-operations-routing.css',
   'assets/js/integrated-operations-core.js',
   'assets/js/integrated-operations-views.js',
+  'assets/js/operations-boot-guard.js',
+  'assets/js/operations-runtime-fixes.js',
   'assets/js/integrated-operations-actions.js'
 ]) assert.ok(html.includes(token), `Missing integrated operations asset: ${token}`);
 
@@ -50,6 +54,19 @@ for (const token of [
   'renderTasks = function renderOperationsTasks',
   'Project delivery and commercial report'
 ]) assert.ok(views.includes(token), `Missing operations view contract: ${token}`);
+
+for (const token of [
+  "document.documentElement.dataset.backend === 'ready'",
+  'window.FormcraftBackend?.workspace',
+  'renderGuardedOperationsShell'
+]) assert.ok(guard.includes(token), `Missing operations boot guard: ${token}`);
+
+for (const token of [
+  'function openTimeEntryForm',
+  'data-modal-form data-ops-time-form',
+  'state.timeEntries.unshift(entry)',
+  'window.FormcraftOperationsRuntime'
+]) assert.ok(runtime.includes(token), `Missing deterministic operations runtime: ${token}`);
 
 for (const token of [
   'function logTime',
@@ -91,5 +108,5 @@ for (const token of [
   'does not claim full Odoo parity'
 ]) assert.ok(roadmap.includes(token), `Missing UX/ERP roadmap section: ${token}`);
 
-assert.ok(!`${core}${views}${actions}`.includes('odoo.com'), 'Runtime must not embed or copy Odoo assets or application code.');
-console.log('Integrated record pages, Jira-style tasks, cross-module operations, permissions, and route contracts passed.');
+assert.ok(!`${core}${views}${guard}${runtime}${actions}`.includes('odoo.com'), 'Runtime must not embed or copy Odoo assets or application code.');
+console.log('Integrated record pages, Jira-style tasks, cross-module operations, permissions, protected boot, deterministic time entry, and route contracts passed.');

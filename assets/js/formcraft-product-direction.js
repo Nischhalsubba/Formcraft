@@ -335,24 +335,24 @@
     };
 
     const fields = `<div class="bright-form-sections">
-      ${formSection('Invoice details', 'Keep the identifier, status, and related project together.', `
+      ${formSection('Invoice details', 'Use a unique reference and connect billing to the relevant project.', `
         ${field('Invoice number', 'number', data.number, { required: true, maxlength: 40 })}
         ${selectField('Status', 'status', ['draft', 'sent', 'paid', 'overdue', 'void'], data.status, { required: true })}
-        ${customSelectField('Related project', 'projectId', projectOptions(), data.projectId, { span: true })}
+        ${customSelectField('Related project', 'projectId', projectOptions(), data.projectId)}
       `)}
-      ${formSection('Billing', 'The billing contact and amount must be explicit.', `
+      ${formSection('Bill to', 'Record who should receive and pay this invoice.', `
         ${field('Client', 'client', data.client, { required: true, maxlength: 100 })}
         ${field('Billing email', 'email', data.email, { type: 'email', required: true, autocomplete: 'email' })}
         ${field(`Amount (${state.settings.currency || 'USD'})`, 'amount', data.amount, { type: 'number', required: true, min: 0, step: '.01' })}
       `)}
-      ${formSection('Dates and terms', 'Use the issue date and due date to drive payment status.', `
+      ${formSection('Terms', 'Dates and payment notes should be unambiguous.', `
         ${field('Issue date', 'issueDate', data.issueDate || dateKey(today()), { type: 'date', required: true })}
         ${field('Due date', 'dueDate', data.dueDate, { type: 'date', required: true })}
         ${field('Notes', 'notes', data.notes, { textarea: true, span: true, maxlength: 600, placeholder: 'Add payment terms or internal notes.' })}
       `)}
     </div>`;
 
-    openFormModal(invoice ? 'Edit invoice' : 'Create invoice', 'Record billing details without turning the form into accounting theatre.', fields, async form => {
+    openFormModal(invoice ? 'Edit invoice' : 'Create invoice', 'Record a billing item with clear ownership and payment terms.', fields, async form => {
       const values = formValues(form);
       if (values.issueDate && values.dueDate && values.dueDate < values.issueDate) {
         throw new Error('Due date must be on or after the issue date.');
@@ -380,22 +380,18 @@
 
   function projectTaskList(tasks) {
     if (!tasks.length) return '<div class="bright-detail-empty">No tasks are linked to this project.</div>';
-    return `<div class="bright-detail-list">${tasks.map(task => `<button type="button" class="bright-detail-row" data-detail-task="${escapeHtml(task.id)}">
-      <span class="bright-detail-row-main"><strong>${escapeHtml(task.title)}</strong><small>${escapeHtml(memberName(task.assigneeId))} · ${titleCase(task.priority || 'medium')} priority</small></span>
-      ${statusPill(task.status)}
-      <time>${task.dueDate ? formatShortDate(task.dueDate) : 'No due date'}</time>
-    </button>`).join('')}</div>`;
+    return `<div class="bright-detail-list">${tasks.map(task => `<button type="button" data-detail-task="${escapeHtml(task.id)}"><span class="bright-detail-check ${task.status === 'done' ? 'is-done' : ''}">${task.status === 'done' ? icon('check', 14) : ''}</span><span><strong>${escapeHtml(task.title)}</strong><small>${escapeHtml(memberName(task.assigneeId))} · ${task.dueDate ? formatShortDate(task.dueDate) : 'No due date'}</small></span>${statusPill(task.status)}</button>`).join('')}</div>`;
   }
 
   openProjectDetail = function openBrightProjectDetail(project) {
     if (!project) return;
     const tasks = state.tasks.filter(task => task.projectId === project.id);
-    const events = state.events.filter(event => event.projectId === project.id).sort((a, b) => a.date.localeCompare(b.date));
+    const events = state.events.filter(event => event.projectId === project.id).sort((a, b) => (a.date || '').localeCompare(b.date || ''));
     const invoices = state.invoices.filter(invoice => invoice.projectId === project.id);
     const completedTasks = tasks.filter(task => task.status === 'done').length;
     const outstanding = invoices.filter(invoice => !['paid', 'void'].includes(invoice.status)).reduce((sum, invoice) => sum + Number(invoice.amount || 0), 0);
 
-    openModal(`<article class="full-detail-view">
+    openModal(`<article class="full-detail-view bright-project-detail">
       <header class="bright-detail-header">
         <div><p class="workspace-breadcrumb">Projects<span>/</span>${escapeHtml(project.name)}</p><h2 id="modal-title">${escapeHtml(project.name)}</h2><p>${escapeHtml(project.client || 'Internal project')}</p></div>
         <div class="bright-detail-actions"><button class="button button-secondary" type="button" data-close-modal>Close</button><button class="button button-primary" type="button" data-detail-edit-project>${icon('edit', 17)}Edit project</button></div>
@@ -459,7 +455,7 @@
     if (!hiddenRoutes.has(route)) return;
     history.replaceState(null, '', '#dashboard');
     ui.route = 'dashboard';
-    renderShell();
+    if (document.documentElement.dataset.backend === 'ready') renderShell();
     toast('That unfinished module has been removed from the workspace.', 'warning');
   }
 
@@ -467,5 +463,5 @@
   document.documentElement.classList.add('formcraft-bright-workspace');
   normalizeUnsupportedRoute();
   applyTheme();
-  renderShell();
+  if (document.documentElement.dataset.backend === 'ready') renderShell();
 })();

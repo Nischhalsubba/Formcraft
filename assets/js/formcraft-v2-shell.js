@@ -57,7 +57,7 @@
       <aside class="workspace-sidebar" aria-label="Workspace navigation">
         <a class="workspace-brand" href="#dashboard" data-route="dashboard" aria-label="${escapeHtml(workspaceName)} dashboard">
           <span class="workspace-brand-mark" aria-hidden="true"><i></i><i></i><i></i></span>
-          <span><strong>${escapeHtml(workspaceName)}</strong><small>Operations workspace</small></span>
+          <span><strong data-workspace-brand>${escapeHtml(workspaceName)}</strong><small>Operations workspace</small></span>
         </a>
 
         <nav class="workspace-nav" aria-label="Primary navigation">

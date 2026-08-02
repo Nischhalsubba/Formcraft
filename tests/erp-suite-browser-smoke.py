@@ -86,7 +86,7 @@ def run_desktop(browser, base_url):
     page.wait_for_selector('.erp-launcher')
     assert page.locator('.erp-group-tabs [data-erp-launcher-group]').count() == 10
     assert page.locator('.erp-app-card').count() >= 50
-    assert 'Nepal-first ERP workspace' in visible(page, '.erp-launcher').inner_text()
+    assert visible(page, '.erp-launcher-hero h2').inner_text() == 'One workspace, connected business operations'
     assert visible(page, '[data-erp-company]').input_value()
     assert visible(page, '[data-erp-branch]').input_value()
     assert_no_page_overflow(page)

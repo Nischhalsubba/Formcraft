@@ -5,8 +5,12 @@ on:
     paths:
       - 'assets/js/erp-suite-*.js'
       - 'assets/css/erp-suite.css'
+      - 'assets/js/workspace-architecture-v3*.js'
+      - 'assets/css/workspace-architecture-v3*.css'
       - 'tests/erp-suite-*.py'
       - 'tests/erp-suite-*.mjs'
+      - 'tests/workspace-architecture-v3-*.py'
+      - 'tests/workspace-architecture-v3-*.mjs'
       - 'index.html'
       - 'package.json'
       - '.github/workflows/erp-suite-browser-validation.yml'
@@ -17,8 +21,12 @@ on:
     paths:
       - 'assets/js/erp-suite-*.js'
       - 'assets/css/erp-suite.css'
+      - 'assets/js/workspace-architecture-v3*.js'
+      - 'assets/css/workspace-architecture-v3*.css'
       - 'tests/erp-suite-*.py'
       - 'tests/erp-suite-*.mjs'
+      - 'tests/workspace-architecture-v3-*.py'
+      - 'tests/workspace-architecture-v3-*.mjs'
       - 'index.html'
       - 'package.json'
       - '.github/workflows/erp-suite-browser-validation.yml'
@@ -59,3 +67,6 @@ jobs:
 
       - name: Run ERP authenticated browser regression
         run: python tests/erp-suite-browser-smoke.py
+
+      - name: Run workspace architecture browser regression
+        run: python tests/workspace-architecture-v3-browser-smoke.py

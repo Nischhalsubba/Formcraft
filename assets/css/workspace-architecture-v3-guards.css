@@ -34,6 +34,15 @@
   }
 }
 
+@media (min-width: 821px) and (max-width: 1100px) {
+  body.fc3-context-open .fc3-context-sidebar {
+    transform: translateX(0);
+    visibility: visible;
+    pointer-events: auto;
+    box-shadow: 20px 0 60px rgb(16 24 40 / .2);
+  }
+}
+
 @media (max-width: 820px) {
   .fc3-topbar.workspace-topbar {
     grid-template-columns: auto minmax(0, 1fr) auto;

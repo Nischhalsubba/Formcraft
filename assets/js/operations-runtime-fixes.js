@@ -8,6 +8,69 @@
     return state.tasks.find(task => task.id === id) || null;
   }
 
+  function watchNewRecord(form, collection, beforeIds, matcher, target) {
+    if (!form) return;
+    form.addEventListener('submit', () => {
+      const startedAt = Date.now();
+      const findAndOpen = () => {
+        const created = collection().find(item => !beforeIds.has(item.id) && matcher(item));
+        if (created) {
+          const type = target.type || 'task';
+          const id = target.id || created.id;
+          if (C.record.type !== type || C.record.id !== id) {
+            closeModal();
+            C.openRecord(type, id, { replace: true });
+          }
+          return;
+        }
+        if (Date.now() - startedAt < 3000) window.setTimeout(findAndOpen, 25);
+      };
+      window.setTimeout(findAndOpen, 0);
+    }, true);
+  }
+
+  const baseOpenProjectForm = openProjectForm;
+  openProjectForm = function openProjectFormWithRecordReturn(project = null) {
+    const existing = Boolean(project?.id && state.projects.some(item => item.id === project.id));
+    const beforeIds = new Set(state.projects.map(item => item.id));
+    baseOpenProjectForm(project);
+    if (existing) return;
+    const form = modal.querySelector('[data-modal-form], form');
+    if (!form) return;
+    watchNewRecord(
+      form,
+      () => state.projects,
+      beforeIds,
+      item => !form.elements.name?.value || item.name === String(form.elements.name.value).trim(),
+      { type: 'project', id: '' }
+    );
+  };
+
+  const baseOpenTaskForm = openTaskForm;
+  openTaskForm = function openTaskFormWithRecordReturn(task = null) {
+    const existing = Boolean(task?.id && state.tasks.some(item => item.id === task.id));
+    const beforeIds = new Set(state.tasks.map(item => item.id));
+    const target = {
+      type: task?.__returnType || 'task',
+      id: task?.__returnId || ''
+    };
+    baseOpenTaskForm(task);
+    if (existing) return;
+    const form = modal.querySelector('[data-modal-form], form');
+    if (!form) return;
+    watchNewRecord(
+      form,
+      () => state.tasks,
+      beforeIds,
+      item => {
+        const expectedTitle = String(form.elements.title?.value || '').trim();
+        const expectedProject = String(form.elements.projectId?.value || '').trim();
+        return (!expectedTitle || item.title === expectedTitle) && (!expectedProject || item.projectId === expectedProject);
+      },
+      target
+    );
+  };
+
   function openTimeEntryForm(task) {
     if (!task) return;
     if (!C.canEdit()) {
@@ -111,5 +174,5 @@
     openTimeEntryForm(taskById(trigger.dataset.opsLogTime));
   }, true);
 
-  window.FormcraftOperationsRuntime = Object.freeze({ openTimeEntryForm });
+  window.FormcraftOperationsRuntime = Object.freeze({ openTimeEntryForm, watchNewRecord });
 })();

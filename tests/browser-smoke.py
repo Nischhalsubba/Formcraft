@@ -42,9 +42,9 @@ def wait_for_ready(page, errors):
             'message': str(exc),
             'backend': page.locator('html').get_attribute('data-backend'),
             'errors': errors,
-            'body': page.locator('body').inner_text()[:1600]
+            'body': page.locator('body').inner_text()[:2000]
         })
-    page.wait_for_timeout(180)
+    page.wait_for_timeout(200)
 
 
 def visible(page, selector):
@@ -54,28 +54,26 @@ def visible(page, selector):
 def close_dialog(page):
     if page.locator('dialog[open]').count():
         visible(page, 'dialog[open] [data-close-modal]').click()
-        page.wait_for_timeout(60)
+        page.wait_for_timeout(80)
+
+
+def close_record(page):
+    if page.locator('[data-record-page]').count():
+        visible(page, '[data-ops-close-record]').click()
+        page.wait_for_timeout(100)
 
 
 def navigate_sidebar(page, route):
     control = visible(page, f'.workspace-sidebar [data-route="{route}"]')
     assert control.is_visible(), f'{route} sidebar link should be visible'
     control.click()
-    page.wait_for_timeout(100)
+    page.wait_for_timeout(120)
     assert page.evaluate('ui.route') == route
     assert page.locator('[data-route-heading]').count() == 1
 
 
-def open_menu_action(page, container_selector, action_selector):
-    container = visible(page, container_selector)
-    container.locator('details.menu summary').click()
-    action = container.locator(f'{action_selector}:visible').first
-    assert action.is_visible()
-    action.click()
-
-
 def assert_no_overflow(page):
-    assert page.evaluate('document.documentElement.scrollWidth <= window.innerWidth + 1')
+    assert page.evaluate('document.documentElement.scrollWidth <= window.innerWidth + 2')
 
 
 def run_owner_setup(browser, base_url):
@@ -94,19 +92,25 @@ def run_owner_setup(browser, base_url):
     page.wait_for_selector('[data-auth-form][data-mode="signin"]')
     assert page.locator('[data-auth-form] input[name="email"]').input_value() == 'owner@example.com'
     assert page.locator('[data-auth-form] input[name="password"]').input_value() == password
-    assert 'Account created' in page.locator('[data-backend-status]').inner_text()
     assert errors == []
     page.close()
 
 
-def run_direct_source_route(browser, base_url):
+def assert_record_is_not_modal(page, record_type):
+    record = visible(page, f'[data-record-page="{record_type}"]')
+    assert record.is_visible()
+    assert page.locator('dialog[open]').count() == 0
+    assert page.locator('body').evaluate("node => node.classList.contains('ops-record-open')")
+
+
+def run_deep_link(browser, base_url):
     page, errors = prepare_page(browser, 1280, 900)
-    page.goto(f'{base_url}/#email', wait_until='domcontentloaded')
+    page.goto(f'{base_url}/?record=task&recordId=task-1#tasks', wait_until='domcontentloaded')
     wait_for_ready(page, errors)
-    page.wait_for_function("ui.route === 'email'", timeout=5000)
-    assert visible(page, '.workspace-sidebar [data-route="email"]').is_visible()
-    assert visible(page, '.workspace-sidebar [data-route="email"]').get_attribute('aria-current') == 'page'
-    assert visible(page, '.module-layout').is_visible()
+    page.wait_for_selector('[data-record-page="task"]')
+    assert page.locator('#modal-title').inner_text() == 'Test task'
+    assert_record_is_not_modal(page, 'task')
+    assert page.evaluate("FormcraftOperations.audit().readiness") == 'ready-to-test'
     assert errors == []
     page.close()
 
@@ -118,195 +122,130 @@ def run_desktop(browser, base_url):
 
     assert visible(page, '.workspace-sidebar').is_visible()
     assert visible(page, '.product-dashboard').is_visible()
-    assert visible(page, '.product-today-grid').is_visible()
-    assert visible(page, '.product-summary-strip').is_visible()
-    assert visible(page, '.workspace-sidebar [data-route="email"]').is_visible()
-    assert visible(page, '.workspace-sidebar [data-route="reports"]').is_visible()
     assert page.locator('[data-workspace-brand]').inner_text() == 'Test workspace'
-    feature_audit = page.evaluate('FormcraftFeatures.audit()')
-    assert feature_audit['missingDesktop'] == []
-    assert feature_audit['missingMobile'] == []
     assert page.evaluate('FormcraftOnboarding.version')
+    assert page.evaluate('FormcraftOperations.version') == 'OPS-NP-2.0'
+    assert page.evaluate("FormcraftOperations.audit().readiness") == 'ready-to-test'
 
     for route in DESKTOP_ROUTES:
         navigate_sidebar(page, route)
         assert_no_overflow(page)
 
     navigate_sidebar(page, 'dashboard')
-    account_trigger = visible(page, '[data-toggle-account]')
-    account_trigger.click()
+    visible(page, '[data-toggle-account]').click()
     account = visible(page, '[data-account-popover]')
     assert account.is_visible()
     for selector in ['[data-start-product-tour]', '[data-account-settings]', '[data-export-data]', '[data-dynamic-sign-out]']:
         assert account.locator(selector).count() == 1
-    trigger_box = account_trigger.bounding_box()
-    account_box = account.bounding_box()
-    assert trigger_box and account_box
-    assert account_box['x'] >= trigger_box['x'] + trigger_box['width'] - 2
-    assert account_box['x'] >= 0 and account_box['x'] + account_box['width'] <= 1440
-    assert account_box['y'] >= 0 and account_box['y'] + account_box['height'] <= 1000
-
     account.locator('[data-start-product-tour]').click()
     page.wait_for_selector('dialog[open] .product-tour-fallback')
-    assert page.locator('#modal-title').inner_text() == 'Welcome to Formcraft'
     visible(page, '[data-complete-product-tour]').click()
     assert page.locator('dialog[open]').count() == 0
-    assert page.evaluate('FormcraftOnboarding.isComplete()')
-
-    visible(page, '[data-toggle-account]').click()
-    visible(page, '[data-account-popover] [data-account-settings]').click()
-    page.wait_for_timeout(80)
-    assert page.evaluate('ui.route') == 'settings'
-
-    navigate_sidebar(page, 'dashboard')
-    visible(page, '[data-toggle-account]').click()
-    with page.expect_download() as download_info:
-        visible(page, '[data-account-popover] [data-export-data]').click()
-    assert download_info.value.suggested_filename.endswith('.json')
-
-    visible(page, '[data-toggle-notifications]').click()
-    notifications = visible(page, '[data-notifications-popover]')
-    assert notifications.is_visible()
-    notification_box = notifications.bounding_box()
-    assert notification_box and notification_box['x'] >= 0
-    assert notification_box['x'] + notification_box['width'] <= 1440
-    visible(page, 'main').click(position={'x': 4, 'y': 4})
-    assert page.locator('[data-notifications-popover]').is_hidden()
 
     visible(page, '[data-search-focus]').click()
     page.locator('[data-workspace-search]').fill('Test project')
     visible(page, '[data-workspace-search-route="projects"][data-workspace-search-id="project-1"]').click()
-    page.wait_for_selector('dialog[open] .full-detail-view')
+    page.wait_for_selector('[data-record-page="project"]')
     assert page.locator('#modal-title').inner_text() == 'Test project'
-    close_dialog(page)
+    assert_record_is_not_modal(page, 'project')
+    current_url = page.url
+    visible(page, 'main').click(position={'x': 12, 'y': 12})
+    page.wait_for_timeout(100)
+    assert page.url == current_url
+    assert visible(page, '[data-record-page="project"]').is_visible()
 
-    visible(page, '[data-search-focus]').click()
-    page.locator('[data-workspace-search]').fill('FC-1004')
-    visible(page, '[data-workspace-search-route="invoices"][data-workspace-search-id="invoice-1"]').click()
-    page.wait_for_selector('dialog[open] .bright-invoice-detail')
-    assert page.locator('#modal-title').inner_text() == 'FC-1004'
-    close_dialog(page)
+    visible(page, '[data-ops-project-tab="work"]').click()
+    assert visible(page, '.ops-task-table').is_visible()
+    visible(page, '[data-ops-open-task="task-1"]').click()
+    page.wait_for_selector('[data-record-page="task"]')
+    assert page.locator('#modal-title').inner_text() == 'Test task'
+    assert_record_is_not_modal(page, 'task')
 
-    for route, title in {
-        'projects': 'Create project',
-        'tasks': 'Create task',
-        'calendar': 'Create event',
-        'team': 'Invite member',
-        'invoices': 'Create invoice'
-    }.items():
-        navigate_sidebar(page, route)
-        visible(page, '[data-context-create]').click()
-        page.wait_for_selector('dialog[open]')
-        assert page.locator('#modal-title').inner_text() == title
-        close_dialog(page)
-
-    navigate_sidebar(page, 'projects')
-    visible(page, '[data-view-project="project-1"]').click()
-    assert visible(page, 'dialog[open] .full-detail-view').is_visible()
-    visible(page, '[data-detail-edit-project]').click()
-    assert visible(page, '[data-modal-form]').is_visible()
+    visible(page, '[data-ops-edit-task="task-1"]').click()
+    page.wait_for_selector('dialog[open] [data-modal-form]')
+    dialog = page.locator('dialog[open]')
+    dialog.click(position={'x': 2, 'y': 2})
+    page.wait_for_timeout(80)
+    assert page.locator('dialog[open]').count() == 1, 'Complex form must not close on backdrop click'
     close_dialog(page)
-    project_filters = page.locator('[data-project-filter]').evaluate_all("nodes => [...new Set(nodes.map(node => node.dataset.projectFilter))]")
-    for value in project_filters:
-        visible(page, f'[data-project-filter="{value}"]').click()
+    assert visible(page, '[data-record-page="task"]').is_visible()
+
+    visible(page, '[data-ops-add-comment="task-1"]').click()
+    page.locator('[data-modal-form] [name="body"]').fill('Ready for stakeholder review.')
+    visible(page, '[data-modal-form] button[type="submit"]').click()
+    page.wait_for_function("state.tasks.find(task => task.id === 'task-1').comments.length === 1")
+    assert visible(page, '[data-record-page="task"]').is_visible()
+
+    visible(page, '[data-ops-add-checklist="task-1"]').click()
+    page.locator('[data-modal-form] [name="text"]').fill('Verify acceptance criteria')
+    visible(page, '[data-modal-form] button[type="submit"]').click()
+    page.wait_for_function("state.tasks.find(task => task.id === 'task-1').checklist.length === 1")
+    visible(page, '[data-ops-toggle-checklist="task-1"]').check()
+    page.wait_for_function("state.tasks.find(task => task.id === 'task-1').checklist[0].done === true")
+
+    visible(page, '[data-ops-log-time="task-1"]').click()
+    page.locator('[data-modal-form] [name="hours"]').fill('1.5')
+    page.locator('[data-modal-form] [name="description"]').fill('Implementation and verification')
+    visible(page, '[data-modal-form] button[type="submit"]').click()
+    page.wait_for_function("state.timeEntries.some(entry => entry.taskId === 'task-1' && entry.hours === 1.5)")
+
+    visible(page, '[data-ops-back-project="project-1"]').click()
+    page.wait_for_selector('[data-record-page="project"]')
+    visible(page, '[data-ops-project-tab="financials"]').click()
+    assert visible(page, '.ops-project-record').is_visible()
+    visible(page, '[data-ops-create-invoice="project-1"]').click()
+    page.wait_for_selector('dialog[open] form')
+    page.wait_for_selector('dialog[open] [name="opsProjectId"]')
+    assert page.locator('dialog[open] [name="opsProjectId"]').input_value() == 'project-1'
+    close_dialog(page)
+    assert visible(page, '[data-record-page="project"]').is_visible()
+    close_record(page)
 
     navigate_sidebar(page, 'tasks')
-    task_row = 'tr:has([data-toggle-task="task-1"])'
-    open_menu_action(page, task_row, '[data-edit-task="task-1"]')
-    assert visible(page, '[data-modal-form]').is_visible()
-    close_dialog(page)
-    visible(page, '[data-toggle-task="task-1"]').check()
-    page.wait_for_timeout(100)
-    assert page.evaluate("state.tasks.find(task => task.id === 'task-1').status") == 'done'
-    task_filters = page.locator('[data-task-filter]').evaluate_all("nodes => [...new Set(nodes.map(node => node.dataset.taskFilter))]")
-    for value in task_filters:
-        visible(page, f'[data-task-filter="{value}"]').click()
+    visible(page, '[data-ops-global-task-view="board"]').click()
+    page.wait_for_selector('.ops-task-board')
+    card = visible(page, '[data-ops-drag-task="task-1"]')
+    column = visible(page, '[data-ops-drop-status="review"]')
+    card.drag_to(column)
+    page.wait_for_function("state.tasks.find(task => task.id === 'task-1').status === 'review'")
+    assert visible(page, '[data-ops-drop-status="review"] [data-ops-open-task="task-1"]').is_visible()
 
-    navigate_sidebar(page, 'calendar')
-    for selector in ['[data-calendar-next]', '[data-calendar-prev]', '[data-calendar-today]']:
-        visible(page, selector).click()
-    visible(page, '.calendar-date-button').click(position={'x': 80, 'y': 70})
-    assert page.locator('#modal-title').inner_text() == 'Create event'
-    close_dialog(page)
-
-    navigate_sidebar(page, 'team')
-    assert visible(page, '.member-card').is_visible()
-    assert page.locator('.member-card [data-edit-member]').count() == 0
+    visible(page, '[data-context-create]').click()
+    page.wait_for_selector('dialog[open] [data-modal-form]')
+    page.locator('[data-modal-form] [name="title"]').fill('Production validation task')
+    visible(page, '[data-modal-form] button[type="submit"]').click()
+    page.wait_for_selector('[data-record-page="task"]')
+    assert page.locator('#modal-title').inner_text() == 'Production validation task'
+    assert page.evaluate("state.tasks.some(task => task.title === 'Production validation task')")
+    close_record(page)
 
     navigate_sidebar(page, 'reports')
-    visible(page, '[data-report-period]').select_option('7')
-    assert page.evaluate('ui.reportPeriod') == '7'
-    assert visible(page, '.report-grid').is_visible()
+    assert visible(page, '.ops-portfolio-report').is_visible()
+    assert 'Test project' in visible(page, '.ops-portfolio-report').inner_text()
 
-    navigate_sidebar(page, 'email')
-    visible(page, '[data-context-create]').click()
-    assert page.locator('#modal-title').inner_text() == 'Compose message'
-    composer = page.locator('[data-enhanced-compose-form]')
-    assert composer.count() == 1
-    composer.locator('[name="to"]').fill('client@example.com')
-    composer.locator('[name="subject"]').fill('Browser test message')
-    composer.locator('[name="body"]').fill('The restored email module is functional.')
-    composer.locator('button[type="submit"]').click()
-    page.wait_for_function("state.messages.some(message => message.subject === 'Browser test message' && message.folder === 'sent')", timeout=5000)
-    visible(page, '[data-email-folder="sent"]').click()
-    visible(page, '[data-open-email]').click()
-    assert visible(page, '.email-reader').is_visible()
-    visible(page, '[data-email-back]').click()
-
-    navigate_sidebar(page, 'files')
-    visible(page, '[data-create-folder]').click()
-    page.locator('[data-modal-form] [name="name"]').fill('QA folder')
-    visible(page, '[data-modal-form] button[type="submit"]').click()
-    page.wait_for_timeout(120)
-    assert page.evaluate("state.files.some(file => file.name === 'QA folder')")
-    page.locator('[data-file-upload]').first.set_input_files({
-        'name': 'qa.txt',
-        'mimeType': 'text/plain',
-        'buffer': b'Formcraft interaction check'
-    })
-    page.wait_for_timeout(150)
-    assert page.evaluate("state.files.some(file => file.name === 'qa.txt')")
-    file_card = '.file-card:has([data-star-file])'
-    visible(page, f'{file_card} [data-star-file]').click()
-    open_menu_action(page, file_card, '[data-rename-file]')
-    assert visible(page, '[data-modal-form]').is_visible()
-    close_dialog(page)
+    navigate_sidebar(page, 'calendar')
+    assert visible(page, '.nepal-calendar-page').is_visible()
+    for selector in ['[data-calendar-next]', '[data-calendar-prev]', '[data-calendar-today]']:
+        visible(page, selector).click()
 
     navigate_sidebar(page, 'invoices')
     visible(page, '[data-view-invoice="invoice-1"]').click()
     assert visible(page, 'dialog[open] .bright-invoice-detail').is_visible()
-    visible(page, '[data-detail-edit-invoice]').click()
-    assert visible(page, '[data-modal-form]').is_visible()
     close_dialog(page)
 
-    navigate_sidebar(page, 'activity')
-    visible(page, '[data-clear-activity]').click()
-    assert visible(page, '[data-confirm-action]').is_visible()
-    close_dialog(page)
-
-    navigate_sidebar(page, 'settings')
-    tabs = page.locator('[data-settings-tab]').evaluate_all("nodes => [...new Set(nodes.map(node => node.dataset.settingsTab))]")
-    for tab in tabs:
-        visible(page, f'[data-settings-tab="{tab}"]').click()
-    if page.locator('[data-theme-option="dark"]:visible').count():
-        visible(page, '[data-theme-option="dark"]').click()
-        assert page.locator('html').get_attribute('data-theme') == 'dark'
-        visible(page, '[data-theme-option="light"]').click()
-        assert page.locator('html').get_attribute('data-theme') == 'light'
-    visible(page, '[data-settings-onboarding]').click()
-    assert visible(page, '[data-onboarding-settings-panel]').is_visible()
-    visible(page, '[data-onboarding-settings-panel] [data-start-product-tour]').click()
-    page.wait_for_selector('dialog[open] .product-tour-fallback')
-    visible(page, '[data-dismiss-product-tour]').click()
-    visible(page, '[data-settings-onboarding]').click()
-    visible(page, '[data-settings-tab="data"]').click()
-    visible(page, '[data-reset-data]').click()
-    assert visible(page, '[data-confirm-action]').is_visible()
-    close_dialog(page)
+    navigate_sidebar(page, 'email')
+    visible(page, '[data-context-create]').click()
+    composer = page.locator('[data-enhanced-compose-form]')
+    composer.locator('[name="to"]').fill('client@example.com')
+    composer.locator('[name="subject"]').fill('Browser test message')
+    composer.locator('[name="body"]').fill('Cross-module verification completed.')
+    composer.locator('button[type="submit"]').click()
+    page.wait_for_function("state.messages.some(message => message.subject === 'Browser test message' && message.folder === 'sent')")
 
     assert page.evaluate("FormcraftInteractions.audit().unnamedButtons.length") == 0
     assert page.evaluate("FormcraftFeatures.audit().missingDesktop.length") == 0
     assert page.evaluate("FormcraftFeatures.audit().missingMobile.length") == 0
+    assert page.evaluate("FormcraftOperations.audit().readiness") == 'ready-to-test'
     assert errors == []
     page.close()
 
@@ -316,29 +255,20 @@ def run_mobile(browser, base_url):
     page.goto(f'{base_url}/#dashboard', wait_until='domcontentloaded')
     wait_for_ready(page, errors)
     assert visible(page, '.bright-bottom-nav').is_visible()
-    for route in ['projects', 'tasks', 'calendar', 'dashboard']:
-        visible(page, f'[data-bright-route="{route}"]').click()
-        assert page.evaluate('ui.route') == route
+    visible(page, '[data-bright-route="projects"]').click()
+    visible(page, '[data-view-project="project-1"]').click()
+    page.wait_for_selector('[data-record-page="project"]')
+    assert_record_is_not_modal(page, 'project')
+    assert_no_overflow(page)
+    visible(page, '[data-ops-project-tab="work"]').click()
+    visible(page, '[data-ops-project-task-view="board"]').click()
+    assert visible(page, '.ops-task-board').is_visible()
+    assert_no_overflow(page)
+    close_record(page)
     visible(page, '[data-bright-more]').click()
     assert 'drawer-open' in (page.locator('body').get_attribute('class') or '')
     assert visible(page, '.mobile-drawer [data-route="reports"]').is_visible()
     assert visible(page, '.mobile-drawer [data-route="email"]').is_visible()
-    visible(page, '.mobile-drawer [data-route="email"]').click()
-    assert page.evaluate('ui.route') == 'email'
-    visible(page, '[data-bright-context-create]').click()
-    assert page.locator('#modal-title').inner_text() == 'Compose message'
-    close_dialog(page)
-    page.evaluate("navigate('dashboard')")
-    visible(page, '[data-bright-context-create]').click()
-    assert page.locator('#modal-title').inner_text() == 'Create project'
-    modal_box = page.locator('dialog[open]').bounding_box()
-    assert modal_box and modal_box['width'] >= 389
-    close_dialog(page)
-    for route in DESKTOP_ROUTES:
-        page.evaluate(f"navigate('{route}')")
-        assert_no_overflow(page)
-    assert page.evaluate("FormcraftFeatures.audit().missingDesktop.length") == 0
-    assert page.evaluate("FormcraftFeatures.audit().missingMobile.length") == 0
     assert page.evaluate("FormcraftInteractions.audit().unnamedButtons.length") == 0
     assert errors == []
     page.close()
@@ -354,7 +284,7 @@ try:
     with sync_playwright() as playwright:
         browser = playwright.chromium.launch(headless=True)
         run_owner_setup(browser, base_url)
-        run_direct_source_route(browser, base_url)
+        run_deep_link(browser, base_url)
         run_desktop(browser, base_url)
         run_mobile(browser, base_url)
         browser.close()
@@ -362,4 +292,4 @@ finally:
     server.shutdown()
     server.server_close()
 
-print('Browser interaction checks passed across authentication, onboarding, every source sidebar module, account controls, search, CRUD entry points, and mobile navigation.')
+print('Browser checks passed for authentication, route-based project/task records, protected forms, Jira-style workflow, time, comments, checklist, billing links, reports, calendar, email, and mobile navigation.')

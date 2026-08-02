@@ -5,6 +5,7 @@
   if (!architecture) throw new Error('Workspace architecture v3 must load before its responsive runtime.');
 
   const TABLET_QUERY = '(min-width: 821px) and (max-width: 1100px)';
+  const SOURCE_ROUTES = ['dashboard', 'projects', 'tasks', 'calendar', 'team', 'reports', 'email', 'files', 'invoices', 'activity', 'settings'];
   const isTablet = () => window.matchMedia(TABLET_QUERY).matches;
   const isMobile = () => window.matchMedia('(max-width: 820px)').matches;
   let renderedRoute = ui.route;
@@ -29,9 +30,33 @@
     });
   }
 
+  function sourceRouteLink(route) {
+    const meta = routes[route];
+    if (!meta) return '';
+    return `<a href="#${route}" class="workspace-nav-link fc3-context-link" data-route="${route}" data-source-route="${route}"><span class="workspace-nav-icon">${icon(meta.icon || 'grid', 17)}</span><span class="fc3-context-link-copy"><strong>${escapeHtml(meta.label)}</strong></span></a>`;
+  }
+
+  function ensureRouteCoverage(root) {
+    if (!root) return;
+    const missing = SOURCE_ROUTES.filter(route => !root.querySelector(`[data-route="${route}"]`));
+    if (!missing.length) return;
+    const section = document.createElement('div');
+    section.className = 'fc3-context-section fc3-source-shortcuts';
+    section.innerHTML = `<p class="workspace-nav-label">Workspace shortcuts</p>${missing.map(sourceRouteLink).join('')}`;
+    const tools = root.querySelector('.fc3-context-tools');
+    if (tools) tools.before(section);
+    else root.append(section);
+  }
+
   function normalizeLegacyContracts() {
     const brand = document.querySelector('.fc3-topbar-breadcrumb span:first-child');
     if (brand) brand.dataset.workspaceBrand = '';
+    ensureRouteCoverage(document.querySelector('.fc3-context-nav'));
+    ensureRouteCoverage(document.querySelector('.fc3-drawer-nav'));
+    const mobileNav = document.querySelector('.fc3-mobile-bottom-nav');
+    mobileNav?.classList.add('bright-bottom-nav');
+    const projectShortcut = mobileNav?.querySelector('[data-route="projects"]');
+    if (projectShortcut) projectShortcut.dataset.brightRoute = 'projects';
   }
 
   function syncResponsiveNavigation() {

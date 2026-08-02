@@ -30,9 +30,11 @@ concurrency:
 jobs:
   browser-validation:
     runs-on: ubuntu-24.04
+    timeout-minutes: 15
     env:
       SUPABASE_URL: https://formcraft-test.supabase.co
       SUPABASE_PUBLISHABLE_KEY: sb_publishable_formcraft_browser_test_key_1234567890
+      PYTHONUNBUFFERED: '1'
     steps:
       - name: Check out repository
         uses: actions/checkout@v4

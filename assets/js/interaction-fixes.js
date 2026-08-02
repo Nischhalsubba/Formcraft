@@ -1,23 +1,10 @@
 'use strict';
 
 (() => {
-  const deferredRoutes = new Set(['email', 'reports']);
-
-  function removeDeferredSearchResults() {
-    $$('[data-workspace-search-route="email"], [data-workspace-search-route="reports"]', modal).forEach(result => result.remove());
-  }
-
   function openWorkspaceSearchResult(button) {
     const route = button.dataset.workspaceSearchRoute;
     const id = button.dataset.workspaceSearchId;
-    if (!route) return;
-
-    if (deferredRoutes.has(route)) {
-      closeModal();
-      navigate('dashboard');
-      toast('That unfinished module is not available in this workspace.', 'warning');
-      return;
-    }
+    if (!route || !routes[route]) return;
 
     closeModal();
     navigate(route);
@@ -29,6 +16,15 @@
         tasks: () => openTaskForm(state.tasks.find(task => task.id === id)),
         team: () => openMemberForm(state.team.find(member => member.id === id || member.userId === id)),
         calendar: () => openEventForm(state.events.find(item => item.id === id)),
+        email: () => {
+          const message = state.messages.find(item => item.id === id);
+          if (!message) return;
+          message.unread = false;
+          ui.emailFolder = ['inbox', 'sent', 'drafts', 'archive', 'trash'].includes(message.folder) ? message.folder : 'inbox';
+          ui.selectedEmail = message.id;
+          saveState();
+          renderShell();
+        },
         invoices: () => openInvoiceDetail(state.invoices.find(item => item.id === id)),
         files: () => {
           const item = state.files.find(file => file.id === id);
@@ -38,7 +34,7 @@
             renderShell();
             return;
           }
-          const openControl = $(`[data-open-file="${CSS.escape(id)}"]`);
+          const openControl = document.querySelector(`[data-open-file="${CSS.escape(id)}"]`);
           openControl?.click();
         }
       };
@@ -53,9 +49,6 @@
     event.stopImmediatePropagation();
     openWorkspaceSearchResult(searchResult);
   }, true);
-
-  const modalObserver = new MutationObserver(removeDeferredSearchResults);
-  modalObserver.observe(modalContent, { childList: true, subtree: true });
 
   window.FormcraftInteractions = Object.freeze({
     openWorkspaceSearchResult,

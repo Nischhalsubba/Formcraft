@@ -55,6 +55,27 @@ def run_desktop_launcher(browser, base_url):
     wait_ready(page, errors)
     page.wait_for_selector('.erp-app-card[data-icon-name]')
 
+    geometry = page.evaluate("""() => {
+      const root = getComputedStyle(document.documentElement);
+      const rail = document.querySelector('.fc3-app-rail').getBoundingClientRect();
+      const sidebar = document.querySelector('.fc3-context-sidebar').getBoundingClientRect();
+      const main = getComputedStyle(document.querySelector('.fc3-main'));
+      return {
+        railVariable: parseFloat(root.getPropertyValue('--fc3-rail-width')),
+        sidebarVariable: parseFloat(root.getPropertyValue('--fc3-sidebar-width')),
+        railWidth: rail.width,
+        sidebarLeft: sidebar.left,
+        sidebarWidth: sidebar.width,
+        mainMarginLeft: parseFloat(main.marginLeft)
+      };
+    }""")
+    assert abs(geometry['railVariable'] - 72) < 0.5, geometry
+    assert abs(geometry['sidebarVariable'] - 272) < 0.5, geometry
+    assert abs(geometry['railWidth'] - geometry['railVariable']) < 0.5, geometry
+    assert abs(geometry['sidebarLeft'] - geometry['railWidth']) < 0.5, geometry
+    assert abs(geometry['sidebarWidth'] - geometry['sidebarVariable']) < 0.5, geometry
+    assert abs(geometry['mainMarginLeft'] - geometry['railWidth'] - geometry['sidebarWidth']) < 0.5, geometry
+
     icon_audit = page.evaluate('FormcraftIconography.audit()')
     assert icon_audit['status'] == 'ready-to-test', icon_audit
     assert icon_audit['missing'] == [], icon_audit
@@ -184,4 +205,4 @@ finally:
     server.shutdown()
     server.server_close()
 
-print('Premium interface E2E checks passed for unique SVG shapes, iconography, typography, semantic group tones, explicit active/parent/inactive states, dashboard navigation, app launcher, and mobile flow.')
+print('Premium interface E2E checks passed for geometry, unique SVG shapes, iconography, typography, semantic group tones, explicit active/parent/inactive states, dashboard navigation, app launcher, and mobile flow.')

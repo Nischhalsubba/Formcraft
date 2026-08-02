@@ -1,0 +1,251 @@
+.maven-overview-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) minmax(320px, .6fr);
+  gap: 14px;
+}
+
+.maven-feature-card,
+.maven-quick-card {
+  position: relative;
+  border: 1px solid var(--maven-border);
+  border-radius: var(--maven-radius-card);
+  box-shadow: var(--maven-shadow);
+}
+
+.maven-feature-card {
+  display: grid;
+  min-height: 286px;
+  align-content: space-between;
+  gap: 22px;
+  overflow: hidden;
+  padding: 26px;
+  background: #17191f;
+  color: #fff;
+}
+
+html[data-theme="dark"] .maven-feature-card { background: #0d0f13; }
+
+.maven-feature-card::after {
+  content: "";
+  position: absolute;
+  right: -150px;
+  bottom: -190px;
+  width: 420px;
+  height: 420px;
+  border: 1px solid rgb(255 255 255 / .08);
+  border-radius: 50%;
+  box-shadow: 0 0 0 45px rgb(255 255 255 / .025), 0 0 0 95px rgb(255 255 255 / .018);
+  pointer-events: none;
+}
+
+.maven-feature-head,
+.maven-card-heading,
+.maven-feature-footer {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 18px;
+}
+
+.maven-feature-card .maven-eyebrow { color: rgb(255 255 255 / .62); }
+.maven-feature-card h2 {
+  margin: 0;
+  font-size: clamp(44px, 5vw, 62px);
+  font-weight: 750;
+  line-height: .98;
+  letter-spacing: -.06em;
+  font-variant-numeric: tabular-nums;
+}
+.maven-feature-card p {
+  max-width: 470px;
+  margin: 10px 0 0;
+  color: rgb(255 255 255 / .7);
+}
+
+.maven-health-orb {
+  display: grid;
+  width: 88px;
+  height: 88px;
+  flex: 0 0 auto;
+  place-items: center;
+  border-radius: 50%;
+  background: rgb(255 255 255 / .08);
+}
+.maven-health-orb i {
+  width: 58px;
+  height: 58px;
+  border-radius: 50%;
+  background: conic-gradient(#fff var(--health), rgb(255 255 255 / .18) 0);
+  mask: radial-gradient(circle, transparent 55%, #000 57%);
+}
+
+.maven-feature-stats {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+.maven-feature-stats div {
+  padding: 13px;
+  border: 1px solid rgb(255 255 255 / .1);
+  border-radius: 12px;
+  background: rgb(255 255 255 / .055);
+}
+.maven-feature-stats strong,
+.maven-feature-stats span { display: block; }
+.maven-feature-stats strong { font-size: 20px; font-variant-numeric: tabular-nums; }
+.maven-feature-stats span { margin-top: 3px; color: rgb(255 255 255 / .62); font-size: 11px; }
+
+.maven-feature-footer { align-items: center; }
+.maven-feature-footer > span { display: flex; min-width: 0; align-items: center; gap: 10px; }
+.maven-feature-footer small,
+.maven-feature-footer strong { display: block; }
+.maven-feature-footer small { color: rgb(255 255 255 / .55); }
+.maven-feature-footer strong { max-width: 520px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.maven-inline-action {
+  display: inline-flex;
+  min-height: 40px;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 8px;
+  padding: 0 14px;
+  border: 1px solid rgb(255 255 255 / .16);
+  border-radius: 10px;
+  background: rgb(255 255 255 / .08);
+  color: #fff;
+  cursor: pointer;
+  font-weight: 650;
+}
+.maven-inline-action:hover { background: rgb(255 255 255 / .14); }
+
+.maven-quick-card {
+  display: grid;
+  align-content: start;
+  gap: 20px;
+  padding: 24px;
+  background: var(--maven-surface);
+}
+.maven-card-heading h2 { margin: 0; font-size: 20px; letter-spacing: -.035em; }
+.maven-round-action {
+  display: grid;
+  width: 40px;
+  height: 40px;
+  place-items: center;
+  border: 0;
+  border-radius: 50%;
+  background: var(--maven-accent);
+  color: #fff;
+  cursor: pointer;
+}
+.maven-action-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+.maven-action-grid button {
+  display: grid;
+  min-height: 104px;
+  align-content: start;
+  gap: 5px;
+  padding: 14px;
+  border: 1px solid var(--maven-border);
+  border-radius: 13px;
+  background: var(--maven-surface-subtle);
+  color: var(--maven-ink);
+  cursor: pointer;
+  text-align: left;
+  transition: border-color .15s ease, background-color .15s ease, box-shadow .15s ease;
+}
+.maven-action-grid button:hover {
+  border-color: color-mix(in srgb, var(--maven-accent) 45%, var(--maven-border));
+  background: var(--maven-surface);
+  box-shadow: var(--maven-shadow-hover);
+}
+.maven-action-grid button > span {
+  display: grid;
+  width: 36px;
+  height: 36px;
+  place-items: center;
+  margin-bottom: 5px;
+  border-radius: 10px;
+  background: var(--maven-accent-soft);
+  color: var(--maven-accent);
+}
+.maven-action-grid button strong { font-size: 13px; }
+.maven-action-grid button small { color: var(--maven-muted); font-size: 11px; }
+
+.maven-bottom-nav { display: none; }
+
+@media (max-width: 980px) {
+  .maven-overview-grid { grid-template-columns: 1fr; }
+  .maven-action-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .maven-action-grid button { min-height: 96px; }
+}
+
+@media (max-width: 700px) {
+  .maven-feature-card,
+  .maven-quick-card { padding: 20px; }
+  .maven-feature-card { min-height: 270px; }
+  .maven-feature-head { align-items: flex-start; }
+  .maven-health-orb { width: 72px; height: 72px; }
+  .maven-health-orb i { width: 48px; height: 48px; }
+  .maven-feature-stats { grid-template-columns: 1fr; }
+  .maven-feature-footer { align-items: flex-start; flex-direction: column; }
+  .maven-action-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+
+  .maven-bottom-nav {
+    position: fixed;
+    z-index: 105;
+    right: 10px;
+    bottom: 10px;
+    left: 10px;
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    align-items: end;
+    min-height: 68px;
+    padding: 6px 7px calc(6px + env(safe-area-inset-bottom));
+    border: 1px solid var(--maven-border);
+    border-radius: 18px;
+    background: color-mix(in srgb, var(--maven-surface) 92%, transparent);
+    box-shadow: 0 16px 50px rgb(21 24 31 / .16);
+    backdrop-filter: blur(18px);
+  }
+  .maven-bottom-item {
+    display: grid;
+    min-height: 52px;
+    place-items: center;
+    align-content: center;
+    gap: 3px;
+    padding: 4px;
+    border: 0;
+    border-radius: 11px;
+    background: transparent;
+    color: var(--maven-muted);
+    cursor: pointer;
+    font-size: 9px;
+    font-weight: 650;
+  }
+  .maven-bottom-item.is-active { color: var(--maven-accent); }
+  .maven-bottom-create {
+    display: grid;
+    width: 52px;
+    height: 52px;
+    place-items: center;
+    align-self: start;
+    justify-self: center;
+    margin-top: -18px;
+    border: 0;
+    border-radius: 50%;
+    background: var(--maven-accent);
+    color: #fff;
+    cursor: pointer;
+    box-shadow: 0 10px 24px color-mix(in srgb, var(--maven-accent) 28%, transparent);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .maven-action-grid button { transition: none; }
+}

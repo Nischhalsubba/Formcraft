@@ -1,0 +1,246 @@
+/* Full source-navigation restoration and first-login onboarding tour. */
+
+.workspace-nav-link[data-route="email"],
+.workspace-nav-link[data-route="reports"],
+.drawer-nav [data-route="email"],
+.drawer-nav [data-route="reports"] {
+  display: flex !important;
+}
+
+.workspace-nav-link[data-source-route] {
+  animation: none;
+}
+
+.onboarding-settings-panel {
+  align-content: start;
+}
+
+.onboarding-settings-intro {
+  max-width: 720px;
+  color: var(--muted);
+  line-height: 1.65;
+}
+
+.onboarding-feature-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.onboarding-feature-card {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 12px;
+  align-items: start;
+  padding: 16px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--surface);
+}
+
+.onboarding-feature-icon {
+  display: grid;
+  width: 36px;
+  height: 36px;
+  place-items: center;
+  border-radius: 9px;
+  background: var(--primary-soft);
+  color: var(--primary);
+}
+
+.onboarding-feature-card strong,
+.onboarding-feature-card span {
+  display: block;
+}
+
+.onboarding-feature-card strong {
+  color: var(--ink);
+  font-size: 14px;
+}
+
+.onboarding-feature-card span {
+  margin-top: 4px;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.onboarding-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding-top: 20px;
+  border-top: 1px solid var(--border);
+}
+
+.onboarding-actions p {
+  max-width: 560px;
+  margin: 0;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.product-tour-fallback {
+  width: min(620px, 100%);
+}
+
+.product-tour-fallback .modal-body {
+  display: grid;
+  gap: 18px;
+}
+
+.product-tour-fallback-list {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.product-tour-fallback-item {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 10px;
+  align-items: center;
+  padding: 13px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--surface-soft);
+}
+
+.product-tour-fallback-item svg {
+  color: var(--primary);
+}
+
+.product-tour-fallback-item span {
+  color: var(--ink);
+  font-size: 13px;
+  font-weight: 650;
+}
+
+/* Driver.js theme: native to Formcraft rather than a foreign tooltip bolted on top. */
+.driver-popover.formcraft-tour-popover {
+  width: min(360px, calc(100vw - 28px));
+  max-width: 360px;
+  padding: 0;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: var(--surface-raised);
+  color: var(--ink);
+  box-shadow: 0 24px 64px rgb(23 26 31 / .2);
+  font-family: "Inter", ui-sans-serif, system-ui, sans-serif;
+}
+
+.formcraft-tour-popover .driver-popover-title {
+  margin: 0;
+  padding: 20px 20px 0;
+  color: var(--ink);
+  font-size: 18px;
+  font-weight: 750;
+  line-height: 1.3;
+  letter-spacing: -.02em;
+}
+
+.formcraft-tour-popover .driver-popover-description {
+  padding: 9px 20px 18px;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.formcraft-tour-popover .driver-popover-progress-text {
+  color: var(--muted-2);
+  font-size: 11px;
+  font-weight: 650;
+}
+
+.formcraft-tour-popover .driver-popover-footer {
+  gap: 10px;
+  padding: 14px 20px;
+  border-top: 1px solid var(--border);
+  background: var(--surface-soft);
+}
+
+.formcraft-tour-popover .driver-popover-navigation-btns {
+  gap: 8px;
+}
+
+.formcraft-tour-popover .driver-popover-prev-btn,
+.formcraft-tour-popover .driver-popover-next-btn,
+.formcraft-tour-popover .driver-popover-close-btn {
+  min-height: 38px;
+  padding: 0 13px;
+  border: 1px solid var(--border-strong);
+  border-radius: 8px;
+  background: var(--surface);
+  color: var(--ink);
+  box-shadow: none;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  text-shadow: none;
+}
+
+.formcraft-tour-popover .driver-popover-next-btn {
+  border-color: var(--primary);
+  background: var(--primary);
+  color: #fff;
+}
+
+.formcraft-tour-popover .driver-popover-next-btn:hover {
+  border-color: var(--primary-hover);
+  background: var(--primary-hover);
+}
+
+.formcraft-tour-popover .driver-popover-prev-btn:hover,
+.formcraft-tour-popover .driver-popover-close-btn:hover {
+  background: var(--surface-soft);
+}
+
+.formcraft-tour-popover .driver-popover-close-btn {
+  top: 12px;
+  right: 12px;
+  width: 36px;
+  min-width: 36px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--muted);
+}
+
+.formcraft-tour-popover .driver-popover-arrow-side-left,
+.formcraft-tour-popover .driver-popover-arrow-side-right,
+.formcraft-tour-popover .driver-popover-arrow-side-top,
+.formcraft-tour-popover .driver-popover-arrow-side-bottom {
+  border-color: var(--surface-raised);
+}
+
+.driver-active-element {
+  border-radius: 10px;
+}
+
+@media (max-width: 760px) {
+  .onboarding-feature-grid,
+  .product-tour-fallback-list {
+    grid-template-columns: 1fr;
+  }
+
+  .onboarding-actions {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .onboarding-actions .button {
+    width: 100%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .driver-popover,
+  .driver-overlay,
+  .driver-active-element {
+    transition: none !important;
+    animation: none !important;
+  }
+}

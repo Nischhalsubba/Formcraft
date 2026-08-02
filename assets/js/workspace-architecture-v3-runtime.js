@@ -6,6 +6,8 @@
 
   const TABLET_QUERY = '(min-width: 821px) and (max-width: 1100px)';
   const isTablet = () => window.matchMedia(TABLET_QUERY).matches;
+  const isMobile = () => window.matchMedia('(max-width: 820px)').matches;
+  let renderedRoute = ui.route;
 
   function closeTabletContext() {
     document.body.classList.remove('fc3-context-open');
@@ -42,7 +44,10 @@
 
   const previousRenderShell = renderShell;
   renderShell = function renderWorkspaceArchitectureResponsive(...args) {
+    const routeChanged = renderedRoute !== ui.route;
+    if (routeChanged) document.body.classList.remove('drawer-open', 'fc3-context-open');
     const result = previousRenderShell.apply(this, args);
+    renderedRoute = ui.route;
     requestAnimationFrame(syncResponsiveNavigation);
     return result;
   };
@@ -50,6 +55,22 @@
   document.addEventListener('click', event => {
     const target = event.target instanceof Element ? event.target : null;
     if (!target) return;
+
+    const openDrawer = target.closest('[data-open-drawer]');
+    if (openDrawer && isMobile()) {
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      document.body.classList.add('drawer-open');
+      return;
+    }
+
+    const closeDrawer = target.closest('[data-close-drawer], [data-drawer-backdrop]');
+    if (closeDrawer && isMobile()) {
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      document.body.classList.remove('drawer-open');
+      return;
+    }
 
     const toggle = target.closest('[data-fc3-toggle-sidebar]');
     if (toggle && isTablet()) {
@@ -74,7 +95,13 @@
   }, true);
 
   document.addEventListener('keydown', event => {
-    if (event.key !== 'Escape' || !document.body.classList.contains('fc3-context-open')) return;
+    if (event.key !== 'Escape') return;
+    if (document.body.classList.contains('drawer-open')) {
+      document.body.classList.remove('drawer-open');
+      document.querySelector('[data-bright-more]')?.focus();
+      return;
+    }
+    if (!document.body.classList.contains('fc3-context-open')) return;
     closeTabletContext();
     syncResponsiveNavigation();
     document.querySelector('.fc3-topbar [data-fc3-toggle-sidebar]')?.focus();

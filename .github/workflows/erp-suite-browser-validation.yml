@@ -1,0 +1,59 @@
+name: ERP suite browser validation
+
+on:
+  pull_request:
+    paths:
+      - 'assets/js/erp-suite-*.js'
+      - 'assets/css/erp-suite.css'
+      - 'tests/erp-suite-*.py'
+      - 'tests/erp-suite-*.mjs'
+      - 'index.html'
+      - 'package.json'
+      - '.github/workflows/erp-suite-browser-validation.yml'
+  push:
+    branches:
+      - main
+      - agent/nepal-erp-suite
+    paths:
+      - 'assets/js/erp-suite-*.js'
+      - 'assets/css/erp-suite.css'
+      - 'tests/erp-suite-*.py'
+      - 'tests/erp-suite-*.mjs'
+      - 'index.html'
+      - 'package.json'
+      - '.github/workflows/erp-suite-browser-validation.yml'
+
+concurrency:
+  group: erp-suite-browser-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  browser-validation:
+    runs-on: ubuntu-24.04
+    env:
+      SUPABASE_URL: https://formcraft-test.supabase.co
+      SUPABASE_PUBLISHABLE_KEY: sb_publishable_formcraft_browser_test_key_1234567890
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Build and run static verification
+        run: npm run build
+
+      - name: Install Chromium test dependencies
+        run: |
+          python -m pip install playwright==1.54.0
+          python -m playwright install --with-deps chromium
+
+      - name: Run ERP authenticated browser regression
+        run: python tests/erp-suite-browser-smoke.py

@@ -29,8 +29,14 @@
     });
   }
 
+  function normalizeLegacyContracts() {
+    const brand = document.querySelector('.fc3-topbar-breadcrumb span:first-child');
+    if (brand) brand.dataset.workspaceBrand = '';
+  }
+
   function syncResponsiveNavigation() {
     normalizeNavigationState();
+    normalizeLegacyContracts();
     if (!isTablet()) closeTabletContext();
     document.querySelectorAll('[data-fc3-toggle-sidebar]').forEach(button => {
       if (isTablet()) {

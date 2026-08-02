@@ -19,8 +19,10 @@ def prepare_page(browser, width, height, owner_setup=False):
     page.on('console', lambda msg: errors.append(f'console:{msg.type}:{msg.text}') if msg.type == 'error' else None)
     page.on('pageerror', lambda exc: errors.append(f'page:{exc}'))
     if owner_setup:
-        page.add_init_script("window.__FORMCRAFT_TEST_OWNER_EXISTS__ = false; window.__FORMCRAFT_TEST_NO_SESSION__ = true;")
-    page.add_init_script(supabase_mock)
+        setup = "window.__FORMCRAFT_TEST_OWNER_SETUP__ = true; window.__FORMCRAFT_TEST_OWNER_EXISTS__ = false; window.__FORMCRAFT_TEST_NO_SESSION__ = true;\n"
+        page.add_init_script(setup + supabase_mock)
+    else:
+        page.add_init_script(supabase_mock)
     page.route('https://fonts.googleapis.com/**', lambda route: route.fulfill(status=200, content_type='text/css', body=''))
     page.route('https://fonts.gstatic.com/**', lambda route: route.fulfill(status=200, body=b''))
     page.route('https://cdn.jsdelivr.net/**', lambda route: route.fulfill(status=200, content_type='application/javascript', body=''))

@@ -1,10 +1,23 @@
 'use strict';
 
 (() => {
+  const deferredRoutes = new Set(['email', 'reports']);
+
+  function removeDeferredSearchResults() {
+    $$('[data-workspace-search-route="email"], [data-workspace-search-route="reports"]', modal).forEach(result => result.remove());
+  }
+
   function openWorkspaceSearchResult(button) {
     const route = button.dataset.workspaceSearchRoute;
     const id = button.dataset.workspaceSearchId;
     if (!route) return;
+
+    if (deferredRoutes.has(route)) {
+      closeModal();
+      navigate('dashboard');
+      toast('That unfinished module is not available in this workspace.', 'warning');
+      return;
+    }
 
     closeModal();
     navigate(route);
@@ -25,7 +38,8 @@
             renderShell();
             return;
           }
-          $('[data-open-file]')?.focus();
+          const openControl = $(`[data-open-file="${CSS.escape(id)}"]`);
+          openControl?.click();
         }
       };
       actions[route]?.();
@@ -39,6 +53,9 @@
     event.stopImmediatePropagation();
     openWorkspaceSearchResult(searchResult);
   }, true);
+
+  const modalObserver = new MutationObserver(removeDeferredSearchResults);
+  modalObserver.observe(modalContent, { childList: true, subtree: true });
 
   window.FormcraftInteractions = Object.freeze({
     openWorkspaceSearchResult,

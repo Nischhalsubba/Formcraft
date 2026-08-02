@@ -39,7 +39,14 @@
     const context = document.querySelector('.fc3-context-sidebar');
     if (!context) return;
     const directAppsLink = context.querySelector('.fc3-context-nav > [data-erp-apps-nav]');
-    if (directAppsLink) directAppsLink.hidden = ui.route === 'apps';
+    if (directAppsLink) {
+      directAppsLink.hidden = false;
+      directAppsLink.setAttribute('aria-label', 'Open app launcher');
+      const title = directAppsLink.querySelector('.fc3-context-link-copy strong');
+      const description = directAppsLink.querySelector('.fc3-context-link-copy small');
+      if (title) title.textContent = 'App launcher';
+      if (description) description.textContent = 'Browse all applications';
+    }
 
     context.querySelectorAll('[data-erp-open-app], [data-route], [data-source-route]').forEach(item => {
       const app = appForNavigationElement(item);

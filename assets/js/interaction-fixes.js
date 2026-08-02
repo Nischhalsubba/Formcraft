@@ -169,6 +169,9 @@
   }, true);
 
   document.addEventListener('click', event => {
+    const tourTrigger = event.target.closest('[data-start-product-tour]');
+    if (tourTrigger) window.__FORMCRAFT_TOUR_RETURN_ROUTE__ = ui.route;
+
     const searchResult = event.target.closest('[data-workspace-search-route]');
     if (searchResult) {
       event.preventDefault();
@@ -188,6 +191,13 @@
     event.stopImmediatePropagation();
     commitEmailMessage(form, 'sent');
   }, true);
+
+  document.addEventListener('formcraft:product-tour-finished', () => {
+    const returnRoute = window.__FORMCRAFT_TOUR_RETURN_ROUTE__;
+    window.__FORMCRAFT_TOUR_RETURN_ROUTE__ = '';
+    if (!returnRoute || !routes[returnRoute] || ui.route === returnRoute) return;
+    navigate(returnRoute);
+  });
 
   window.FormcraftEmailComposer = Object.freeze({
     commit: commitEmailMessage,

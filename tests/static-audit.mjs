@@ -8,6 +8,7 @@ const fixesCss = read('assets/css/final-ui-fixes.css');
 const headerCss = read('assets/css/header-popover-fixes.css');
 const dynamicCss = read('assets/css/dynamic-backend.css');
 const productCss = read('assets/css/formcraft-v2.css');
+const directionCss = read('assets/css/formcraft-product-direction.css');
 const appCore = read('assets/js/app-core.js');
 const baseScripts = ['app-pages.js', 'app-actions.js', 'app-modules.js'];
 const js = baseScripts.map(name => read(`assets/js/${name}`)).join('\n');
@@ -17,18 +18,19 @@ const shellJs = read('assets/js/formcraft-v2-shell.js');
 const dynamicJs = read('assets/js/dynamic-backend.js');
 const dynamicWorkflows = read('assets/js/dynamic-workflows.js');
 const productRuntime = read('assets/js/formcraft-v2-runtime.js');
+const directionRuntime = read('assets/js/formcraft-product-direction.js');
 const migration = read('supabase/migrations/20260730030000_formcraft_dynamic_backend.sql');
 const invitationMigration = read('supabase/migrations/20260730030100_invitation_activation.sql');
 const inviteFunction = read('supabase/functions/invite-member/index.ts');
 const buildConfig = read('scripts/build-runtime-config.mjs');
 const gitignore = read('.gitignore');
 
-assert.equal((html.match(/rel="stylesheet"/g) || []).length, 6, 'The font and five application stylesheets should load');
-for (const stylesheet of ['app.css', 'final-ui-fixes.css', 'header-popover-fixes.css', 'dynamic-backend.css', 'formcraft-v2.css']) {
+assert.equal((html.match(/rel="stylesheet"/g) || []).length, 7, 'The font and six application stylesheets should load');
+for (const stylesheet of ['app.css', 'final-ui-fixes.css', 'header-popover-fixes.css', 'dynamic-backend.css', 'formcraft-v2.css', 'formcraft-product-direction.css']) {
   assert.ok(html.includes(`assets/css/${stylesheet}`), `${stylesheet} must load`);
 }
 assert.doesNotMatch(html, /maven-system\.css|formcraft-components\.css/);
-for (const name of ['app-core.js', ...baseScripts, 'final-ui-fixes.js', 'header-popover-fixes.js', 'formcraft-v2-shell.js', 'dynamic-backend.js', 'dynamic-workflows.js', 'auth-onboarding.js', 'formcraft-v2-runtime.js']) {
+for (const name of ['app-core.js', ...baseScripts, 'final-ui-fixes.js', 'header-popover-fixes.js', 'formcraft-v2-shell.js', 'dynamic-backend.js', 'dynamic-workflows.js', 'auth-onboarding.js', 'formcraft-v2-runtime.js', 'formcraft-product-direction.js']) {
   assert.ok(html.includes(`assets/js/${name}`), `${name} must load`);
 }
 assert.doesNotMatch(html, /maven-system\.js/);
@@ -70,6 +72,16 @@ assert.match(productCss, /\.form-modal/);
 assert.match(productCss, /@media \(max-width: 680px\)/);
 assert.match(productCss, /@media \(prefers-reduced-motion: reduce\)/);
 
+assert.match(directionCss, /--canvas: #f6f7f8/);
+assert.match(directionCss, /--ink: #171a1f/);
+assert.match(directionCss, /--primary: #0f766e/);
+assert.match(directionCss, /--canvas: #101316/);
+assert.match(directionCss, /\.product-today-grid/);
+assert.match(directionCss, /\.product-summary-strip/);
+assert.match(directionCss, /min-height: 48px/);
+assert.match(directionCss, /border-radius: 12px/);
+assert.match(directionCss, /@media \(max-width: 680px\)/);
+
 assert.match(productRuntime, /persistDynamicWorkspace/);
 assert.match(productRuntime, /FormcraftBackend\?\.flush/);
 assert.match(productRuntime, /Automatic from tasks/);
@@ -80,6 +92,14 @@ assert.match(productRuntime, /openDynamicInvoiceForm/);
 assert.match(productRuntime, /createStarterWorkspace/);
 assert.match(productRuntime, /workspace-onboarding/);
 assert.doesNotMatch(productRuntime, /Nischhal Subba/);
+
+assert.match(directionRuntime, /renderTaskFirstDashboard/);
+assert.match(directionRuntime, /Active projects/);
+assert.match(directionRuntime, /Outstanding invoices/);
+assert.match(directionRuntime, /Quick actions/);
+assert.match(directionRuntime, /data-toggle-task/);
+assert.match(directionRuntime, /data-event-id/);
+assert.doesNotMatch(directionRuntime, /purple|gradient/i);
 
 assert.match(dynamicCss, /\.backend-gate/);
 assert.match(dynamicCss, /html\[data-backend="offline"\]/);
@@ -113,10 +133,10 @@ assert.match(buildConfig, /SUPABASE_URL/);
 assert.match(buildConfig, /SUPABASE_PUBLISHABLE_KEY/);
 assert.match(gitignore, /assets\/js\/runtime-config\.js/);
 
-for (const source of [css, fixesCss, headerCss, dynamicCss, productCss]) {
+for (const source of [css, fixesCss, headerCss, dynamicCss, productCss, directionCss]) {
   const open = (source.match(/{/g) || []).length;
   const close = (source.match(/}/g) || []).length;
   assert.equal(open, close, 'CSS braces must balance');
 }
 
-console.log('Static Formcraft product-system and dynamic-backend checks passed.');
+console.log('Static Formcraft product-direction and dynamic-backend checks passed.');

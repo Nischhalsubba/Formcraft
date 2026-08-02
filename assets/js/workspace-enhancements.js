@@ -175,7 +175,8 @@
       unread: false,
       starred: false,
       attachments: attachmentInput ? [...attachmentInput.files].map(file => file.name) : [],
-      attachmentPaths: []
+      attachmentPaths: [],
+      syncState: 'pending'
     };
   }
 
@@ -189,17 +190,19 @@
     const record = messageRecord(form, folder);
     state.messages.unshift(record);
     logActivity('email', folder === 'sent' ? 'Message sent' : 'Draft saved', record.subject);
-    try {
-      await saveState();
-    } catch (error) {
-      state.messages = state.messages.filter(message => message.id !== record.id);
-      throw error;
-    }
     ui.emailFolder = folder;
     ui.selectedEmail = null;
     closeModal();
     renderShell();
-    toast(folder === 'sent' ? 'Message sent.' : 'Draft saved.');
+
+    try {
+      await saveState();
+      record.syncState = 'synced';
+      toast(folder === 'sent' ? 'Message sent.' : 'Draft saved.');
+    } catch (error) {
+      record.syncState = 'retry';
+      toast('The message is saved locally and will retry syncing with the workspace.', 'warning');
+    }
   }
 
   function openEnhancedComposeForm() {
@@ -211,35 +214,34 @@
       <div class="modal-body">${composeFields()}</div>
       <div class="modal-actions">
         <div class="modal-actions-leading"><button class="button button-secondary" type="button" data-save-message-draft>Save draft</button></div>
-        <div class="modal-actions-trailing"><button class="button button-secondary" type="button" data-close-modal>Cancel</button><button class="button button-primary" type="submit"><span data-compose-submit-label>Send message</span></button></div>
+        <div class="modal-actions-trailing"><button class="button button-secondary" type="button" data-close-modal>Cancel</button><button class="button button-primary" type="submit" data-send-message><span data-compose-submit-label>Send message</span></button></div>
       </div>
     </form>`);
 
     const form = document.querySelector('[data-enhanced-compose-form]');
     if (!form) return;
+    let committing = false;
 
-    form.addEventListener('submit', async event => {
+    const send = async folder => {
+      if (committing) return;
+      const required = folder === 'sent' ? null : ['to', 'subject'];
+      if (!validateForm(form, required)) return;
+      committing = true;
+      setComposeBusy(form, true, folder === 'sent' ? 'Send message' : 'Save draft');
+      await commitMessage(form, folder);
+    };
+
+    form.addEventListener('submit', event => {
       event.preventDefault();
-      if (!validateForm(form)) return;
-      setComposeBusy(form, true);
-      try {
-        await commitMessage(form, 'sent');
-      } catch (error) {
-        setComposeBusy(form, false);
-        toast(error.message || 'The message could not be sent.', 'error');
-      }
+      send('sent');
     });
 
-    form.querySelector('[data-save-message-draft]')?.addEventListener('click', async () => {
-      if (!validateForm(form, ['to', 'subject'])) return;
-      setComposeBusy(form, true, 'Save draft');
-      try {
-        await commitMessage(form, 'drafts');
-      } catch (error) {
-        setComposeBusy(form, false, 'Save draft');
-        toast(error.message || 'The draft could not be saved.', 'error');
-      }
+    form.querySelector('[data-send-message]')?.addEventListener('click', event => {
+      event.preventDefault();
+      send('sent');
     });
+
+    form.querySelector('[data-save-message-draft]')?.addEventListener('click', () => send('drafts'));
   }
 
   openComposeForm = openEnhancedComposeForm;

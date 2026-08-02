@@ -2,11 +2,12 @@ import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 
 const root = new URL('../', import.meta.url);
-const [html, schema, ui, workflows, css, docs, migration] = await Promise.all([
+const [html, schema, ui, workflows, boot, css, docs, migration] = await Promise.all([
   readFile(new URL('index.html', root), 'utf8'),
   readFile(new URL('assets/js/erp-suite-schema.js', root), 'utf8'),
   readFile(new URL('assets/js/erp-suite-ui.js', root), 'utf8'),
   readFile(new URL('assets/js/erp-suite-workflows.js', root), 'utf8'),
+  readFile(new URL('assets/js/erp-suite-boot.js', root), 'utf8'),
   readFile(new URL('assets/css/erp-suite.css', root), 'utf8'),
   readFile(new URL('docs/ERP_SUITE_IMPLEMENTATION_STATUS.md', root), 'utf8'),
   readFile(new URL('supabase/migrations/20260802170000_erp_relational_foundation.sql', root), 'utf8')
@@ -16,7 +17,8 @@ for (const token of [
   'assets/css/erp-suite.css',
   'assets/js/erp-suite-schema.js',
   'assets/js/erp-suite-ui.js',
-  'assets/js/erp-suite-workflows.js'
+  'assets/js/erp-suite-workflows.js',
+  'assets/js/erp-suite-boot.js'
 ]) assert.ok(html.includes(token), `Missing ERP asset: ${token}`);
 
 const expectedGroups = ['essentials', 'finance', 'sales', 'websites', 'supply', 'hr', 'marketing', 'services', 'productivity'];
@@ -49,6 +51,14 @@ for (const token of [
 ]) assert.ok(ui.includes(token), `Missing ERP UI contract: ${token}`);
 
 for (const token of [
+  'function injectAppsNavigation',
+  'MutationObserver',
+  "ui.route === 'apps'",
+  'synchronizeInitialRoute',
+  'window.FormcraftERPBoot'
+]) assert.ok(boot.includes(token), `Missing deterministic ERP shell contract: ${token}`);
+
+for (const token of [
   'function createInvoice',
   'function createStockMove',
   'function createSalesOrderFromLead',
@@ -74,6 +84,6 @@ for (const token of [
 
 assert.ok(docs.includes('One-to-one full Odoo feature parity: not yet a truthful production claim.'), 'Documentation must state the parity boundary honestly.');
 assert.ok(docs.includes('Application launcher and all official Odoo master app categories: implemented.'), 'Documentation must state implemented launcher coverage.');
-assert.ok(!`${schema}${ui}${workflows}${css}`.includes('odoo.com'), 'Runtime must not embed Odoo assets or application code.');
+assert.ok(!`${schema}${ui}${workflows}${boot}${css}`.includes('odoo.com'), 'Runtime must not embed Odoo assets or application code.');
 
 console.log(`ERP suite contracts passed for ${expectedApps.length} metadata-driven apps across ${expectedGroups.length} groups.`);

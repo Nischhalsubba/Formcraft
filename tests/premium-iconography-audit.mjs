@@ -2,9 +2,10 @@ import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 
 const root = new URL('../', import.meta.url);
-const [html, iconography, runtime, css, packageJson, docs] = await Promise.all([
+const [html, iconography, uniqueness, runtime, css, packageJson, docs] = await Promise.all([
   readFile(new URL('index.html', root), 'utf8'),
   readFile(new URL('assets/js/premium-iconography.js', root), 'utf8'),
+  readFile(new URL('assets/js/premium-iconography-uniqueness.js', root), 'utf8'),
   readFile(new URL('assets/js/premium-interface-runtime.js', root), 'utf8'),
   readFile(new URL('assets/css/premium-interface.css', root), 'utf8'),
   readFile(new URL('package.json', root), 'utf8'),
@@ -13,6 +14,7 @@ const [html, iconography, runtime, css, packageJson, docs] = await Promise.all([
 
 for (const asset of [
   'assets/js/premium-iconography.js',
+  'assets/js/premium-iconography-uniqueness.js',
   'assets/js/premium-interface-runtime.js',
   'assets/css/premium-interface.css'
 ]) assert.ok(html.includes(asset), `Missing premium UI asset: ${asset}`);
@@ -22,6 +24,11 @@ assert.ok(
   html.indexOf('assets/js/premium-iconography.js') > html.indexOf('assets/js/erp-suite-schema.js') &&
   html.indexOf('assets/js/premium-iconography.js') < html.indexOf('assets/js/erp-suite-ui.js'),
   'Premium iconography must load after ERP schema and before ERP UI.'
+);
+assert.ok(
+  html.indexOf('assets/js/premium-iconography-uniqueness.js') > html.indexOf('assets/js/premium-iconography.js') &&
+  html.indexOf('assets/js/premium-iconography-uniqueness.js') < html.indexOf('assets/js/erp-suite-ui.js'),
+  'Visual uniqueness corrections must load before ERP UI renders.'
 );
 assert.ok(
   html.indexOf('assets/js/premium-interface-runtime.js') > html.indexOf('assets/js/workspace-architecture-v3-runtime.js') &&
@@ -55,6 +62,10 @@ for (const contract of [
   'ERP.GROUPS.forEach',
   'window.FormcraftIconography'
 ]) assert.ok(iconography.includes(contract), `Missing iconography contract: ${contract}`);
+
+for (const contract of ['activities:', 'timesheets:', 'window.FormcraftIconographyUnique']) {
+  assert.ok(uniqueness.includes(contract), `Missing visual uniqueness contract: ${contract}`);
+}
 
 for (const contract of [
   "const VERSION = 'FORMCRAFT-PREMIUM-UI-1.0'",
@@ -92,8 +103,9 @@ const pkg = JSON.parse(packageJson);
 assert.ok(pkg.scripts.test.includes('premium-iconography-audit.mjs'), 'Premium audit must run in npm test.');
 assert.ok(pkg.scripts.verify.includes('test:premium'), 'Premium syntax verification must be part of the fail-closed build.');
 assert.ok(pkg.scripts['test:premium'].includes('premium-iconography.js'), 'Premium iconography syntax must be checked.');
+assert.ok(pkg.scripts['test:premium'].includes('premium-iconography-uniqueness.js'), 'Icon uniqueness correction syntax must be checked.');
 assert.ok(pkg.scripts['test:premium'].includes('premium-interface-runtime.js'), 'Premium runtime syntax must be checked.');
 assert.ok(pkg.scripts['test:premium'].includes('premium-iconography-audit.mjs'), 'Premium audit syntax must be checked.');
 
-assert.ok(!`${iconography}${runtime}${css}`.includes('odoo.com'), 'Premium UI must not embed Odoo assets or source code.');
+assert.ok(!`${iconography}${uniqueness}${runtime}${css}`.includes('odoo.com'), 'Premium UI must not embed Odoo assets or source code.');
 console.log(`Premium iconography and interface contracts passed for ${expectedApps.length} ERP apps, ${nativeApps.length} native icons, and ${groupIcons.length} group icons.`);

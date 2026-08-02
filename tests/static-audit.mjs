@@ -103,7 +103,7 @@ assert.match(enhancementCss, /onboarding-feature-grid/);
 assert.match(enhancementJs, /primaryRoutes = \['dashboard', 'projects', 'tasks', 'calendar', 'team'\]/);
 assert.match(enhancementJs, /secondaryRoutes = \['reports', 'email', 'files', 'invoices', 'activity', 'settings'\]/);
 assert.match(enhancementJs, /restoreSourceNavigation/);
-assert.match(enhancementJs, /dataStartProductTour/);
+assert.match(enhancementJs, /startProductTour/);
 assert.match(enhancementJs, /openComposeForm/);
 assert.match(enhancementJs, /FormcraftFeatures/);
 assert.match(enhancementJs, /missingDesktop/);

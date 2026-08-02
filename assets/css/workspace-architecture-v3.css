@@ -1,0 +1,730 @@
+/* Formcraft workspace architecture v3
+   Global app rail + contextual navigation + unified control bar. */
+
+:root {
+  --fc3-rail-width: 68px;
+  --fc3-sidebar-width: 264px;
+  --fc3-topbar-height: 64px;
+  --fc3-mobile-nav-height: 66px;
+  --fc3-shell-offset: calc(var(--fc3-rail-width) + var(--fc3-sidebar-width));
+  --fc3-page-max: 1600px;
+  --fc3-page-gutter: clamp(18px, 2.4vw, 36px);
+  --fc3-rail-bg: #101828;
+  --fc3-rail-ink: #d0d5dd;
+  --fc3-rail-active: #ffffff;
+  --fc3-rail-accent: #2dd4bf;
+  --fc3-sidebar-bg: color-mix(in srgb, var(--surface) 96%, var(--canvas));
+}
+
+html[data-theme="dark"] {
+  --fc3-rail-bg: #070b13;
+  --fc3-rail-ink: #98a2b3;
+  --fc3-rail-active: #ffffff;
+  --fc3-sidebar-bg: #111927;
+}
+
+html[data-workspace-architecture="WORKSPACE-ARCH-3.0"] {
+  scroll-padding-top: calc(var(--fc3-topbar-height) + 16px);
+}
+
+body { overflow-x: hidden; }
+
+.fc3-shell.workspace-shell {
+  display: block;
+  min-height: 100dvh;
+  background: var(--canvas);
+}
+
+.fc3-app-rail {
+  position: fixed;
+  z-index: 92;
+  inset: 0 auto 0 0;
+  display: grid;
+  width: var(--fc3-rail-width);
+  grid-template-rows: var(--fc3-topbar-height) minmax(0, 1fr) auto;
+  border-right: 1px solid rgb(255 255 255 / .07);
+  background: var(--fc3-rail-bg);
+  color: var(--fc3-rail-ink);
+  box-shadow: 6px 0 20px rgb(16 24 40 / .05);
+}
+
+.fc3-rail-brand {
+  display: grid;
+  place-items: center;
+  border-bottom: 1px solid rgb(255 255 255 / .08);
+  color: inherit;
+  text-decoration: none;
+}
+
+.fc3-brand-mark {
+  display: grid;
+  width: 38px;
+  height: 38px;
+  grid-template-columns: repeat(3, 1fr);
+  align-items: end;
+  gap: 3px;
+  padding: 8px;
+  border-radius: 11px;
+  background: #113b39;
+  box-shadow: 0 8px 20px rgb(0 0 0 / .16), inset 0 0 0 1px rgb(255 255 255 / .08);
+}
+
+.fc3-brand-mark.is-compact { width: 36px; height: 36px; padding: 8px; }
+.fc3-brand-mark i { display: block; border-radius: 3px; background: #ffffff; }
+.fc3-brand-mark i:nth-child(1) { height: 100%; }
+.fc3-brand-mark i:nth-child(2) { height: 72%; background: #5eead4; }
+.fc3-brand-mark i:nth-child(3) { height: 46%; background: #99f6e4; }
+
+.fc3-rail-nav,
+.fc3-rail-footer {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  gap: 7px;
+  padding: 12px 8px;
+}
+
+.fc3-rail-nav {
+  min-height: 0;
+  overflow: visible auto;
+  scrollbar-width: none;
+}
+.fc3-rail-nav::-webkit-scrollbar { display: none; }
+.fc3-rail-footer { border-top: 1px solid rgb(255 255 255 / .08); }
+.fc3-rail-divider { width: 30px; height: 1px; margin: 4px 0; background: rgb(255 255 255 / .12); }
+
+.fc3-rail-button {
+  position: relative;
+  display: grid;
+  width: 46px;
+  height: 46px;
+  flex: 0 0 auto;
+  place-items: center;
+  padding: 0;
+  border: 1px solid transparent;
+  border-radius: 12px;
+  background: transparent;
+  color: var(--fc3-rail-ink);
+  cursor: pointer;
+  text-decoration: none;
+  transition: color .15s ease, background-color .15s ease, border-color .15s ease, transform .15s ease;
+}
+
+.fc3-rail-button:hover {
+  border-color: rgb(255 255 255 / .09);
+  background: rgb(255 255 255 / .08);
+  color: var(--fc3-rail-active);
+  transform: translateY(-1px);
+}
+
+.fc3-rail-button.is-active {
+  border-color: rgb(45 212 191 / .32);
+  background: rgb(45 212 191 / .15);
+  color: var(--fc3-rail-active);
+}
+
+.fc3-rail-button.is-active::before {
+  content: "";
+  position: absolute;
+  left: -8px;
+  width: 3px;
+  height: 24px;
+  border-radius: 0 4px 4px 0;
+  background: var(--fc3-rail-accent);
+}
+
+.fc3-rail-icon { display: grid; place-items: center; }
+
+.fc3-tooltip {
+  position: absolute;
+  z-index: 150;
+  left: calc(100% + 10px);
+  top: 50%;
+  width: max-content;
+  max-width: 220px;
+  transform: translate(-4px, -50%);
+  padding: 6px 9px;
+  border: 1px solid rgb(255 255 255 / .08);
+  border-radius: 7px;
+  background: #101828;
+  color: #ffffff;
+  font-size: 11px;
+  font-weight: 650;
+  line-height: 1.2;
+  opacity: 0;
+  pointer-events: none;
+  box-shadow: 0 10px 28px rgb(0 0 0 / .24);
+  transition: opacity .12s ease, transform .12s ease;
+}
+
+.fc3-rail-button:hover .fc3-tooltip,
+.fc3-rail-button:focus-visible .fc3-tooltip { transform: translate(0, -50%); opacity: 1; }
+
+.fc3-context-sidebar.workspace-sidebar {
+  position: fixed;
+  z-index: 82;
+  inset: 0 auto 0 var(--fc3-rail-width);
+  display: grid;
+  width: var(--fc3-sidebar-width);
+  grid-template-rows: var(--fc3-topbar-height) minmax(0, 1fr) auto;
+  border-right: 1px solid var(--border);
+  background: var(--fc3-sidebar-bg);
+  box-shadow: 8px 0 26px rgb(16 24 40 / .035);
+  transition: transform .2s ease, visibility .2s ease;
+}
+
+.fc3-context-header {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 36px;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 10px 9px 14px;
+  border-bottom: 1px solid var(--border);
+}
+
+.fc3-current-app {
+  display: grid;
+  min-width: 0;
+  min-height: 44px;
+  grid-template-columns: 36px minmax(0, 1fr) 16px;
+  align-items: center;
+  gap: 9px;
+  padding: 3px 7px 3px 3px;
+  border: 1px solid transparent;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--ink);
+  cursor: pointer;
+  text-align: left;
+}
+
+.fc3-current-app:hover { border-color: var(--border); background: var(--surface); }
+
+.fc3-current-app-icon {
+  display: grid;
+  width: 36px;
+  height: 36px;
+  place-items: center;
+  border-radius: 10px;
+  background: var(--primary-soft);
+  color: var(--primary);
+}
+
+.fc3-current-app > span:nth-child(2) { display: grid; min-width: 0; line-height: 1.18; }
+.fc3-current-app small {
+  overflow: hidden;
+  color: var(--muted);
+  font-size: 9px;
+  font-weight: 750;
+  letter-spacing: .07em;
+  text-overflow: ellipsis;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+.fc3-current-app strong {
+  overflow: hidden;
+  margin-top: 3px;
+  font-size: 13px;
+  font-weight: 760;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.fc3-sidebar-toggle { width: 34px; height: 34px; border-radius: 9px; }
+
+.fc3-context-nav.workspace-nav {
+  min-height: 0;
+  overflow-y: auto;
+  padding: 12px 10px 18px;
+  scrollbar-width: thin;
+}
+
+.fc3-context-section { display: grid; gap: 2px; margin-top: 16px; }
+.fc3-context-section:first-child { margin-top: 10px; }
+.fc3-context-tools { padding-top: 15px; border-top: 1px solid var(--border); }
+.fc3-context-nav > .fc3-context-link:first-child { margin-bottom: 8px; border-bottom-color: transparent; }
+
+.fc3-context-link.workspace-nav-link,
+button.fc3-context-link {
+  display: grid;
+  width: 100%;
+  min-height: 44px;
+  grid-template-columns: 30px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 8px;
+  margin: 1px 0;
+  padding: 6px 8px;
+  border: 1px solid transparent;
+  border-radius: 9px;
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+  font: inherit;
+  text-align: left;
+  text-decoration: none;
+}
+
+.fc3-context-link:hover { border-color: var(--border); background: var(--surface); color: var(--ink); }
+.fc3-context-link.is-active {
+  border-color: color-mix(in srgb, var(--primary) 18%, var(--border));
+  background: var(--primary-soft);
+  color: var(--ink);
+  box-shadow: inset 3px 0 0 var(--primary);
+}
+
+.fc3-context-link .workspace-nav-icon { width: 30px; height: 30px; border-radius: 8px; color: currentColor; }
+.fc3-context-link.is-active .workspace-nav-icon { color: var(--primary); }
+.fc3-context-link-copy { display: grid; min-width: 0; line-height: 1.2; }
+.fc3-context-link-copy strong {
+  overflow: hidden;
+  font-size: 12px;
+  font-weight: 660;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.fc3-context-link-copy small {
+  display: none;
+  overflow: hidden;
+  margin-top: 3px;
+  color: var(--muted);
+  font-size: 10px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.fc3-context-nav .workspace-nav-label {
+  margin: 0 8px 6px;
+  color: var(--muted-2);
+  font-size: 9px;
+  font-weight: 780;
+  letter-spacing: .09em;
+}
+
+.fc3-context-footer {
+  display: grid;
+  min-width: 0;
+  grid-template-columns: 36px minmax(0, 1fr);
+  align-items: center;
+  gap: 9px;
+  min-height: 64px;
+  padding: 10px 14px;
+  border-top: 1px solid var(--border);
+  background: color-mix(in srgb, var(--surface) 88%, transparent);
+}
+.fc3-context-footer > span:last-child { display: grid; min-width: 0; line-height: 1.15; }
+.fc3-context-footer strong { overflow: hidden; font-size: 11px; text-overflow: ellipsis; white-space: nowrap; }
+.fc3-context-footer small { margin-top: 3px; color: var(--muted); font-size: 9px; text-transform: capitalize; }
+
+body.fc3-sidebar-collapsed .fc3-context-sidebar {
+  transform: translateX(calc(-1 * var(--fc3-sidebar-width)));
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.fc3-main.workspace-main {
+  min-width: 0;
+  margin-left: var(--fc3-shell-offset);
+  background: var(--canvas);
+  transition: margin-left .2s ease;
+}
+body.fc3-sidebar-collapsed .fc3-main { margin-left: var(--fc3-rail-width); }
+
+.fc3-topbar.workspace-topbar {
+  position: sticky;
+  z-index: 72;
+  top: 0;
+  display: grid;
+  min-height: var(--fc3-topbar-height);
+  grid-template-columns: minmax(190px, auto) minmax(240px, 620px) minmax(0, auto);
+  align-items: center;
+  gap: 16px;
+  padding: 0 18px;
+  border-bottom: 1px solid var(--border);
+  background: color-mix(in srgb, var(--surface) 94%, transparent);
+  backdrop-filter: blur(18px) saturate(1.15);
+}
+
+.fc3-topbar-start { display: flex; min-width: 0; align-items: center; gap: 8px; }
+.fc3-mobile-menu { display: none; }
+.fc3-desktop-sidebar-toggle { width: 36px; height: 36px; border-color: transparent; background: transparent; }
+
+.fc3-topbar-breadcrumb {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 7px;
+  overflow: hidden;
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 620;
+  white-space: nowrap;
+}
+.fc3-topbar-breadcrumb span {
+  display: inline-flex;
+  min-width: 0;
+  align-items: center;
+  gap: 7px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.fc3-topbar-breadcrumb span:last-child { color: var(--ink); font-weight: 700; }
+.fc3-topbar-breadcrumb i { color: var(--muted-2); font-style: normal; }
+
+.fc3-global-search.workspace-search-trigger {
+  justify-self: stretch;
+  width: 100%;
+  min-height: 38px;
+  border-radius: 10px;
+  background: var(--surface-soft);
+}
+.fc3-global-search > span { display: flex; min-width: 0; align-items: center; gap: 9px; }
+.fc3-global-search > span > span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+.fc3-topbar-actions.nav-utilities { justify-self: end; min-width: 0; gap: 6px; }
+
+.fc3-context-switchers {
+  display: flex;
+  max-width: 270px;
+  min-height: 36px;
+  align-items: center;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  background: var(--surface);
+}
+.fc3-context-switchers label { min-width: 0; }
+.fc3-context-switchers select {
+  width: auto;
+  max-width: 135px;
+  min-height: 34px;
+  padding: 0 25px 0 9px;
+  border: 0;
+  outline: 0;
+  background-color: transparent;
+  color: var(--muted);
+  font-size: 10px;
+  font-weight: 650;
+}
+.fc3-context-switchers select:focus { color: var(--ink); }
+.fc3-context-separator { color: var(--border-strong); font-size: 10px; }
+.fc3-sync-state.sync-state { padding-inline: 7px; }
+
+.fc3-account-button.avatar-button {
+  display: inline-flex;
+  min-height: 40px;
+  align-items: center;
+  gap: 7px;
+  padding: 2px 8px 2px 3px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--ink);
+  cursor: pointer;
+}
+.fc3-account-button .workspace-user-avatar { width: 32px; height: 32px; }
+.fc3-account-name {
+  max-width: 112px;
+  overflow: hidden;
+  font-size: 11px;
+  font-weight: 680;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.fc3-content.workspace-content {
+  width: 100%;
+  max-width: none;
+  min-height: calc(100dvh - var(--fc3-topbar-height));
+  margin: 0;
+  padding: 0 0 76px;
+}
+
+.fc3-page-header.workspace-page-header {
+  width: min(var(--fc3-page-max), calc(100% - (var(--fc3-page-gutter) * 2)));
+  margin: 0 auto;
+  padding: 28px 0 20px;
+  border-bottom: 1px solid var(--border);
+}
+.fc3-page-header .workspace-page-heading h1 { max-width: 900px; font-size: clamp(25px, 2.2vw, 34px); }
+.fc3-page-header .workspace-page-heading > p:last-child { max-width: 760px; font-size: 13px; }
+.fc3-page-header .panel-kicker { margin: 0 0 6px; }
+
+.fc3-page-surface {
+  width: min(var(--fc3-page-max), calc(100% - (var(--fc3-page-gutter) * 2)));
+  margin: 0 auto;
+  padding-top: 22px;
+}
+.fc3-record-open .fc3-page-surface { width: 100%; padding-top: 0; }
+.fc3-page-surface > .content-shell,
+.fc3-page-surface > .page-stack { width: 100%; }
+
+.fc3-shell .erp-module-intro { display: none; }
+.fc3-shell .erp-module-page { gap: 16px; }
+.fc3-shell .erp-summary-grid { margin-top: 0; }
+.fc3-shell .erp-module-toolbar {
+  position: sticky;
+  z-index: 28;
+  top: calc(var(--fc3-topbar-height) + 8px);
+  border-color: var(--border);
+  box-shadow: 0 8px 28px rgb(16 24 40 / .06);
+}
+.fc3-shell .erp-module-surface,
+.fc3-shell .panel,
+.fc3-shell .erp-card { box-shadow: 0 1px 2px rgb(16 24 40 / .025); }
+
+.fc3-shell .erp-record-page,
+.fc3-shell .ops-record-page {
+  min-height: calc(100dvh - var(--fc3-topbar-height));
+  background: var(--canvas);
+}
+.fc3-shell .erp-record-header,
+.fc3-shell .ops-record-header { top: var(--fc3-topbar-height); }
+.fc3-shell .erp-record-body,
+.fc3-shell .ops-record-body { width: min(var(--fc3-page-max), 100%); margin-inline: auto; }
+.fc3-shell .ops-summary-strip,
+.fc3-shell .ops-task-commandbar,
+.fc3-shell .ops-task-layout,
+.fc3-shell .ops-record-tabs,
+.fc3-shell .ops-record-content { width: min(var(--fc3-page-max), calc(100% - (var(--fc3-page-gutter) * 2))); }
+
+.fc3-shell .erp-launcher { padding-top: 2px; }
+.fc3-shell .erp-launcher-hero {
+  overflow: hidden;
+  border: 1px solid var(--border);
+  background: radial-gradient(circle at 92% 10%, color-mix(in srgb, var(--primary) 14%, transparent), transparent 34%), linear-gradient(135deg, var(--surface), var(--surface-soft));
+  box-shadow: 0 12px 34px rgb(16 24 40 / .06);
+}
+.fc3-shell .erp-app-card { transition: transform .15s ease, border-color .15s ease, box-shadow .15s ease; }
+.fc3-shell .erp-app-card:hover { transform: translateY(-2px); box-shadow: 0 12px 26px rgb(16 24 40 / .08); }
+
+.fc3-account-summary {
+  display: grid;
+  grid-template-columns: 40px minmax(0, 1fr);
+  align-items: center;
+  gap: 10px;
+  padding: 12px;
+  border-bottom: 1px solid var(--border);
+}
+.fc3-account-summary > span:last-child { display: grid; min-width: 0; }
+.fc3-account-summary strong,
+.fc3-account-summary small { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.fc3-account-summary strong { font-size: 12px; }
+.fc3-account-summary small { margin-top: 3px; color: var(--muted); font-size: 10px; }
+
+body > .utility-popover.sidebar-account-popover,
+.fc3-topbar .utility-popover {
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--surface);
+  box-shadow: 0 22px 60px rgb(16 24 40 / .18);
+}
+
+body.fc3-sidebar-collapsed .fc3-desktop-sidebar-toggle {
+  border-color: color-mix(in srgb, var(--primary) 22%, var(--border));
+  background: var(--primary-soft);
+  color: var(--primary);
+}
+
+.fc3-mobile-drawer.mobile-drawer,
+.fc3-mobile-bottom-nav { display: none; }
+
+@media (max-width: 1280px) {
+  .fc3-context-switchers { display: none; }
+  .fc3-topbar.workspace-topbar { grid-template-columns: minmax(180px, auto) minmax(230px, 1fr) auto; }
+}
+
+@media (max-width: 1100px) {
+  :root { --fc3-sidebar-width: 248px; }
+  .fc3-context-sidebar {
+    transform: translateX(calc(-1 * var(--fc3-sidebar-width)));
+    visibility: hidden;
+    pointer-events: none;
+  }
+  .fc3-main.workspace-main,
+  body.fc3-sidebar-collapsed .fc3-main { margin-left: var(--fc3-rail-width); }
+  body:not(.fc3-sidebar-collapsed).fc3-context-open .fc3-context-sidebar {
+    transform: translateX(0);
+    visibility: visible;
+    pointer-events: auto;
+    box-shadow: 20px 0 60px rgb(16 24 40 / .2);
+  }
+  .fc3-topbar.workspace-topbar { grid-template-columns: minmax(170px, auto) minmax(220px, 1fr) auto; }
+  .fc3-account-name,
+  .fc3-sync-state { display: none; }
+}
+
+@media (max-width: 820px) {
+  :root {
+    --fc3-topbar-height: 58px;
+    --fc3-page-gutter: 14px;
+  }
+  .fc3-app-rail,
+  .fc3-context-sidebar { display: none; }
+  .fc3-main.workspace-main,
+  body.fc3-sidebar-collapsed .fc3-main { margin-left: 0; }
+  .fc3-topbar.workspace-topbar {
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    gap: 8px;
+    min-height: var(--fc3-topbar-height);
+    padding: 0 10px;
+  }
+  .fc3-mobile-menu { display: inline-grid; }
+  .fc3-desktop-sidebar-toggle,
+  .fc3-topbar-breadcrumb,
+  .fc3-topbar .fc3-global-search kbd,
+  .fc3-topbar .fc3-global-search > span > span,
+  .fc3-topbar-actions > .utility-button[data-command-menu],
+  .fc3-account-name,
+  .fc3-account-button > svg { display: none; }
+  .fc3-global-search.workspace-search-trigger { min-width: 0; justify-content: center; }
+  .fc3-global-search > span { flex: 0; }
+  .fc3-topbar-actions { gap: 4px; }
+  .fc3-topbar-actions .utility-button,
+  .fc3-account-button.avatar-button { width: 36px; height: 36px; }
+  .fc3-account-button.avatar-button { padding: 1px; border: 0; background: transparent; }
+
+  .fc3-page-header.workspace-page-header {
+    align-items: stretch;
+    flex-direction: column;
+    gap: 16px;
+    padding: 21px 0 17px;
+  }
+  .fc3-page-header .workspace-page-heading h1 { font-size: 25px; }
+  .fc3-page-header .workspace-page-actions { justify-content: flex-start; }
+  .fc3-page-header .workspace-page-actions .button { flex: 1 1 auto; }
+  .fc3-content.workspace-content { padding-bottom: calc(var(--fc3-mobile-nav-height) + 26px); }
+  .fc3-page-surface { padding-top: 16px; }
+  .fc3-shell .erp-module-toolbar { position: static; box-shadow: none; }
+  .fc3-shell .erp-record-header,
+  .fc3-shell .ops-record-header { position: static; }
+
+  .fc3-mobile-drawer.mobile-drawer {
+    position: fixed;
+    z-index: 130;
+    inset: 0 auto 0 0;
+    display: grid;
+    width: min(340px, 92vw);
+    grid-template-rows: auto auto minmax(0, 1fr) auto;
+    transform: translateX(-104%);
+    border-right: 1px solid var(--border);
+    background: var(--surface);
+    box-shadow: 24px 0 60px rgb(16 24 40 / .22);
+    transition: transform .22s ease;
+  }
+  body.drawer-open .fc3-mobile-drawer { transform: translateX(0); }
+  .fc3-drawer-head.drawer-head { min-height: 66px; padding: 10px 12px; border-bottom: 1px solid var(--border); }
+  .fc3-drawer-head .workspace-brand { min-width: 0; }
+  .fc3-drawer-head .workspace-brand > span:last-child { display: grid; min-width: 0; }
+  .fc3-drawer-head .workspace-brand strong { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .fc3-drawer-search { width: calc(100% - 24px); margin: 12px; }
+  .fc3-drawer-nav.workspace-nav { min-height: 0; overflow-y: auto; padding: 4px 12px 18px; }
+  .fc3-drawer-nav .fc3-context-link-copy small { display: block; }
+  .fc3-drawer-footer.drawer-footer {
+    display: grid;
+    grid-template-columns: 36px minmax(0, 1fr);
+    align-items: center;
+    gap: 9px;
+    padding: 12px;
+    border-top: 1px solid var(--border);
+    background: var(--surface-soft);
+  }
+  .fc3-drawer-footer > span:last-child { display: grid; min-width: 0; }
+  .fc3-drawer-footer strong,
+  .fc3-drawer-footer small { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .fc3-drawer-footer small { color: var(--muted); font-size: 10px; }
+
+  .fc3-drawer-backdrop.drawer-backdrop {
+    position: fixed;
+    z-index: 120;
+    inset: 0;
+    display: block;
+    visibility: hidden;
+    background: rgb(16 24 40 / .42);
+    opacity: 0;
+    transition: opacity .2s ease, visibility .2s ease;
+  }
+  body.drawer-open .fc3-drawer-backdrop { visibility: visible; opacity: 1; }
+
+  .fc3-mobile-bottom-nav {
+    position: fixed;
+    z-index: 105;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    display: grid;
+    min-height: var(--fc3-mobile-nav-height);
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    padding: 6px max(7px, env(safe-area-inset-right)) max(6px, env(safe-area-inset-bottom)) max(7px, env(safe-area-inset-left));
+    border-top: 1px solid var(--border);
+    background: color-mix(in srgb, var(--surface) 96%, transparent);
+    box-shadow: 0 -10px 32px rgb(16 24 40 / .1);
+    backdrop-filter: blur(16px);
+  }
+  .fc3-mobile-nav-button {
+    display: grid;
+    min-width: 0;
+    min-height: 50px;
+    place-items: center;
+    align-content: center;
+    gap: 3px;
+    padding: 3px;
+    border: 0;
+    border-radius: 10px;
+    background: transparent;
+    color: var(--muted);
+    cursor: pointer;
+    font-size: 9px;
+    font-weight: 650;
+    text-decoration: none;
+  }
+  .fc3-mobile-nav-button:hover,
+  .fc3-mobile-nav-button.is-active { background: var(--primary-soft); color: var(--primary); }
+  .fc3-mobile-nav-button.is-create {
+    width: 48px;
+    height: 48px;
+    justify-self: center;
+    margin-top: -18px;
+    border-radius: 50%;
+    background: var(--primary);
+    color: #ffffff;
+    box-shadow: 0 10px 24px color-mix(in srgb, var(--primary) 32%, transparent);
+  }
+  .fc3-mobile-nav-button.is-create:hover { background: var(--primary-hover); color: #ffffff; }
+  .fc3-mobile-nav-icon { display: grid; place-items: center; }
+  .fc3-shell .erp-app-grid { grid-template-columns: 1fr; }
+  .fc3-shell .erp-summary-grid { grid-template-columns: 1fr 1fr; }
+}
+
+@media (max-width: 520px) {
+  .fc3-page-header.workspace-page-header,
+  .fc3-page-surface { width: calc(100% - 24px); }
+  .fc3-page-header .workspace-page-actions { display: grid; grid-template-columns: 1fr 1fr; width: 100%; }
+  .fc3-shell .erp-summary-grid { grid-template-columns: 1fr; }
+  .fc3-shell .erp-launcher-hero { padding: 18px; }
+  .fc3-topbar-actions .notification-button { display: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fc3-context-sidebar,
+  .fc3-main,
+  .fc3-rail-button,
+  .fc3-tooltip,
+  .fc3-mobile-drawer,
+  .fc3-drawer-backdrop,
+  .fc3-app-card { transition: none !important; }
+}
+
+@media print {
+  .fc3-app-rail,
+  .fc3-context-sidebar,
+  .fc3-topbar,
+  .fc3-mobile-bottom-nav,
+  .fc3-mobile-drawer,
+  .fc3-drawer-backdrop,
+  .fc3-page-header .workspace-page-actions { display: none !important; }
+  .fc3-main.workspace-main,
+  body.fc3-sidebar-collapsed .fc3-main { margin-left: 0 !important; }
+  .fc3-content.workspace-content,
+  .fc3-page-surface,
+  .fc3-page-header.workspace-page-header { width: 100% !important; padding: 0 !important; }
+}

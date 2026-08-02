@@ -1,10 +1,10 @@
 {
   "name": "formcraft-admin",
   "private": true,
-  "version": "0.3.0",
+  "version": "0.4.0",
   "scripts": {
     "build": "node scripts/build-runtime-config.mjs",
     "test": "node tests/static-audit.mjs",
-    "test:syntax": "node --check assets/js/locale-runtime.js && node --check assets/js/app-core.js && node --check assets/js/app-pages.js && node --check assets/js/app-actions.js && node --check assets/js/app-modules.js && node --check assets/js/final-ui-fixes.js && node --check assets/js/header-popover-fixes.js && node --check assets/js/maven-system.js && node --check assets/js/dynamic-backend.js && node --check assets/js/dynamic-workflows.js && node --check assets/js/auth-onboarding.js && node --check tests/supabase-browser-mock.js"
+    "test:syntax": "node --check assets/js/locale-runtime.js && node --check assets/js/app-core.js && node --check assets/js/app-pages.js && node --check assets/js/app-actions.js && node --check assets/js/app-modules.js && node --check assets/js/final-ui-fixes.js && node --check assets/js/header-popover-fixes.js && node --check assets/js/formcraft-v2-shell.js && node --check assets/js/dynamic-backend.js && node --check assets/js/dynamic-workflows.js && node --check assets/js/auth-onboarding.js && node --check assets/js/formcraft-v2-runtime.js && node --check tests/supabase-browser-mock.js"
   }
 }

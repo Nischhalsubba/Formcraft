@@ -90,8 +90,10 @@ for (const bug of ['DES-001', 'DEV-001', 'PO-001', 'Resolved', 'No known release
 
 const pkg = JSON.parse(packageJson);
 assert.ok(pkg.scripts.test.includes('premium-iconography-audit.mjs'), 'Premium audit must run in npm test.');
-assert.ok(pkg.scripts['test:syntax'].includes('premium-iconography.js'), 'Premium iconography syntax must be checked.');
-assert.ok(pkg.scripts['test:syntax'].includes('premium-interface-runtime.js'), 'Premium runtime syntax must be checked.');
+assert.ok(pkg.scripts.verify.includes('test:premium'), 'Premium syntax verification must be part of the fail-closed build.');
+assert.ok(pkg.scripts['test:premium'].includes('premium-iconography.js'), 'Premium iconography syntax must be checked.');
+assert.ok(pkg.scripts['test:premium'].includes('premium-interface-runtime.js'), 'Premium runtime syntax must be checked.');
+assert.ok(pkg.scripts['test:premium'].includes('premium-iconography-audit.mjs'), 'Premium audit syntax must be checked.');
 
 assert.ok(!`${iconography}${runtime}${css}`.includes('odoo.com'), 'Premium UI must not embed Odoo assets or source code.');
 console.log(`Premium iconography and interface contracts passed for ${expectedApps.length} ERP apps, ${nativeApps.length} native icons, and ${groupIcons.length} group icons.`);

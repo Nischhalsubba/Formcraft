@@ -79,6 +79,7 @@
     if (routeChanged) document.body.classList.remove('drawer-open', 'fc3-context-open');
     const result = previousRenderShell.apply(this, args);
     renderedRoute = ui.route;
+    syncResponsiveNavigation();
     requestAnimationFrame(syncResponsiveNavigation);
     return result;
   };

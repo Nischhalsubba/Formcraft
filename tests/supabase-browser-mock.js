@@ -7,14 +7,14 @@
   let version = 1;
   let ownerCreated = null;
   let snapshot = {
-    projects: [{ id: 'project-1', name: 'Test project', client: 'Test client', status: 'active', progress: 50, dueDate: dateKey(addDays(14)), description: 'Authenticated browser fixture.' }],
-    tasks: [{ id: 'task-1', title: 'Test task', projectId: 'project-1', priority: 'medium', status: 'todo', dueDate: dateKey(addDays(2)), createdAt: now.toISOString(), completedAt: null }],
+    projects: [{ id: 'project-1', name: 'Test project', client: 'Test client', ownerId: userId, status: 'active', progress: 50, progressMode: 'manual', startDate: dateKey(now), dueDate: dateKey(addDays(14)), description: 'Authenticated browser fixture.', createdAt: now.toISOString(), updatedAt: now.toISOString() }],
+    tasks: [{ id: 'task-1', title: 'Test task', projectId: 'project-1', assigneeId: userId, priority: 'medium', status: 'todo', dueDate: dateKey(addDays(2)), description: 'Browser interaction fixture.', createdAt: now.toISOString(), updatedAt: now.toISOString(), completedAt: null }],
     team: [{ id: userId, userId, name: 'Test User', email: 'test@example.com', role: 'owner', initials: 'TU', pending: false }],
     activity: [{ id: 'activity-1', type: 'system', title: 'Workspace loaded', copy: 'Authenticated fixture loaded.', at: now.toISOString() }],
-    events: [],
+    events: [{ id: 'event-1', title: 'Fixture review', date: dateKey(addDays(3)), time: '10:00', category: 'review', projectId: 'project-1', location: 'Video call', notes: '', createdAt: now.toISOString(), updatedAt: now.toISOString() }],
     messages: [],
     files: [],
-    invoices: [{ id: 'invoice-1', number: 'FC-1004', client: 'Test client', email: 'billing@example.com', amount: 100, status: 'sent', dueDate: dateKey(addDays(10)), notes: '' }],
+    invoices: [{ id: 'invoice-1', number: 'FC-1004', projectId: 'project-1', client: 'Test client', email: 'billing@example.com', amount: 100, currency: 'USD', status: 'sent', issueDate: dateKey(now), dueDate: dateKey(addDays(10)), notes: '', createdAt: now.toISOString(), updatedAt: now.toISOString() }],
     settings: {
       workspaceName: 'Test workspace',
       workspaceDescription: 'Browser fixture',
@@ -30,7 +30,7 @@
     user: { id: userId, email: 'test@example.com', user_metadata: { full_name: 'Test User' } }
   };
 
-  const isOwnerSetupTest = () => location.search.includes('owner-setup-test=1');
+  const isOwnerSetupTest = () => window.__FORMCRAFT_TEST_OWNER_SETUP__ === true || location.search.includes('owner-setup-test=1');
   const hasOwner = () => {
     if (ownerCreated === null) ownerCreated = isOwnerSetupTest() ? false : window.__FORMCRAFT_TEST_OWNER_EXISTS__ !== false;
     return ownerCreated;
@@ -67,20 +67,31 @@
     }
   }
 
+  const authSubscribers = new Set();
+  const notifyAuth = (event, nextSession) => authSubscribers.forEach(callback => callback(event, nextSession));
+
   const client = {
     auth: {
       getSession: async () => ({ data: { session: hasSession() ? session : null }, error: null }),
       getUser: async () => ({ data: { user: hasSession() ? session.user : null }, error: null }),
-      onAuthStateChange: callback => ({ data: { subscription: { unsubscribe() {} } }, callback }),
-      signInWithPassword: async () => hasOwner()
-        ? ({ data: { session }, error: null })
-        : ({ data: { session: null }, error: { message: 'Invalid login credentials' } }),
+      onAuthStateChange: callback => {
+        authSubscribers.add(callback);
+        return { data: { subscription: { unsubscribe() { authSubscribers.delete(callback); } } } };
+      },
+      signInWithPassword: async () => {
+        if (!hasOwner()) return { data: { session: null }, error: { message: 'Invalid login credentials' } };
+        queueMicrotask(() => notifyAuth('SIGNED_IN', session));
+        return { data: { session }, error: null };
+      },
       signUp: async () => {
         ownerCreated = true;
         return { data: { user: session.user }, error: null };
       },
       resetPasswordForEmail: async () => ({ data: {}, error: null }),
-      signOut: async () => ({ error: null })
+      signOut: async () => {
+        queueMicrotask(() => notifyAuth('SIGNED_OUT', null));
+        return { error: null };
+      }
     },
     from: table => new Query(table),
     rpc: async (name, args) => {

@@ -1,0 +1,519 @@
+/* Follow-up form clarity and BS-first calendar corrections. Loaded last. */
+
+/* The invoice line is a card with deliberate groups, not an eight-column spreadsheet squeezed into a modal. */
+.nepal-line-item-row:has(.np-line-tax),
+.nepal-line-item-row.np-line-item-card {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 16px;
+  padding: 18px;
+  overflow: hidden;
+  border-color: var(--border);
+  background: var(--surface-soft);
+}
+
+.np-line-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--border);
+}
+
+.np-line-card-header > strong {
+  color: var(--ink);
+  font-size: 14px;
+  font-weight: 750;
+}
+
+.np-line-card-header > span {
+  margin-right: auto;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.np-line-card-header .nepal-remove-line {
+  width: 36px;
+  height: 36px;
+  margin: 0;
+  border-color: transparent;
+  background: transparent;
+  color: var(--muted);
+}
+
+.np-line-card-header .nepal-remove-line:hover {
+  border-color: color-mix(in srgb, var(--danger) 25%, var(--border));
+  background: color-mix(in srgb, var(--danger) 8%, transparent);
+  color: var(--danger);
+}
+
+.np-line-card-main,
+.np-line-card-values,
+.np-line-card-tax {
+  display: grid;
+  min-width: 0;
+  gap: 14px;
+}
+
+.np-line-card-main {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.np-line-card-values {
+  grid-template-columns: minmax(90px, .75fr) minmax(120px, 1fr) minmax(140px, 1.2fr) minmax(140px, 1.2fr);
+}
+
+.np-line-card-tax {
+  position: relative;
+  grid-template-columns: minmax(180px, 1fr) minmax(120px, .55fr) minmax(0, 2fr);
+  align-items: end;
+  padding: 16px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--surface);
+}
+
+.np-line-card-tax .np-line-group-label {
+  grid-column: 1 / -1;
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+}
+
+.np-line-card-tax .np-line-tax {
+  min-width: 0;
+}
+
+.np-line-card-tax .np-line-tax:nth-of-type(2) {
+  max-width: 150px;
+}
+
+/* Give the invoice a visible sequence and collapse uncommon controls. */
+.np-clarified-invoice-form .bright-form-section {
+  position: relative;
+  padding: 24px;
+}
+
+.np-clarified-invoice-form .bright-form-section legend {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.np-section-number {
+  display: inline-grid;
+  width: 26px;
+  height: 26px;
+  place-items: center;
+  border-radius: 999px;
+  background: var(--ink);
+  color: var(--surface);
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.np-clarified-invoice-form .np-form-section-1 > .field-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.np-form-details {
+  grid-column: 1 / -1;
+  margin-top: 4px;
+  padding: 0;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--surface-soft);
+}
+
+.np-form-details summary {
+  padding: 13px 15px;
+  color: var(--ink);
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  list-style-position: inside;
+}
+
+.np-form-details[open] summary {
+  border-bottom: 1px solid var(--border);
+}
+
+.np-form-details > p {
+  margin: 14px 16px 0;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.np-form-details > .field-grid {
+  padding: 16px;
+}
+
+.np-clarified-invoice-form .nepal-form-alert {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  border-color: var(--border);
+  background: var(--surface-soft);
+  color: var(--muted);
+}
+
+.np-clarified-invoice-form .nepal-form-alert strong {
+  flex: 0 0 auto;
+  color: var(--ink);
+}
+
+/* BS is the actual input. AD remains the canonical stored value and a visible reference. */
+.np-bs-date-field {
+  position: relative;
+}
+
+.np-canonical-ad-date {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  min-height: 1px !important;
+  padding: 0 !important;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0 !important;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.np-bs-date-control {
+  width: 100%;
+  min-height: var(--form-control-height);
+  justify-content: flex-start;
+  margin: 0;
+  padding: 0 13px;
+  border: 1px solid var(--border-strong);
+  border-radius: 9px;
+  background: var(--surface);
+  color: var(--ink);
+  font-size: 13px;
+  font-weight: 650;
+  text-align: left;
+  box-shadow: 0 1px 2px rgb(15 23 42 / .02);
+}
+
+.np-bs-date-control::after {
+  content: '▾';
+  margin-left: auto;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.np-bs-date-control:hover,
+.np-bs-date-control:focus-visible {
+  border-color: var(--primary);
+  background: var(--surface);
+  color: var(--ink);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary) 14%, transparent);
+}
+
+.np-ad-date-reference {
+  min-height: 17px;
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 500;
+}
+
+/* Real Nepali date picker instead of a browser prompt pretending to be a calendar. */
+.np-bs-picker-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 30;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  background: rgb(15 23 42 / .44);
+  backdrop-filter: blur(3px);
+}
+
+.np-bs-picker-card {
+  width: min(440px, calc(100vw - 32px));
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  background: var(--surface);
+  box-shadow: 0 26px 80px rgb(15 23 42 / .28);
+}
+
+.np-bs-picker-header,
+.np-bs-picker-nav,
+.np-bs-picker-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+}
+
+.np-bs-picker-header {
+  padding: 18px 20px;
+  border-bottom: 1px solid var(--border);
+}
+
+.np-bs-picker-header span,
+.np-bs-picker-header strong {
+  display: block;
+}
+
+.np-bs-picker-header span {
+  margin-bottom: 3px;
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .05em;
+  text-transform: uppercase;
+}
+
+.np-bs-picker-header strong {
+  color: var(--ink);
+  font-size: 20px;
+}
+
+.np-bs-picker-nav {
+  padding: 12px 16px;
+}
+
+.np-bs-picker-nav > span {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 650;
+}
+
+.np-bs-picker-weekdays,
+.np-bs-picker-grid {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 5px;
+  padding-inline: 16px;
+}
+
+.np-bs-picker-weekdays {
+  padding-block: 8px;
+  color: var(--muted);
+  font-size: 10px;
+  font-weight: 750;
+  text-align: center;
+}
+
+.np-bs-picker-grid {
+  padding-bottom: 16px;
+}
+
+.np-bs-picker-blank {
+  min-height: 48px;
+}
+
+.np-bs-picker-day {
+  display: grid;
+  min-width: 0;
+  min-height: 48px;
+  place-content: center;
+  gap: 2px;
+  padding: 4px;
+  border: 1px solid transparent;
+  border-radius: 9px;
+  background: transparent;
+  color: var(--ink);
+  cursor: pointer;
+}
+
+.np-bs-picker-day strong,
+.np-bs-picker-day small {
+  display: block;
+  text-align: center;
+}
+
+.np-bs-picker-day strong {
+  font-size: 14px;
+}
+
+.np-bs-picker-day small {
+  color: var(--muted);
+  font-size: 9px;
+}
+
+.np-bs-picker-day:hover {
+  border-color: var(--border-strong);
+  background: var(--surface-soft);
+}
+
+.np-bs-picker-day.is-selected {
+  border-color: var(--primary);
+  background: color-mix(in srgb, var(--primary) 11%, var(--surface));
+  color: var(--primary);
+}
+
+.np-bs-picker-footer {
+  justify-content: flex-end;
+  padding: 12px 16px 16px;
+  border-top: 1px solid var(--border);
+}
+
+/* The workspace calendar is BS-first. AD is deliberately secondary. */
+.bs-calendar-page .nepal-market-banner strong,
+.bs-calendar-page .calendar-title {
+  font-family: Inter, system-ui, sans-serif;
+}
+
+.bs-calendar-head span {
+  font-weight: 750;
+}
+
+.bs-primary-day .nepal-date-button {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.bs-day-number {
+  color: var(--ink);
+  font-size: 20px;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.ad-day-reference {
+  color: var(--muted);
+  font-size: 9px;
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.bs-primary-day.is-today .bs-day-number {
+  color: var(--primary);
+}
+
+.bs-calendar-blank {
+  min-height: 112px;
+  background: var(--surface-soft);
+  opacity: .45;
+}
+
+.bs-calendar-page .agenda-day h3 small {
+  display: block;
+  margin-top: 4px;
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 500;
+}
+
+/* Secondary auth actions are neutral controls, not a blue-text obstacle course. */
+.backend-card .backend-actions {
+  align-items: center;
+  gap: 10px;
+}
+
+.backend-card .backend-link {
+  display: inline-flex;
+  min-height: 38px;
+  align-items: center;
+  justify-content: center;
+  padding: 0 12px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface);
+  color: var(--ink);
+  font-size: 12px;
+  font-weight: 650;
+  text-decoration: none;
+}
+
+.backend-card .backend-link:hover,
+.backend-card .backend-link:focus-visible {
+  border-color: var(--border-strong);
+  background: var(--surface-soft);
+  color: var(--ink);
+}
+
+.backend-password-tools {
+  display: grid;
+  gap: 10px;
+  margin-top: 4px;
+  padding: 12px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--surface-soft);
+}
+
+.backend-password-tools .backend-copy {
+  margin: 0;
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1.5;
+}
+
+.backend-password-tools .backend-actions {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.backend-password-tools .backend-link {
+  min-width: 0;
+  min-height: 34px;
+  padding: 0 8px;
+  background: var(--surface);
+  font-size: 11px;
+  white-space: nowrap;
+}
+
+@media (max-width: 980px) {
+  .np-clarified-invoice-form .np-form-section-1 > .field-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .np-line-card-values {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .np-line-card-tax {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 700px) {
+  .np-clarified-invoice-form .np-form-section-1 > .field-grid,
+  .np-line-card-values,
+  .np-line-card-tax,
+  .backend-password-tools .backend-actions {
+    grid-template-columns: 1fr;
+  }
+
+  .np-line-card-header > span {
+    display: none;
+  }
+
+  .np-line-card-tax .np-line-tax:nth-of-type(2) {
+    max-width: none;
+  }
+
+  .np-bs-picker-overlay {
+    align-items: end;
+    padding: 0;
+  }
+
+  .np-bs-picker-card {
+    width: 100%;
+    border-right: 0;
+    border-bottom: 0;
+    border-left: 0;
+    border-radius: 18px 18px 0 0;
+  }
+
+  .bs-calendar-blank {
+    min-height: 86px;
+  }
+}
+
+@media print {
+  .np-bs-picker-overlay { display: none !important; }
+}

@@ -37,6 +37,8 @@ assert.doesNotMatch(html, /maven-system\.js/);
 assert.match(html, /@supabase\/supabase-js@2/);
 assert.match(html, /assets\/js\/runtime-config\.js/);
 assert.match(html, /data-backend="loading"/);
+assert.match(html, /theme-color" content="#F7F8FA"/);
+assert.match(html, /projects, tasks, calendar events, files, invoices, and team collaboration/);
 
 assert.match(css, /@media \(max-width: 700px\)/);
 assert.match(css, /@media \(prefers-reduced-motion: reduce\)/);
@@ -65,22 +67,30 @@ assert.match(shellJs, /workspace-sidebar/);
 assert.match(shellJs, /workspace-topbar/);
 assert.match(shellJs, /workspace-page-header/);
 assert.match(shellJs, /data-sync-state/);
-assert.match(productCss, /--primary: #0f766e/);
 assert.match(productCss, /\.workspace-shell/);
 assert.match(productCss, /\.workspace-sidebar/);
 assert.match(productCss, /\.form-modal/);
 assert.match(productCss, /@media \(max-width: 680px\)/);
 assert.match(productCss, /@media \(prefers-reduced-motion: reduce\)/);
 
-assert.match(directionCss, /--canvas: #f6f7f8/);
+assert.match(directionCss, /--canvas: #f7f8fa/);
+assert.match(directionCss, /--surface: #ffffff/);
 assert.match(directionCss, /--ink: #171a1f/);
-assert.match(directionCss, /--primary: #0f766e/);
-assert.match(directionCss, /--canvas: #101316/);
-assert.match(directionCss, /\.product-today-grid/);
-assert.match(directionCss, /\.product-summary-strip/);
+assert.match(directionCss, /--primary: #2563eb/);
+assert.match(directionCss, /--primary-hover: #1d4ed8/);
+assert.match(directionCss, /--primary-soft: #eff6ff/);
+assert.match(directionCss, /--border: #e1e5ea/);
+assert.match(directionCss, /--border-strong: #c9d0d8/);
 assert.match(directionCss, /min-height: 48px/);
-assert.match(directionCss, /border-radius: 12px/);
-assert.match(directionCss, /@media \(max-width: 680px\)/);
+assert.match(directionCss, /grid-template-columns: 248px/);
+assert.match(directionCss, /\.bright-bottom-nav/);
+assert.match(directionCss, /dialog\.modal:has\(\.form-modal\)/);
+assert.match(directionCss, /dialog\.modal:has\(\.full-detail-view\)/);
+assert.match(directionCss, /\.bright-form-section/);
+assert.match(directionCss, /\.table-scroll td::before/);
+assert.match(directionCss, /@media \(max-width: 760px\)/);
+assert.match(directionCss, /@media \(prefers-reduced-motion: reduce\)/);
+assert.doesNotMatch(directionCss, /linear-gradient|radial-gradient|glassmorphism|#7c3aed|#8b5cf6/i);
 
 assert.match(productRuntime, /persistDynamicWorkspace/);
 assert.match(productRuntime, /FormcraftBackend\?\.flush/);
@@ -93,13 +103,22 @@ assert.match(productRuntime, /createStarterWorkspace/);
 assert.match(productRuntime, /workspace-onboarding/);
 assert.doesNotMatch(productRuntime, /Nischhal Subba/);
 
-assert.match(directionRuntime, /renderTaskFirstDashboard/);
-assert.match(directionRuntime, /Active projects/);
-assert.match(directionRuntime, /Outstanding invoices/);
-assert.match(directionRuntime, /Quick actions/);
-assert.match(directionRuntime, /data-toggle-task/);
-assert.match(directionRuntime, /data-event-id/);
-assert.doesNotMatch(directionRuntime, /purple|gradient/i);
+assert.match(directionRuntime, /hiddenRoutes = new Set\(\['email', 'reports'\]\)/);
+assert.match(directionRuntime, /mobileRoutes = \['dashboard', 'projects', 'tasks', 'calendar'\]/);
+assert.match(directionRuntime, /applyBrightTheme/);
+assert.match(directionRuntime, /state\.settings\.theme = 'light'/);
+assert.match(directionRuntime, /bright-bottom-nav/);
+assert.match(directionRuntime, /decorateResponsiveTables/);
+assert.match(directionRuntime, /openBrightProjectForm/);
+assert.match(directionRuntime, /openBrightTaskForm/);
+assert.match(directionRuntime, /openBrightEventForm/);
+assert.match(directionRuntime, /openBrightInvoiceForm/);
+assert.match(directionRuntime, /openBrightProjectDetail/);
+assert.match(directionRuntime, /openBrightInvoiceDetail/);
+assert.match(directionRuntime, /Due date must be on or after the start date/);
+assert.match(directionRuntime, /Due date must be on or after the issue date/);
+assert.match(directionRuntime, /That unfinished module has been removed/);
+assert.doesNotMatch(directionRuntime, /purple|gradient|glassmorphism/i);
 
 assert.match(dynamicCss, /\.backend-gate/);
 assert.match(dynamicCss, /html\[data-backend="offline"\]/);
@@ -139,4 +158,4 @@ for (const source of [css, fixesCss, headerCss, dynamicCss, productCss, directio
   assert.equal(open, close, 'CSS braces must balance');
 }
 
-console.log('Static Formcraft product-direction and dynamic-backend checks passed.');
+console.log('Static Formcraft bright-workspace and dynamic-backend checks passed.');

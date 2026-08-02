@@ -143,6 +143,74 @@
     requestAnimationFrame(enhanceWorkspace);
   }
 
+  function senderIdentity() {
+    const user = window.FormcraftBackend?.session?.user;
+    return user?.user_metadata?.full_name || currentUserName() || user?.email || 'Workspace member';
+  }
+
+  function composeFields() {
+    return `<div class="bright-form-sections">
+      <fieldset class="bright-form-section"><legend>Recipients</legend><p class="bright-form-section-copy">Send the message to a valid email address.</p><div class="field-grid">
+        ${field('To', 'to', '', { type: 'email', required: true, span: true, autocomplete: 'email' })}
+        ${field('Subject', 'subject', '', { required: true, span: true, maxlength: 140 })}
+      </div></fieldset>
+      <fieldset class="bright-form-section"><legend>Message</legend><p class="bright-form-section-copy">Keep the request or update clear enough to act on.</p><div class="field-grid">
+        ${field('Message', 'body', '', { textarea: true, required: true, span: true, maxlength: 4000, placeholder: 'Write your message.' })}
+        ${field('Attachments', 'attachments', '', { type: 'file', span: true, multiple: true })}
+      </div></fieldset>
+    </div>`;
+  }
+
+  function messageRecord(form, folder) {
+    const values = formValues(form);
+    const attachmentInput = form.elements.attachments;
+    return {
+      id: uid(),
+      folder,
+      from: senderIdentity(),
+      to: values.to,
+      subject: values.subject,
+      body: values.body || '',
+      date: new Date().toISOString(),
+      unread: false,
+      starred: false,
+      attachments: attachmentInput ? [...attachmentInput.files].map(file => file.name) : [],
+      attachmentPaths: []
+    };
+  }
+
+  function openEnhancedComposeForm() {
+    openFormModal('Compose message', 'Write a workspace message and save it to the shared mailbox.', composeFields(), async form => {
+      const record = messageRecord(form, 'sent');
+      state.messages.unshift(record);
+      logActivity('email', 'Message sent', record.subject);
+      await saveState();
+      ui.emailFolder = 'sent';
+      ui.selectedEmail = null;
+      closeModal();
+      renderShell();
+      toast('Message sent.');
+    }, [{
+      label: 'Save draft',
+      tone: 'secondary',
+      onClick: async () => {
+        const form = document.querySelector('[data-modal-form]');
+        if (!form || !validateForm(form, ['to', 'subject'])) return;
+        const record = messageRecord(form, 'drafts');
+        state.messages.unshift(record);
+        logActivity('email', 'Draft saved', record.subject);
+        await saveState();
+        ui.emailFolder = 'drafts';
+        ui.selectedEmail = null;
+        closeModal();
+        renderShell();
+        toast('Draft saved.');
+      }
+    }]);
+  }
+
+  openComposeForm = openEnhancedComposeForm;
+
   function openEnhancedCommandMenu() {
     const commands = [
       ['Project', 'projects', 'Define scope, ownership, and delivery dates.'],
@@ -164,7 +232,7 @@
 
   handleContextCreate = function handleEnhancedContextCreate() {
     if (ui.route === 'email') {
-      openComposeForm();
+      openEnhancedComposeForm();
       return;
     }
     if (ui.route === 'reports') {
@@ -222,7 +290,7 @@
         projects: openProjectForm,
         tasks: openTaskForm,
         calendar: openEventForm,
-        email: openComposeForm,
+        email: openEnhancedComposeForm,
         files: () => { navigate('files'); requestAnimationFrame(() => document.querySelector('[data-file-upload]')?.click()); },
         invoices: openInvoiceForm,
         team: openMemberForm

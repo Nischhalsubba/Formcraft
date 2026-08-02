@@ -115,7 +115,10 @@ def run_desktop_launcher(browser, base_url):
     rail_apps = visible(page, '.fc3-app-rail [data-erp-apps-nav]')
     assert rail_apps.get_attribute('data-nav-state') == 'active'
     assert rail_apps.get_attribute('aria-current') == 'page'
-    assert page.locator('.fc3-context-nav > [data-erp-apps-nav]').is_hidden()
+    launcher_link = visible(page, '.fc3-context-nav > [data-erp-apps-nav]')
+    assert launcher_link.is_visible()
+    assert 'App launcher' in launcher_link.inner_text()
+    assert launcher_link.get_attribute('aria-label') == 'Open app launcher'
     assert visible(page, '.fc3-context-sidebar [data-erp-launcher-group="all"]').get_attribute('data-nav-state') == 'active'
 
     finance_card = visible(page, '.erp-app-card[data-app-key="accounting"]')

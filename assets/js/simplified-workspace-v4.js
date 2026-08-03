@@ -178,6 +178,26 @@
     });
   }
 
+  function syncCollapsedSidebar(sidebar) {
+    if (!sidebar) return;
+    const collapsed = document.body.classList.contains('fc4-sidebar-collapsed');
+    const header = sidebar.querySelector('.fc4-sidebar-header');
+    const brand = sidebar.querySelector('.fc4-workspace-brand');
+    const button = sidebar.querySelector('[data-fc4-collapse-sidebar]');
+    if (header) header.style.gridTemplateColumns = collapsed ? '1fr' : '';
+    if (brand) {
+      if (collapsed) brand.style.setProperty('display', 'none', 'important');
+      else brand.style.removeProperty('display');
+    }
+    if (button) {
+      if (collapsed) button.style.setProperty('display', 'inline-grid', 'important');
+      else button.style.removeProperty('display');
+      button.style.transform = collapsed ? 'rotate(180deg)' : '';
+      button.setAttribute('aria-label', collapsed ? 'Expand sidebar' : 'Collapse sidebar');
+      button.setAttribute('title', collapsed ? 'Expand sidebar' : 'Collapse sidebar');
+    }
+  }
+
   function simplifyTopbar() {
     const breadcrumb = document.querySelector('.fc3-topbar-breadcrumb');
     if (breadcrumb) {
@@ -201,8 +221,10 @@
         sidebar.querySelector('[data-fc4-collapse-sidebar]')?.addEventListener('click', () => {
           document.body.classList.toggle('fc4-sidebar-collapsed');
           try { localStorage.setItem('formcraft:simple-shell:collapsed', String(document.body.classList.contains('fc4-sidebar-collapsed'))); } catch {}
+          syncCollapsedSidebar(sidebar);
         });
       }
+      syncCollapsedSidebar(sidebar);
     }
 
     const drawer = document.querySelector('.fc3-mobile-drawer');

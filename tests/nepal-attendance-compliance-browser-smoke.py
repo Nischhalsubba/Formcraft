@@ -246,10 +246,11 @@ def test_desktop(browser, base_url):
 
     visible(page, '[data-np-view="evidence"]').click()
     page.wait_for_selector('.np-audit-list')
-    evidence = visible(page, '[data-np-compliance-page]').inner_text().lower()
-    assert 'clean-room adaptation' in evidence
-    assert 'does not copy' in evidence
-    assert 'manual attendance added' in evidence
+    evidence_note = page.locator('.np-evidence-note').text_content().lower()
+    audit_text = page.locator('.np-audit-list').text_content().lower()
+    assert 'clean-room adaptation' in evidence_note
+    assert 'does not copy' in evidence_note
+    assert 'manual attendance added' in audit_text
     assert errors == [], errors
     page.close()
 

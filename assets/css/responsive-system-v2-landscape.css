@@ -1,0 +1,363 @@
+/* Short landscape extension for phones whose CSS viewport exceeds 820px.
+   The width alone looks tablet-sized, but the available height requires the
+   same compact shell and bottom navigation as portrait mobile. */
+
+@media (max-height: 560px) and (orientation: landscape) and (max-width: 1000px) {
+  :root {
+    --fc-rsp-mobile-nav: 58px;
+    --fc-rsp-mobile-topbar: 52px;
+    --fc3-topbar-height: 52px;
+  }
+
+  html,
+  body {
+    min-width: 0 !important;
+    width: 100%;
+    overflow-x: clip;
+  }
+
+  body {
+    padding-bottom: 0 !important;
+  }
+
+  .fc3-app-rail,
+  .fc3-context-sidebar {
+    display: none !important;
+  }
+
+  .fc3-main.workspace-main,
+  body.fc3-sidebar-collapsed .fc3-main.workspace-main {
+    width: 100% !important;
+    max-width: 100% !important;
+    margin-left: 0 !important;
+  }
+
+  .fc3-topbar.workspace-topbar {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    display: grid !important;
+    width: 100% !important;
+    height: 52px !important;
+    min-height: 52px !important;
+    max-height: 52px !important;
+    grid-template-columns: 42px minmax(0, 1fr) 42px !important;
+    grid-template-rows: 52px !important;
+    align-items: center;
+    gap: 8px !important;
+    padding: 0 10px !important;
+    overflow: visible !important;
+    border: 0 !important;
+    border-bottom: 1px solid var(--border) !important;
+    border-radius: 0 !important;
+    background: color-mix(in srgb, var(--surface) 96%, transparent) !important;
+    box-shadow: 0 4px 16px rgb(16 24 40 / .06) !important;
+    backdrop-filter: blur(16px);
+  }
+
+  .fc3-topbar-start {
+    display: grid !important;
+    width: 42px;
+    min-width: 42px;
+    height: 42px;
+    place-items: center;
+  }
+
+  .fc3-mobile-menu.menu-button {
+    display: inline-grid !important;
+    width: 42px !important;
+    height: 42px !important;
+    border-radius: 11px !important;
+  }
+
+  .fc3-desktop-sidebar-toggle,
+  .fc3-topbar-breadcrumb {
+    display: none !important;
+  }
+
+  .fc3-global-search.workspace-search-trigger {
+    justify-self: stretch;
+    width: 100% !important;
+    max-width: none !important;
+    height: 42px !important;
+    min-height: 42px !important;
+    padding: 0 12px !important;
+    border-radius: 11px !important;
+  }
+
+  .fc3-global-search > span {
+    display: flex;
+    min-width: 0;
+    justify-content: center;
+  }
+
+  .fc3-global-search > span > span,
+  .fc3-global-search kbd {
+    display: none !important;
+  }
+
+  .fc3-topbar-actions.nav-utilities {
+    display: flex !important;
+    width: 42px;
+    min-width: 42px !important;
+    max-width: 42px !important;
+    height: 42px;
+    justify-self: end;
+    justify-content: flex-end;
+    gap: 0 !important;
+  }
+
+  .fc3-topbar-actions > :not(.fc3-account-button):not([data-account-popover]):not([data-notifications-popover]) {
+    display: none !important;
+  }
+
+  .fc3-account-button.avatar-button {
+    display: inline-grid !important;
+    width: 42px !important;
+    min-width: 42px !important;
+    height: 42px !important;
+    padding: 0 !important;
+    border: 0 !important;
+    background: transparent !important;
+  }
+
+  .fc3-account-button .workspace-user-avatar {
+    width: 38px;
+    height: 38px;
+  }
+
+  .fc3-account-button > svg,
+  .fc3-account-name {
+    display: none !important;
+  }
+
+  .fc3-content.workspace-content {
+    min-height: calc(var(--fc-rsp-visual-height) - 52px);
+    padding: 0 0 calc(var(--fc-rsp-mobile-nav) + 18px + env(safe-area-inset-bottom)) !important;
+  }
+
+  .fc3-page-header.workspace-page-header {
+    display: flex !important;
+    width: calc(100% - 24px) !important;
+    align-items: flex-start !important;
+    flex-direction: column !important;
+    gap: 8px !important;
+    margin: 0 auto 10px !important;
+    padding: 10px 0 9px !important;
+    border: 0 !important;
+    border-bottom: 1px solid var(--border) !important;
+    border-radius: 0 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+  }
+
+  .fc3-page-header .workspace-page-heading h1 {
+    display: block !important;
+    margin: 0 !important;
+    color: var(--ink) !important;
+    font-size: 21px !important;
+    line-height: 1.15 !important;
+  }
+
+  .fc3-page-header .workspace-page-heading .panel-kicker,
+  .fc3-page-header .workspace-page-heading > p:last-child,
+  .fc3-page-header .workspace-page-actions {
+    display: none !important;
+  }
+
+  .fc3-page-surface {
+    width: calc(100% - 24px) !important;
+    margin: 0 auto !important;
+    padding-top: 0 !important;
+  }
+
+  .fc3-record-open .fc3-page-surface {
+    width: 100% !important;
+  }
+
+  .product-project-table {
+    display: none !important;
+  }
+
+  .product-project-mobile {
+    display: grid !important;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 10px;
+  }
+
+  .product-project-card {
+    min-height: 0;
+  }
+
+  .product-panel,
+  .panel,
+  .settings-panel,
+  .erp-card,
+  .ops-card,
+  .ops-portfolio-report {
+    padding: 14px !important;
+  }
+
+  .product-panel-head,
+  .panel-head,
+  .erp-card-head,
+  .ops-section-heading {
+    margin-bottom: 10px !important;
+  }
+
+  .erp-context-switchers select,
+  .erp-filter select,
+  .field input,
+  .field select,
+  .field textarea,
+  .erp-field input,
+  .erp-field select,
+  .erp-field textarea,
+  .backend-field input,
+  .backend-field textarea {
+    font-size: 16px !important;
+  }
+
+  .fc3-mobile-drawer.mobile-drawer {
+    position: fixed;
+    z-index: 130;
+    inset: 0 auto 0 0;
+    display: grid !important;
+    width: min(340px, 82vw);
+    grid-template-rows: auto auto minmax(0, 1fr) auto;
+    transform: translateX(-104%);
+    border-right: 1px solid var(--border);
+    background: var(--surface);
+    box-shadow: 24px 0 60px rgb(16 24 40 / .22);
+    transition: transform .2s ease;
+  }
+
+  body.drawer-open .fc3-mobile-drawer {
+    transform: translateX(0);
+  }
+
+  .fc3-drawer-head.drawer-head {
+    min-height: 52px;
+    padding: 6px 10px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .fc3-drawer-search {
+    width: calc(100% - 20px);
+    min-height: 40px;
+    margin: 8px 10px;
+  }
+
+  .fc3-drawer-nav.workspace-nav {
+    min-height: 0;
+    overflow-y: auto;
+    padding: 3px 10px 12px;
+  }
+
+  .fc3-drawer-footer.drawer-footer {
+    display: grid;
+    grid-template-columns: 34px minmax(0, 1fr);
+    align-items: center;
+    gap: 8px;
+    padding: 8px 10px;
+    border-top: 1px solid var(--border);
+    background: var(--surface-soft);
+  }
+
+  .fc3-drawer-backdrop.drawer-backdrop {
+    position: fixed;
+    z-index: 120;
+    inset: 0;
+    display: block !important;
+    visibility: hidden;
+    background: rgb(16 24 40 / .42);
+    opacity: 0;
+    transition: opacity .2s ease, visibility .2s ease;
+  }
+
+  body.drawer-open .fc3-drawer-backdrop {
+    visibility: visible;
+    opacity: 1;
+  }
+
+  .fc3-mobile-bottom-nav {
+    position: fixed;
+    z-index: 105;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    display: grid !important;
+    min-height: calc(58px + env(safe-area-inset-bottom));
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    padding: 4px max(7px, env(safe-area-inset-right)) max(4px, env(safe-area-inset-bottom)) max(7px, env(safe-area-inset-left));
+    border-top: 1px solid var(--border);
+    background: color-mix(in srgb, var(--surface) 96%, transparent);
+    box-shadow: 0 -8px 26px rgb(16 24 40 / .1);
+    backdrop-filter: blur(16px);
+  }
+
+  .fc3-mobile-nav-button {
+    position: relative;
+    display: grid;
+    min-width: 0;
+    min-height: 44px !important;
+    place-items: center;
+    align-content: center;
+    gap: 2px;
+    padding: 2px;
+    border: 0;
+    border-radius: 9px;
+    background: transparent;
+    color: var(--muted);
+    cursor: pointer;
+    font-size: 8.5px;
+    font-weight: 650;
+    text-decoration: none;
+  }
+
+  .fc3-mobile-nav-button.is-create {
+    width: 46px !important;
+    height: 46px !important;
+    justify-self: center;
+    margin-top: -12px !important;
+    border-radius: 50%;
+    background: var(--primary);
+    color: #fff;
+  }
+
+  dialog.modal[data-surface="record"] {
+    inset: 52px 0 calc(var(--fc-rsp-mobile-nav) + env(safe-area-inset-bottom)) 0 !important;
+    width: 100% !important;
+    height: auto !important;
+  }
+
+  dialog.modal:has(.form-modal),
+  dialog.modal:has(.full-detail-view) {
+    inset: 0 !important;
+    width: 100vw !important;
+    height: var(--fc-rsp-visual-height) !important;
+    max-height: var(--fc-rsp-visual-height) !important;
+    margin: 0 !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+  }
+
+  .form-modal .modal-head,
+  .form-modal .modal-body,
+  .form-modal .modal-actions,
+  .bright-detail-header,
+  .bright-detail-body {
+    padding-inline: 14px !important;
+  }
+
+  .form-modal .modal-actions {
+    padding-bottom: calc(10px + env(safe-area-inset-bottom)) !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fc3-mobile-drawer,
+  .fc3-drawer-backdrop {
+    transition: none !important;
+  }
+}

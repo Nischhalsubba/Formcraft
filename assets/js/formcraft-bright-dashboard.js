@@ -44,17 +44,49 @@
 
   function projectTable(projects) {
     if (!projects.length) return emptyMarkup('No active projects', 'Create a project to connect tasks, events, files, and invoices.');
+
+    const desktopRows = projects.map(project => {
+      const progress = clamp(Number(project.progress) || 0, 0, 100);
+      return `<tr>
+        <td data-label="Project"><button class="text-button" type="button" data-view-project="${escapeHtml(project.id)}">${escapeHtml(project.name)}</button><small>${escapeHtml(project.client || 'Internal')}</small></td>
+        <td data-label="Owner">${escapeHtml(memberName(project.ownerId))}</td>
+        <td data-label="Status">${statusPill(project.status)}</td>
+        <td data-label="Progress"><div class="table-progress"><div class="progress-track"><span style="width:${progress}%"></span></div><span>${progress}%</span></div></td>
+        <td data-label="Due">${project.dueDate ? formatShortDate(project.dueDate) : 'Not set'}</td>
+        <td data-label="Actions"><button class="action-button" type="button" data-edit-project="${escapeHtml(project.id)}" aria-label="Edit ${escapeHtml(project.name)}">${icon('edit', 16)}</button></td>
+      </tr>`;
+    }).join('');
+
+    const mobileCards = projects.map(project => {
+      const progress = clamp(Number(project.progress) || 0, 0, 100);
+      return `<article class="product-project-card" role="listitem">
+        <header class="product-project-card-header">
+          <span class="product-project-card-title">
+            <button class="text-button" type="button" data-view-project="${escapeHtml(project.id)}">${escapeHtml(project.name)}</button>
+            <small>${escapeHtml(project.client || 'Internal workspace')}</small>
+          </span>
+          ${statusPill(project.status)}
+        </header>
+        <div class="product-project-card-meta">
+          <div><span>Owner</span><strong>${escapeHtml(memberName(project.ownerId))}</strong></div>
+          <div><span>Due</span><strong>${project.dueDate ? formatShortDate(project.dueDate) : 'Not set'}</strong></div>
+        </div>
+        <div class="product-project-card-progress">
+          <span>Progress</span>
+          <div class="progress-track"><span style="width:${progress}%"></span></div>
+          <strong>${progress}%</strong>
+        </div>
+        <footer class="product-project-card-footer">
+          <button class="button button-secondary button-small" type="button" data-edit-project="${escapeHtml(project.id)}">${icon('edit', 15)}Edit project</button>
+        </footer>
+      </article>`;
+    }).join('');
+
     return `<div class="product-project-table"><table>
       <thead><tr><th>Project</th><th>Owner</th><th>Status</th><th>Progress</th><th>Due</th><th><span class="sr-only">Actions</span></th></tr></thead>
-      <tbody>${projects.map(project => `<tr>
-        <td><button class="text-button" type="button" data-view-project="${escapeHtml(project.id)}">${escapeHtml(project.name)}</button><small>${escapeHtml(project.client || 'Internal')}</small></td>
-        <td>${escapeHtml(memberName(project.ownerId))}</td>
-        <td>${statusPill(project.status)}</td>
-        <td><div class="table-progress"><div class="progress-track"><span style="width:${clamp(Number(project.progress) || 0, 0, 100)}%"></span></div><span>${clamp(Number(project.progress) || 0, 0, 100)}%</span></div></td>
-        <td>${project.dueDate ? formatShortDate(project.dueDate) : 'Not set'}</td>
-        <td><button class="action-button" type="button" data-edit-project="${escapeHtml(project.id)}" aria-label="Edit ${escapeHtml(project.name)}">${icon('edit', 16)}</button></td>
-      </tr>`).join('')}</tbody>
-    </table></div>`;
+      <tbody>${desktopRows}</tbody>
+    </table></div>
+    <div class="product-project-mobile" role="list" aria-label="Active projects">${mobileCards}</div>`;
   }
 
   function activityRows(items) {

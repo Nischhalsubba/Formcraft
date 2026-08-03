@@ -9,13 +9,19 @@ on:
       - 'assets/css/workspace-architecture-v3*.css'
       - 'assets/js/premium-*.js'
       - 'assets/css/premium-*.css'
+      - 'assets/js/responsive-system-v2.js'
+      - 'assets/css/responsive-system-v2.css'
+      - 'assets/js/formcraft-bright-dashboard.js'
       - 'tests/erp-suite-*.py'
       - 'tests/erp-suite-*.mjs'
       - 'tests/workspace-architecture-v3-*.py'
       - 'tests/workspace-architecture-v3-*.mjs'
       - 'tests/premium-*.py'
       - 'tests/premium-*.mjs'
+      - 'tests/responsive-system-*.py'
+      - 'tests/responsive-system-*.mjs'
       - 'docs/PREMIUM_UI_E2E_AUDIT.md'
+      - 'docs/RESPONSIVE_SYSTEM_AUDIT.md'
       - 'index.html'
       - 'package.json'
       - '.github/workflows/erp-suite-browser-validation.yml'
@@ -24,6 +30,7 @@ on:
       - main
       - agent/nepal-erp-suite
       - agent/premium-iconography-e2e
+      - agent/responsive-system-audit
     paths:
       - 'assets/js/erp-suite-*.js'
       - 'assets/css/erp-suite.css'
@@ -31,13 +38,19 @@ on:
       - 'assets/css/workspace-architecture-v3*.css'
       - 'assets/js/premium-*.js'
       - 'assets/css/premium-*.css'
+      - 'assets/js/responsive-system-v2.js'
+      - 'assets/css/responsive-system-v2.css'
+      - 'assets/js/formcraft-bright-dashboard.js'
       - 'tests/erp-suite-*.py'
       - 'tests/erp-suite-*.mjs'
       - 'tests/workspace-architecture-v3-*.py'
       - 'tests/workspace-architecture-v3-*.mjs'
       - 'tests/premium-*.py'
       - 'tests/premium-*.mjs'
+      - 'tests/responsive-system-*.py'
+      - 'tests/responsive-system-*.mjs'
       - 'docs/PREMIUM_UI_E2E_AUDIT.md'
+      - 'docs/RESPONSIVE_SYSTEM_AUDIT.md'
       - 'index.html'
       - 'package.json'
       - '.github/workflows/erp-suite-browser-validation.yml'
@@ -49,7 +62,7 @@ concurrency:
 jobs:
   browser-validation:
     runs-on: ubuntu-24.04
-    timeout-minutes: 15
+    timeout-minutes: 20
     env:
       SUPABASE_URL: https://formcraft-test.supabase.co
       SUPABASE_PUBLISHABLE_KEY: sb_publishable_formcraft_browser_test_key_1234567890
@@ -84,3 +97,6 @@ jobs:
 
       - name: Run premium interface browser regression
         run: python tests/premium-interface-browser-smoke.py
+
+      - name: Run responsive system browser regression
+        run: python tests/responsive-system-browser-smoke.py

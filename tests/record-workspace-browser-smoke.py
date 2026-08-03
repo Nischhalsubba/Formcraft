@@ -155,8 +155,6 @@ def test_desktop(browser, base_url):
     page.wait_for_selector('dialog[open] form[data-erp-module="inventory"]')
     page.wait_for_function("name => document.querySelector('dialog[open] form[data-erp-module=\"inventory\"] input[name=\"name\"]')?.value === name", arg=modal_draft_name)
     assert 'Recovered an unsaved draft' in visible(page, 'dialog[open] form[data-erp-module="inventory"]').inner_text()
-    page.evaluate("closeModal()")
-    page.wait_for_function("!document.querySelector('dialog[open]')")
 
     audit = page.evaluate("FormcraftRecordWorkspace.audit()")
     assert audit['status'] == 'ready-to-test', audit

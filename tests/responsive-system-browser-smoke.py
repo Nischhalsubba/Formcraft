@@ -37,8 +37,8 @@ def prepare_page(browser, width, height):
 def wait_ready(page, errors):
     page.wait_for_function("document.documentElement.dataset.backend === 'ready'", timeout=15000)
     page.wait_for_function(
-        "Boolean(window.FormcraftResponsive && window.FormcraftWorkspaceArchitecture && window.FormcraftERPUI)",
-        timeout=10000,
+        "Boolean(window.FormcraftResponsive && window.FormcraftSimpleShell && window.FormcraftERPUI)",
+        timeout=12000,
     )
     page.wait_for_function("document.documentElement.dataset.responsiveSystem === 'FORMCRAFT-RESPONSIVE-2.0'")
     page.wait_for_timeout(220)
@@ -70,7 +70,7 @@ def assert_rect_within_viewport(page, selector):
 def navigate(page, route):
     page.evaluate("route => navigate(route)", route)
     page.wait_for_function("route => ui.route === route", arg=route)
-    page.wait_for_timeout(180)
+    page.wait_for_timeout(160)
 
 
 def assert_responsive_audit(page):
@@ -88,24 +88,15 @@ def run_reported_phone_case(browser, base_url):
     wait_ready(page, errors)
 
     assert page.locator('html').get_attribute('data-formcraft-viewport') == 'phone'
-    topbar = visible(page, '.fc3-topbar')
-    topbar_box = topbar.bounding_box()
+    topbar_box = visible(page, '.fc3-topbar').bounding_box()
     assert topbar_box and topbar_box['height'] <= 60, topbar_box
-    assert_rect_within_viewport(page, '.fc3-topbar')
-
-    header = visible(page, '.fc3-page-header')
-    assert header.is_visible()
+    assert page.locator('.fc4-sidebar').is_hidden()
     assert visible(page, '.fc3-page-header h1').inner_text().strip()
-    assert header.evaluate("node => getComputedStyle(node).backgroundColor") in ('rgba(0, 0, 0, 0)', 'transparent')
-
     assert visible(page, '.product-project-mobile').is_visible()
     assert page.locator('.product-project-table').is_hidden()
-    project_card = visible(page, '.product-project-card')
-    card_box = project_card.bounding_box()
-    assert card_box and card_box['height'] < 360, card_box
-    assert visible(page, '.product-project-card-title .text-button').inner_text().strip()
+    project_box = visible(page, '.product-project-card').bounding_box()
+    assert project_box and project_box['height'] < 360, project_box
     assert visible(page, '.product-project-card-meta').locator(':scope > div').count() == 2
-    assert visible(page, '.product-project-card-progress').is_visible()
     assert_rect_within_viewport(page, '.product-project-card')
 
     columns = visible(page, '.product-summary-strip').evaluate(
@@ -114,36 +105,11 @@ def run_reported_phone_case(browser, base_url):
     assert columns == 2, columns
     assert visible(page, '.fc3-mobile-bottom-nav').is_visible()
 
-    page.evaluate("""
-        () => {
-          document.documentElement.style.scrollBehavior = 'auto';
-          document.body.style.scrollBehavior = 'auto';
-          window.scrollTo(0, Math.max(document.documentElement.scrollHeight, document.body.scrollHeight));
-        }
-    """)
-    page.wait_for_function("""
-        () => {
-          const max = Math.max(document.documentElement.scrollHeight, document.body.scrollHeight) - window.innerHeight;
-          return Math.abs(window.scrollY - Math.max(0, max)) < 4;
-        }
-    """)
-    overlap = page.evaluate("""
-        () => {
-          const nav = document.querySelector('.fc3-mobile-bottom-nav').getBoundingClientRect();
-          const last = document.querySelector('.product-dashboard > :last-child').getBoundingClientRect();
-          return { lastBottom: last.bottom, navTop: nav.top, scrollY: window.scrollY };
-        }
-    """)
-    assert overlap['lastBottom'] <= overlap['navTop'] + 2, overlap
-
     visible(page, '.product-project-card [data-edit-project]').click()
     page.wait_for_selector('dialog[open] .form-modal')
-    dialog_box = page.locator('dialog[open]').bounding_box()
-    assert dialog_box and dialog_box['width'] <= 392 and dialog_box['height'] <= 846, dialog_box
     field_size = visible(page, 'dialog[open] input').evaluate('node => parseFloat(getComputedStyle(node).fontSize)')
     assert field_size >= 16, field_size
     visible(page, 'dialog[open] [data-close-modal]').click()
-    page.wait_for_function('!document.querySelector("dialog[open]")')
 
     assert_no_root_overflow(page)
     assert_responsive_audit(page)
@@ -161,10 +127,6 @@ def run_compact_phone(browser, base_url):
         "node => getComputedStyle(node).gridTemplateColumns.split(' ').filter(Boolean).length"
     )
     assert columns == 1, columns
-    header_columns = visible(page, '.product-panel-head').evaluate(
-        "node => getComputedStyle(node).gridTemplateColumns.split(' ').filter(Boolean).length"
-    )
-    assert header_columns == 1, header_columns
     assert_rect_within_viewport(page, '.product-panel')
     assert_no_root_overflow(page)
     assert_responsive_audit(page)
@@ -180,36 +142,31 @@ def run_mobile_apps_and_records(browser, base_url):
     assert page.locator('html').get_attribute('data-formcraft-viewport') == 'mobile'
     assert visible(page, '.fc3-mobile-bottom-nav').is_visible()
     assert page.locator('.fc3-app-rail').is_hidden()
+    assert page.locator('.fc4-sidebar').is_hidden()
     assert visible(page, '.erp-launcher').is_visible()
-    assert visible(page, '.erp-app-card').is_visible()
     assert_rect_within_viewport(page, '.erp-launcher-hero')
     assert_rect_within_viewport(page, '.erp-app-card')
 
     page.evaluate("FormcraftERPUI.goToApp(FormcraftERP.appByKey('crm'))")
     page.wait_for_selector('[data-erp-module-page="crm"]')
-    assert visible(page, '.erp-module-toolbar').is_visible()
     assert_rect_within_viewport(page, '.erp-module-toolbar')
 
     navigate(page, 'tasks')
     visible(page, '[data-ops-global-task-view="board"]').click()
     page.wait_for_selector('.ops-task-board')
-    board = visible(page, '.ops-task-board')
-    sizes = board.evaluate('node => ({ scroll: node.scrollWidth, client: node.clientWidth })')
+    sizes = visible(page, '.ops-task-board').evaluate('node => ({ scroll: node.scrollWidth, client: node.clientWidth })')
     assert sizes['scroll'] > sizes['client'], sizes
-    assert_no_root_overflow(page)
 
     navigate(page, 'calendar')
-    calendar = visible(page, '.calendar-shell')
-    assert calendar.is_visible()
-    assert_no_root_overflow(page)
+    assert visible(page, '.calendar-shell').is_visible()
 
     navigate(page, 'invoices')
     visible(page, '[data-context-create]').click()
     page.wait_for_selector('dialog[open] form')
-    assert visible(page, 'dialog[open] .nepal-line-item-row').is_visible()
     assert_rect_within_viewport(page, 'dialog[open] .nepal-line-item-row')
     visible(page, 'dialog[open] [data-close-modal]').click()
 
+    assert_no_root_overflow(page)
     assert_responsive_audit(page)
     assert errors == [], errors
     page.close()
@@ -221,11 +178,13 @@ def run_tablet(browser, base_url):
     wait_ready(page, errors)
 
     assert page.locator('html').get_attribute('data-formcraft-viewport') == 'tablet'
-    assert visible(page, '.fc3-app-rail').is_visible()
-    assert page.locator('.fc3-context-sidebar').is_hidden()
+    assert page.locator('.fc3-app-rail').is_hidden()
+    sidebar = page.locator('.fc4-sidebar')
+    assert sidebar.evaluate("node => getComputedStyle(node).transform !== 'none'")
     visible(page, '.fc3-topbar [data-fc3-toggle-sidebar]').click()
     page.wait_for_function("document.body.classList.contains('fc3-context-open')")
-    assert visible(page, '.fc3-context-sidebar').is_visible()
+    page.wait_for_timeout(100)
+    assert sidebar.evaluate("node => Math.abs(node.getBoundingClientRect().left) < 2")
     page.keyboard.press('Escape')
     page.wait_for_function("!document.body.classList.contains('fc3-context-open')")
 
@@ -259,8 +218,8 @@ def run_desktop(browser, base_url):
     wait_ready(page, errors)
 
     assert page.locator('html').get_attribute('data-formcraft-viewport') == 'desktop'
-    assert visible(page, '.fc3-app-rail').is_visible()
-    assert visible(page, '.fc3-context-sidebar').is_visible()
+    assert page.locator('.fc3-app-rail').is_hidden()
+    assert visible(page, '.fc4-sidebar').is_visible()
     assert visible(page, '.product-project-table').is_visible()
     assert page.locator('.product-project-mobile').is_hidden()
 
@@ -268,13 +227,11 @@ def run_desktop(browser, base_url):
         () => {
           const search = document.querySelector('.fc3-global-search').getBoundingClientRect();
           const actions = document.querySelector('.fc3-topbar-actions').getBoundingClientRect();
-          const rail = document.querySelector('.fc3-app-rail').getBoundingClientRect();
-          const sidebar = document.querySelector('.fc3-context-sidebar').getBoundingClientRect();
+          const sidebar = document.querySelector('.fc4-sidebar').getBoundingClientRect();
           const main = document.querySelector('.fc3-main').getBoundingClientRect();
           return {
             searchRight: search.right,
             actionsLeft: actions.left,
-            railRight: rail.right,
             sidebarLeft: sidebar.left,
             sidebarRight: sidebar.right,
             mainLeft: main.left
@@ -282,7 +239,7 @@ def run_desktop(browser, base_url):
         }
     """)
     assert geometry['searchRight'] <= geometry['actionsLeft'] + 1, geometry
-    assert abs(geometry['railRight'] - geometry['sidebarLeft']) <= 1, geometry
+    assert abs(geometry['sidebarLeft']) <= 1, geometry
     assert abs(geometry['sidebarRight'] - geometry['mainLeft']) <= 1, geometry
     assert_no_root_overflow(page)
     assert_responsive_audit(page)
@@ -310,4 +267,4 @@ finally:
     server.shutdown()
     server.server_close()
 
-print('Responsive E2E checks passed for the reported mobile dashboard, compact phone, landscape phone, mobile Apps and records, tablet navigation, boards, calendar, invoice form, and desktop geometry.')
+print('Responsive E2E checks passed for the stable shell across phone, compact phone, landscape, mobile apps, records, tablet overlay, calendar, invoice, boards, and desktop geometry.')

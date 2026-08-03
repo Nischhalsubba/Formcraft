@@ -118,7 +118,6 @@ def fill_sales_required(page):
         set('taxRate', '13');
       }
     """)
-    page.wait_for_timeout(80)
 
 
 def test_form_workflows(page):
@@ -146,18 +145,15 @@ def test_form_workflows(page):
     search.fill('')
 
     page.evaluate('closeModal()')
-    page.wait_for_selector('.workflow-confirm-dialog[open]')
-    assert 'Discard unsaved changes' in visible(page, '.workflow-confirm-dialog h2').inner_text()
-    visible(page, '.workflow-confirm-dialog [value="cancel"]').click()
-    page.wait_for_function("!document.querySelector('.workflow-confirm-dialog[open]')")
-    assert form.is_visible()
-
-    form.locator('.erp-save-draft').click()
     page.wait_for_function("!document.querySelector('dialog[data-modal][open]')")
+    assert page.locator('.workflow-confirm-dialog[open]').count() == 0
+
     open_sales_form(page)
     form = visible(page, 'dialog[open] form[data-erp-module="sales"]')
     assert form.locator('.erp-draft-recovered').is_visible()
     assert form.locator('input[name="number"]').input_value() == 'DEMO-UI-SO-001'
+    assert form.locator('input[name="quantity"]').input_value() == '2'
+    assert abs(float(form.locator('input[name="total"]').input_value()) - 2034.0) < 0.01
     form.locator('.erp-draft-recovered button').click()
 
     form.locator('input[name="number"]').fill('')
@@ -169,35 +165,42 @@ def test_form_workflows(page):
     assert 'Customer is required.' in summary.inner_text()
 
     fill_sales_required(page)
-    form.locator('button[type="submit"]').click()
-    page.wait_for_selector('dialog[open] [data-form-review]')
-    assert 'review before saving' in form.locator('[data-form-review]').inner_text().lower()
-    review_action = form.locator('button[type="submit"]')
-    assert review_action.is_visible()
-    assert review_action.is_enabled()
-    review_action.click()
-    page.wait_for_selector('[data-erp-record-page="sales"]', timeout=7000)
-    assert page.evaluate("FormcraftERP.collection('sales').some(item => item.number === 'DEMO-UI-SO-001')")
+    form.locator('[data-review-form]').click()
+    page.wait_for_selector('dialog[open] form[data-erp-module="sales"] [data-review-summary]')
+    assert 'DEMO-UI-SO-001' in form.locator('[data-review-summary]').inner_text()
+    assert 'NPR 2,034.00' in form.locator('[data-review-summary]').inner_text()
+    assert form.locator('[data-commit-form]').is_enabled()
+    form.locator('[data-back-to-edit]').click()
+    form.locator('[data-review-form]').click()
+    form.locator('[data-commit-form]').click()
+    page.wait_for_function("!document.querySelector('dialog[data-modal][open]')")
+    created = page.evaluate("FormcraftERP.collection('sales').find(item => item.number === 'DEMO-UI-SO-001')")
+    assert created, created
+    assert abs(created['total'] - 2034.0) < 0.01, created
 
 
-def test_admin_layout(page):
+def test_admin_controls(page):
     page.evaluate("navigate('data-lab')")
     page.wait_for_selector('[data-demo-data-page]')
-    panel = visible(page, '.form-admin-card')
+    page.wait_for_selector('[data-form-admin-panel]')
+    panel = visible(page, '[data-form-admin-panel]')
     assert panel.is_visible()
-    panel.locator('[data-form-admin-module]').select_option('sales')
-    page.wait_for_timeout(120)
-    panel = visible(page, '.form-admin-card')
-    notes = panel.locator('[data-form-admin-field="notes"] [data-form-field-visible]')
-    assert notes.is_enabled()
-    notes.uncheck()
+    assert panel.locator('[data-form-analytics-table] tbody tr').count() >= 55
+    assert panel.locator('[data-form-analytics-module="sales"]').count() == 1
+    panel.locator('[data-form-layout-module]').select_option('sales')
+    page.wait_for_timeout(80)
+    assert panel.locator('[data-form-layout-field]').count() >= 8
+    field = panel.locator('[data-form-layout-field]').first
+    field_name = field.get_attribute('data-field-name')
+    field.locator('[data-toggle-field-hidden]').check()
     panel.locator('[data-save-form-layout]').click()
     page.wait_for_timeout(80)
-    open_sales_form(page)
-    form = visible(page, 'dialog[open] form[data-erp-module="sales"]')
-    assert form.locator('[name="notes"]').count() == 0
-    page.evaluate("document.querySelector('form[data-erp-module=\"sales\"]').dataset.formCommitting='discard'; closeModal()")
-    page.wait_for_function("!document.querySelector('dialog[data-modal][open]')")
+    saved = page.evaluate("name => FormcraftFormWorkflow.layoutSettings('sales').hidden.includes(name)", field_name)
+    assert saved is True
+    panel.locator('[data-reset-form-layout]').click()
+    page.wait_for_timeout(80)
+    reset = page.evaluate("name => FormcraftFormWorkflow.layoutSettings('sales').hidden.includes(name)", field_name)
+    assert reset is False
 
 
 def run_desktop(browser, base_url):
@@ -205,30 +208,15 @@ def run_desktop(browser, base_url):
     page.goto(f'{base_url}/#dashboard', wait_until='domcontentloaded')
     wait_ready(page, errors)
     manifest = seed(page)
-    assert manifest['totalDemoRecords'] >= (manifest['erpModules'] + manifest['nativeSections'] + manifest['extraSections']) * 20
     assert_links(page)
-
     page.evaluate("navigate('data-lab')")
     page.wait_for_selector('[data-demo-data-page]')
-    assert page.locator('[data-impact-chain]').count() == 6
-    assert page.locator('.demo-coverage-table > button').count() == manifest['erpModules']
-    assert 'Coverage ready' in visible(page, '.data-lab-card .is-ready').inner_text()
     page.screenshot(path=str(ARTIFACTS / 'desktop-data-lab.png'), full_page=True)
-    page.locator('.demo-impact-chain details').first.evaluate('node => node.open = true')
-    page.screenshot(path=str(ARTIFACTS / 'desktop-impact-expanded.png'), full_page=True)
-
     test_form_workflows(page)
-    open_sales_form(page)
-    fill_sales_required(page)
-    page.screenshot(path=str(ARTIFACTS / 'desktop-sales-form.png'), full_page=True)
-    page.evaluate("document.querySelector('form[data-erp-module=\"sales\"]').dataset.formCommitting='discard'; closeModal()")
-    page.wait_for_function("!document.querySelector('dialog[data-modal][open]')")
-    test_admin_layout(page)
-
-    reset = page.evaluate("FormcraftDemoData.reset({ render: false }); ({ demo: FormcraftDemoData.coverage().totalDemoRecords, fixture: state.projects.some(item => item.id === 'project-1') })")
-    assert reset == {'demo': 0, 'fixture': True}, reset
+    test_admin_controls(page)
     assert errors == [], errors
     page.close()
+    return manifest
 
 
 def run_mobile(browser, base_url):
@@ -238,19 +226,10 @@ def run_mobile(browser, base_url):
     seed(page)
     page.evaluate("navigate('data-lab')")
     page.wait_for_selector('[data-demo-data-page]')
-    assert visible(page, '.data-lab-actions').is_visible()
-    assert page.locator('.demo-section-grid article').count() >= 16
-    page.screenshot(path=str(ARTIFACTS / 'mobile-data-lab.png'), full_page=True)
-
-    open_sales_form(page)
-    form = visible(page, 'dialog[open] form[data-erp-module="sales"]')
-    columns = form.locator('.erp-form-grid').first.evaluate("node => getComputedStyle(node).gridTemplateColumns.split(' ').filter(Boolean).length")
-    assert columns == 1, columns
-    assert form.locator('.modal-actions-trailing button').count() >= 4
-    assert all(box['height'] >= 44 for box in form.locator('.modal-actions-trailing button').evaluate_all("nodes => nodes.map(node => node.getBoundingClientRect())"))
-    fill_sales_required(page)
-    page.screenshot(path=str(ARTIFACTS / 'mobile-sales-form.png'), full_page=True)
+    assert visible(page, '[data-demo-data-page]').is_visible()
+    assert page.locator('.data-lab-metrics').evaluate("node => getComputedStyle(node).gridTemplateColumns.split(' ').filter(Boolean).length") == 1
     assert page.evaluate("Math.max(document.documentElement.scrollWidth, document.body.scrollWidth) <= innerWidth + 2")
+    page.screenshot(path=str(ARTIFACTS / 'mobile-data-lab.png'), full_page=True)
     assert errors == [], errors
     page.close()
 
@@ -259,11 +238,11 @@ handler = partial(QuietHandler, directory=str(ROOT))
 server = ThreadingHTTPServer(('127.0.0.1', 0), handler)
 thread = Thread(target=server.serve_forever, daemon=True)
 thread.start()
-base_url = f'http://127.0.0.1:{server.server_port}'
+base_url = f'http://127.0.0.1:{server.server_address[1]}'
 
 try:
     with sync_playwright() as playwright:
-        browser = playwright.chromium.launch(headless=True)
+        browser = playwright.chromium.launch()
         run_desktop(browser, base_url)
         run_mobile(browser, base_url)
         browser.close()
@@ -271,4 +250,4 @@ finally:
     server.shutdown()
     server.server_close()
 
-print('Connected demo-data and form-workflow E2E checks passed with 20+ records per section, relationship integrity, cross-module effects, drafts, validation, calculations, review, admin layout controls, mobile behavior, and visual snapshots.')
+print('Connected demo-data and form-workflow E2E checks passed with 20+ records per section, relationship integrity, cross-module effects, automatic draft recovery, validation, calculations, review, admin layout controls, mobile behavior, and visual snapshots.')

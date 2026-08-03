@@ -4,8 +4,8 @@
   const F = window.FormcraftNepalComplianceFoundation;
   if (!F) return;
   const {
-    ERP, POLICY_DEFAULTS, list, record, number, round, timestamp, id, canManage,
-    ensureState, auditEvent, nptDate, nptTime, parseTime, addDays, weekday,
+    ERP, POLICY_DEFAULTS, HOLIDAY_TYPES, list, record, number, round, timestamp, id, canManage,
+    ensureState, auditEvent, nptDate, nptTime, parseTime, addDays, weekday, bsLabel,
     parseImportText, employeeFor, normalizePunch, previewPunchRows
   } = F;
 
@@ -229,7 +229,6 @@
     if (holiday) auditEvent('Holiday removed', `${holiday.name} on ${holiday.dateAd}.`, { holidayId });
     return Boolean(holiday);
   }
-
 
   window.FormcraftNepalComplianceOperations = Object.freeze({
     ...F,

@@ -30,7 +30,7 @@ on:
       - 'tests/workspace-architecture-v3-*.mjs'
       - 'tests/premium-*.py'
       - 'tests/premium-*.mjs'
-      - 'tests/responsive-system-*.py'
+      - 'tests/presponsive-system-*.py'
       - 'tests/responsive-system-*.mjs'
       - 'tests/simplified-workspace-*.py'
       - 'tests/simplified-workspace-*.mjs'
@@ -165,7 +165,21 @@ jobs:
         run: python tests/demo-data-form-workflows-browser-smoke.py
 
       - name: Run Nepal attendance compliance regression
-        run: python tests/nepal-attendance-compliance-browser-smoke.py
+        shell: bash
+        run: |
+          set +e
+          python tests/nepal-attendance-compliance-browser-smoke.py 2>&1 | tee nepal-compliance-test.log
+          status=${PIPESTATUS[0]}
+          exit $status
+
+      - name: Upload Nepal compliance test log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: nepal-compliance-test-log
+          path: nepal-compliance-test.log
+          if-no-files-found: warn
+          retention-days: 7
 
       - name: Upload demo-data visual snapshots
         if: success()

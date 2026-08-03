@@ -1,10 +1,11 @@
 'use strict';
 
 (() => {
-  const VERSION = 'FORMCRAFT-RECORD-WORKSPACE-FIXES-1.4';
+  const VERSION = 'FORMCRAFT-RECORD-WORKSPACE-FIXES-1.5';
   const ERP = window.FormcraftERP;
   const workspace = window.FormcraftRecordWorkspace;
   const sharedModal = document.querySelector('[data-modal]');
+  const appRoot = document.querySelector('#app');
   if (!ERP || !workspace) return;
 
   function context(target) {
@@ -14,6 +15,12 @@
     const record = module ? ERP.collection(module).find(item => item.id === root.dataset.recordId) : null;
     const form = root.querySelector('[data-rw-form]');
     return module && record ? { root, module, record, form } : null;
+  }
+
+  function decorateRecordPage() {
+    const root = document.querySelector('[data-record-workspace][data-record-mode="view"]');
+    if (!root?.dataset.recordModule) return;
+    root.dataset.erpRecordPage = root.dataset.recordModule;
   }
 
   function showDraftState(form) {
@@ -208,9 +215,15 @@
   document.addEventListener('input', updateDraftIndicator, true);
   document.addEventListener('change', updateDraftIndicator, true);
 
+  if (appRoot) {
+    new MutationObserver(() => requestAnimationFrame(decorateRecordPage)).observe(appRoot, { childList: true, subtree: true });
+  }
+  requestAnimationFrame(decorateRecordPage);
+
   window.FormcraftRecordWorkspaceFixes = Object.freeze({
     version: VERSION,
     context,
+    decorateRecordPage,
     showDraftState,
     validate,
     publish,

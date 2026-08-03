@@ -5,7 +5,7 @@ import { fileURLToPath } from 'node:url';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const read = file => fs.readFileSync(path.join(root, file), 'utf8');
-const runtime = read('assets/js/nepal-attendance-compliance.js');
+const runtime = ['foundation', 'operations', 'core', 'views', 'dialogs'].map(name => read(`assets/js/nepal-attendance-compliance-${name}.js`)).join('\n') + '\n' + read('assets/js/nepal-attendance-compliance.js');
 const styles = read('assets/css/nepal-attendance-compliance.css');
 const index = read('index.html');
 const docs = read('docs/NEPAL_ATTENDANCE_COMPLIANCE.md');
@@ -44,7 +44,7 @@ assert.match(runtime, /Operational evidence export only/, 'Evidence export must 
 assert.match(runtime, /Direct ZKTeco polling, fingerprint storage, employee lifecycle management and salary processing are excluded/, 'The non-HRMS scope boundary must be visible');
 assert.match(runtime, /browser does not connect directly to device UDP ports/, 'Direct device polling limitation must be explicit');
 assert.doesNotMatch(runtime, /pyzk|zk\.connect|fingerprint template|set_user|delete_user/i, 'Browser runtime must not contain device-management or biometric-template implementation');
-assert.match(runtime, /does not copy that project\\'s source code/, 'Reference repository must be treated as clean-room product research');
+assert.match(runtime, /does not copy that project's source code/, 'Reference repository must be treated as clean-room product research');
 
 for (const contract of ['parseImportText', 'previewPunchRows', 'importPunchRows', 'addManualAttendance', 'addHoliday', 'savePolicy', 'saveFiscalProfile', 'audit: complianceAudit', 'monthRegister']) {
   assert.ok(runtime.includes(contract), `Public compliance API must expose ${contract}`);
@@ -62,8 +62,14 @@ assert.match(styles, /@media print/, 'Hajiri register must have print behavior')
 assert.match(styles, /min-height:\s*44px/, 'Primary actions must preserve mobile touch target height');
 
 assert.match(index, /assets\/css\/nepal-attendance-compliance\.css/, 'Compliance stylesheet must be loaded');
-assert.match(index, /assets\/js\/nepal-attendance-compliance\.js/, 'Compliance runtime must be loaded');
-assert.ok(index.indexOf('assets/js/demo-data-system.js') < index.indexOf('assets/js/nepal-attendance-compliance.js'), 'Compliance runtime must wrap routes after the demo-data runtime');
+for (const part of ['foundation', 'operations', 'core', 'views', 'dialogs']) assert.match(index, new RegExp(`assets/js/nepal-attendance-compliance-${part}\\.js`), `Compliance ${part} runtime must be loaded`);
+assert.match(index, /assets\/js\/nepal-attendance-compliance\.js/, 'Compliance UI runtime must be loaded');
+assert.ok(index.indexOf('assets/js/demo-data-system.js') < index.indexOf('assets/js/nepal-attendance-compliance-foundation.js'), 'Compliance foundation must load after the demo-data runtime');
+assert.ok(index.indexOf('assets/js/nepal-attendance-compliance-foundation.js') < index.indexOf('assets/js/nepal-attendance-compliance-operations.js'), 'Compliance operations must load after foundation');
+assert.ok(index.indexOf('assets/js/nepal-attendance-compliance-operations.js') < index.indexOf('assets/js/nepal-attendance-compliance-core.js'), 'Compliance policy core must load after operations');
+assert.ok(index.indexOf('assets/js/nepal-attendance-compliance-core.js') < index.indexOf('assets/js/nepal-attendance-compliance-views.js'), 'Compliance views must load after core');
+assert.ok(index.indexOf('assets/js/nepal-attendance-compliance-views.js') < index.indexOf('assets/js/nepal-attendance-compliance-dialogs.js'), 'Compliance dialogs must load after views');
+assert.ok(index.indexOf('assets/js/nepal-attendance-compliance-dialogs.js') < index.indexOf('assets/js/nepal-attendance-compliance.js'), 'Compliance route bootstrap must load last');
 assert.ok(index.indexOf('assets/js/nepal-attendance-compliance.js') < index.indexOf('assets/js/demo-data-navigation-bootstrap.js'), 'Navigation bootstrap must run after compliance navigation is registered');
 
 assert.match(docs, /Not an HRMS/, 'Documentation must preserve the product boundary');
@@ -73,7 +79,8 @@ assert.match(docs, /not legal advice/i, 'Documentation must contain a legal-revi
 assert.match(docs, /separate connector/i, 'Documentation must explain the device-network connector boundary');
 
 assert.match(packageJson.scripts.test, /nepal-attendance-compliance-audit\.mjs/, 'Static compliance audit must run in the standard test chain');
-assert.match(packageJson.scripts['test:syntax'], /nepal-attendance-compliance\.js/, 'Compliance runtime syntax must run in CI');
+for (const part of ['foundation', 'operations', 'core', 'views', 'dialogs']) assert.match(packageJson.scripts['test:syntax'], new RegExp(`nepal-attendance-compliance-${part}\\.js`), `Compliance ${part} syntax must run in CI`);
+assert.match(packageJson.scripts['test:syntax'], /nepal-attendance-compliance\.js/, 'Compliance route bootstrap syntax must run in CI');
 assert.match(packageJson.scripts['test:syntax'], /nepal-attendance-compliance-audit\.mjs/, 'Compliance audit syntax must run in CI');
 
 console.log('Nepal attendance compliance contracts passed for statutory guardrails, clean-room scope, idempotent imports, manual controls, holidays, Hajiri, evidence, fiscal safeguards, responsive behavior and documentation.');

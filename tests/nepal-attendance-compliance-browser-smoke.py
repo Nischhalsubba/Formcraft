@@ -162,7 +162,7 @@ def test_desktop(browser, base_url):
     page.evaluate("navigate('nepal-compliance')")
     page.wait_for_selector('[data-np-compliance-page]')
     assert visible(page, '[data-np-compliance-page]').is_visible()
-    assert 'not turning formcraft into a full hrms' in visible(page, '.np-compliance-hero').inner_text().lower()
+    assert 'without turning formcraft into a full hrms' in visible(page, '.np-compliance-hero').inner_text().lower()
     assert 'direct zkteco polling' in visible(page, '.np-boundary').inner_text().lower()
     assert page.locator('[data-np-compliance-nav]').count() >= 1
 

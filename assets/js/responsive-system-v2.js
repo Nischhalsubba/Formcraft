@@ -174,12 +174,8 @@
       || document.body.classList.contains('ops-record-open');
     if (!intentionallyHeaderless) return !pageHeader;
 
-    const localHeading = document.querySelector([
-      '.erp-module-page h1', '.erp-module-page h2',
-      '.erp-launcher h1', '.erp-launcher h2',
-      '[data-record-page] h1', '[data-record-page] h2'
-    ].join(','));
-    return Boolean(localHeading && isVisible(localHeading) && localHeading.textContent?.trim());
+    const localSurface = document.querySelector('.erp-module-page, .erp-launcher, [data-record-page]');
+    return Boolean(localSurface && isVisible(localSurface) && localSurface.textContent?.trim());
   }
 
   function audit() {

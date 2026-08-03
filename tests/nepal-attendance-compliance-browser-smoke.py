@@ -89,8 +89,19 @@ def seed_and_configure(page):
         }, { enforcePermissions: false });
         saveState();
         renderShell();
-        const employee = FormcraftERP.collection('employees')[0];
-        return { employeeId: employee.id, employeeName: employee.name, fiscalYear, regularDate, holidayDate, manualDate, compDueDate: addDays(holidayDate, 21) };
+        const employees = FormcraftERP.collection('employees');
+        const employee = employees.find(item => item.status !== 'inactive' && String(item.name || '').trim())
+          || employees.find(item => String(item.name || '').trim())
+          || employees[0];
+        return {
+          employeeId: employee.id,
+          employeeName: employee.name || employee.employeeCode || employee.id,
+          fiscalYear,
+          regularDate,
+          holidayDate,
+          manualDate,
+          compDueDate: addDays(holidayDate, 21)
+        };
       }
     """)
     page.wait_for_timeout(160)

@@ -2,9 +2,10 @@ import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 
 const root = new URL('../', import.meta.url);
-const [html, shellJs, shellCss, studioJs, studioCss, readme, pkgText, workflow] = await Promise.all([
+const [html, shellJs, shellActions, shellCss, studioJs, studioCss, readme, pkgText, workflow] = await Promise.all([
   readFile(new URL('index.html', root), 'utf8'),
   readFile(new URL('assets/js/simplified-workspace-v4.js', root), 'utf8'),
+  readFile(new URL('assets/js/simplified-workspace-actions.js', root), 'utf8'),
   readFile(new URL('assets/css/simplified-workspace-v4.css', root), 'utf8'),
   readFile(new URL('assets/js/ui-theme-studio.js', root), 'utf8'),
   readFile(new URL('assets/css/ui-theme-studio.css', root), 'utf8'),
@@ -17,7 +18,8 @@ for (const asset of [
   'assets/css/simplified-workspace-v4.css',
   'assets/css/ui-theme-studio.css',
   'assets/js/ui-theme-studio.js',
-  'assets/js/simplified-workspace-v4.js'
+  'assets/js/simplified-workspace-v4.js',
+  'assets/js/simplified-workspace-actions.js'
 ]) assert.ok(html.includes(asset), `Missing simplified workspace asset: ${asset}`);
 
 assert.ok(
@@ -30,7 +32,15 @@ assert.ok(
 );
 assert.ok(
   html.indexOf('assets/js/simplified-workspace-v4.js') > html.indexOf('assets/js/ui-theme-studio.js'),
-  'Stable shell must be the final layout wrapper before motion.'
+  'Stable shell must load after the theme studio.'
+);
+assert.ok(
+  html.indexOf('assets/js/simplified-workspace-actions.js') > html.indexOf('assets/js/simplified-workspace-v4.js'),
+  'Stable shell actions must load after the stable shell.'
+);
+assert.ok(
+  html.indexOf('assets/js/simplified-workspace-actions.js') < html.indexOf('assets/js/motion.js'),
+  'Motion must remain the final shell wrapper.'
 );
 
 for (const contract of [
@@ -42,6 +52,14 @@ for (const contract of [
   'The menu stays the same in every app.',
   'window.FormcraftSimpleShell'
 ]) assert.ok(shellJs.includes(contract), `Missing stable navigation contract: ${contract}`);
+
+for (const contract of [
+  "const VERSION = 'FORMCRAFT-SIMPLE-ACTIONS-1.0'",
+  ".fc3-mobile-bottom-nav [data-context-create]",
+  'handleContextCreate',
+  'stopImmediatePropagation',
+  'window.FormcraftSimpleActions'
+]) assert.ok(shellActions.includes(contract), `Missing stable action contract: ${contract}`);
 
 for (const key of ['dashboard', 'apps', 'projects', 'tasks', 'crm', 'sales', 'invoices', 'inventory', 'employees', 'payroll', 'reports', 'files', 'settings']) {
   assert.ok(shellJs.includes(`${key}: { key: '${key}'`), `Missing navigation catalog item: ${key}`);
@@ -98,10 +116,11 @@ for (const readmeContract of [
 const pkg = JSON.parse(pkgText);
 assert.ok(pkg.scripts.test.includes('simplified-workspace-audit.mjs'), 'Simplified workspace audit must run in npm test.');
 assert.ok(pkg.scripts['test:shell'].includes('simplified-workspace-v4.js'), 'Stable shell syntax must be checked.');
+assert.ok(pkg.scripts['test:shell'].includes('simplified-workspace-actions.js'), 'Stable shell action syntax must be checked.');
 assert.ok(pkg.scripts['test:shell'].includes('ui-theme-studio.js'), 'Theme studio syntax must be checked.');
 assert.ok(workflow.includes('tests/simplified-workspace-browser-smoke.py'), 'Simplified workspace browser regression must run in CI.');
-assert.ok(workflow.includes('assets/js/simplified-workspace-v4.js'), 'Stable shell changes must trigger CI.');
+assert.ok(workflow.includes('assets/js/simplified-workspace-*.js'), 'Stable shell changes must trigger CI.');
 assert.ok(workflow.includes('assets/js/ui-theme-studio.js'), 'Theme studio changes must trigger CI.');
 
-assert.ok(!`${shellJs}${shellCss}${studioJs}${studioCss}`.includes('odoo.com'), 'The simplified UI must not embed Odoo assets or source code.');
-console.log('Simplified navigation, admin theme studio, design tokens, and architecture README contracts passed.');
+assert.ok(!`${shellJs}${shellActions}${shellCss}${studioJs}${studioCss}`.includes('odoo.com'), 'The simplified UI must not embed Odoo assets or source code.');
+console.log('Simplified navigation, stable mobile create actions, admin theme studio, design tokens, and architecture README contracts passed.');

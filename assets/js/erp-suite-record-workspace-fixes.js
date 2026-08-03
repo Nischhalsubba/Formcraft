@@ -1,9 +1,10 @@
 'use strict';
 
 (() => {
-  const VERSION = 'FORMCRAFT-RECORD-WORKSPACE-FIXES-1.1';
+  const VERSION = 'FORMCRAFT-RECORD-WORKSPACE-FIXES-1.2';
   const ERP = window.FormcraftERP;
   const workspace = window.FormcraftRecordWorkspace;
+  const sharedModal = document.querySelector('[data-modal]');
   if (!ERP || !workspace) return;
 
   function context(target) {
@@ -84,6 +85,28 @@
     toast(`${page.module.singular} updated.`);
   }
 
+  function dismissSharedModal(event) {
+    if (!sharedModal?.open) return;
+    const card = sharedModal.querySelector('.modal-card, form, [role="document"]');
+    const rect = card?.getBoundingClientRect();
+    const outsideCard = !rect
+      || event.clientX < rect.left
+      || event.clientX > rect.right
+      || event.clientY < rect.top
+      || event.clientY > rect.bottom;
+    if (event.target !== sharedModal && !outsideCard) return;
+    event.preventDefault();
+    event.stopImmediatePropagation();
+    closeModal();
+  }
+
+  sharedModal?.addEventListener('click', dismissSharedModal, true);
+  sharedModal?.addEventListener('cancel', event => {
+    event.preventDefault();
+    event.stopImmediatePropagation();
+    closeModal();
+  }, true);
+
   document.addEventListener('click', event => {
     const target = event.target instanceof Element ? event.target : null;
     if (!target) return;
@@ -151,5 +174,5 @@
   document.addEventListener('input', updateDraftIndicator, true);
   document.addEventListener('change', updateDraftIndicator, true);
 
-  window.FormcraftRecordWorkspaceFixes = Object.freeze({ version: VERSION, context, showDraftState, validate, publish });
+  window.FormcraftRecordWorkspaceFixes = Object.freeze({ version: VERSION, context, showDraftState, validate, publish, dismissSharedModal });
 })();

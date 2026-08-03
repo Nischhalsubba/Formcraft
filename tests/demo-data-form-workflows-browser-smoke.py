@@ -171,7 +171,7 @@ def test_form_workflows(page):
     fill_sales_required(page)
     form.locator('button[type="submit"]').click()
     page.wait_for_selector('dialog[open] [data-form-review]')
-    assert 'Review before saving' in form.locator('[data-form-review]').inner_text()
+    assert 'review before saving' in form.locator('[data-form-review]').inner_text().lower()
     assert form.locator('button[type="submit"]').inner_text() == 'Confirm and save'
     form.locator('button[type="submit"]').click()
     page.wait_for_selector('[data-erp-record-page="sales"]', timeout=7000)

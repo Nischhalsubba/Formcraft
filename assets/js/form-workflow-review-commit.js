@@ -1,7 +1,13 @@
 'use strict';
 
 (() => {
-  const VERSION = 'FORMCRAFT-FORM-REVIEW-COMMIT-1.2';
+  const VERSION = 'FORMCRAFT-FORM-REVIEW-COMMIT-1.3';
+
+  function normalizeReviewAction(root = document) {
+    const review = root.querySelector?.('[data-form-review]');
+    const button = review?.closest('form[data-erp-form]')?.querySelector('button[type="submit"]');
+    if (button) button.style.textTransform = 'none';
+  }
 
   /*
    * This listener loads before the main form workflow listener. The first
@@ -13,6 +19,7 @@
   document.addEventListener('submit', event => {
     const form = event.target instanceof HTMLFormElement ? event.target : null;
     if (!form?.matches('[data-erp-form]')) return;
+    setTimeout(() => normalizeReviewAction(form), 0);
     if (form.dataset.reviewPending !== 'true' || form.dataset.reviewConfirmed === 'true') return;
     if (form.dataset.reviewCommitScheduled === 'true' || form.dataset.formCommitting === 'true') return;
 
@@ -29,5 +36,8 @@
     }, 0);
   }, true);
 
-  window.FormcraftFormReviewCommit = Object.freeze({ version: VERSION });
+  const modal = document.querySelector('[data-modal]');
+  if (modal) new MutationObserver(() => normalizeReviewAction(modal)).observe(modal, { childList: true, subtree: true });
+
+  window.FormcraftFormReviewCommit = Object.freeze({ version: VERSION, normalizeReviewAction });
 })();

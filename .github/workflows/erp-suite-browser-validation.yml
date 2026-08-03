@@ -21,6 +21,8 @@ on:
       - 'assets/css/form-workflow-enhancements.css'
       - 'assets/js/demo-data-system.js'
       - 'assets/css/demo-data-system.css'
+      - 'assets/js/nepal-attendance-compliance.js'
+      - 'assets/css/nepal-attendance-compliance.css'
       - 'assets/js/formcraft-bright-dashboard.js'
       - 'tests/erp-suite-*.py'
       - 'tests/erp-suite-*.mjs'
@@ -28,7 +30,7 @@ on:
       - 'tests/workspace-architecture-v3-*.mjs'
       - 'tests/premium-*.py'
       - 'tests/premium-*.mjs'
-      - 'tests/responsive-system-*.py'
+      - 'tests/presponsive-system-*.py'
       - 'tests/responsive-system-*.mjs'
       - 'tests/simplified-workspace-*.py'
       - 'tests/simplified-workspace-*.mjs'
@@ -37,10 +39,13 @@ on:
       - 'tests/form-workflow-*.mjs'
       - 'tests/demo-data-*.py'
       - 'tests/demo-data-*.mjs'
+      - 'tests/nepal-attendance-compliance-*.py'
+      - 'tests/nepal-attendance-compliance-*.mjs'
       - 'docs/PREMIUM_UI_E2E_AUDIT.md'
       - 'docs/RESPONSIVE_SYSTEM_AUDIT.md'
       - 'docs/FORM_MODAL_E2E_AUDIT.md'
       - 'docs/DEMO_DATA_AND_FORM_WORKFLOWS.md'
+      - 'docs/NEPAL_ATTENDANCE_COMPLIANCE.md'
       - 'README.md'
       - 'index.html'
       - 'package.json'
@@ -54,6 +59,7 @@ on:
       - agent/simplified-shell-theme-studio
       - agent/form-modal-responsive-e2e
       - agent/demo-data-form-workflows
+      - agent/nepal-attendance-compliance
     paths:
       - 'assets/js/erp-suite-*.js'
       - 'assets/css/erp-suite.css'
@@ -73,6 +79,8 @@ on:
       - 'assets/css/form-workflow-enhancements.css'
       - 'assets/js/demo-data-system.js'
       - 'assets/css/demo-data-system.css'
+      - 'assets/js/nepal-attendance-compliance.js'
+      - 'assets/css/nepal-attendance-compliance.css'
       - 'assets/js/formcraft-bright-dashboard.js'
       - 'tests/erp-suite-*.py'
       - 'tests/erp-suite-*.mjs'
@@ -89,10 +97,13 @@ on:
       - 'tests/form-workflow-*.mjs'
       - 'tests/demo-data-*.py'
       - 'tests/demo-data-*.mjs'
+      - 'tests/nepal-attendance-compliance-*.py'
+      - 'tests/nepal-attendance-compliance-*.mjs'
       - 'docs/PREMIUM_UI_E2E_AUDIT.md'
       - 'docs/RESPONSIVE_SYSTEM_AUDIT.md'
       - 'docs/FORM_MODAL_E2E_AUDIT.md'
       - 'docs/DEMO_DATA_AND_FORM_WORKFLOWS.md'
+      - 'docs/NEPAL_ATTENDANCE_COMPLIANCE.md'
       - 'README.md'
       - 'index.html'
       - 'package.json'
@@ -105,7 +116,7 @@ concurrency:
 jobs:
   browser-validation:
     runs-on: ubuntu-24.04
-    timeout-minutes: 30
+    timeout-minutes: 34
     env:
       SUPABASE_URL: https://formcraft-test.supabase.co
       SUPABASE_PUBLISHABLE_KEY: sb_publishable_formcraft_browser_test_key_1234567890
@@ -153,11 +164,37 @@ jobs:
       - name: Run connected demo data and form workflow regression
         run: python tests/demo-data-form-workflows-browser-smoke.py
 
+      - name: Run Nepal attendance compliance regression
+        shell: bash
+        run: |
+          set +e
+          python tests/nepal-attendance-compliance-browser-smoke.py 2>&1 | tee nepal-compliance-test.log
+          status=${PIPESTATUS[0]}
+          exit $status
+
+      - name: Upload Nepal compliance test log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: nepal-compliance-test-log
+          path: nepal-compliance-test.log
+          if-no-files-found: warn
+          retention-days: 7
+
       - name: Upload demo-data visual snapshots
         if: success()
         uses: actions/upload-artifact@v4
         with:
           name: demo-data-visual-snapshots
           path: test-artifacts/demo-data-visual-snapshots
+          if-no-files-found: error
+          retention-days: 30
+
+      - name: Upload Nepal compliance visual snapshots
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: nepal-compliance-visual-snapshots
+          path: test-artifacts/nepal-compliance-visual-snapshots
           if-no-files-found: error
           retention-days: 30

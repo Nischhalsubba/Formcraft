@@ -15,6 +15,8 @@ on:
       - 'assets/css/simplified-workspace-v4.css'
       - 'assets/js/ui-theme-studio.js'
       - 'assets/css/ui-theme-studio.css'
+      - 'assets/js/form-modal-responsive.js'
+      - 'assets/css/form-modal-responsive.css'
       - 'assets/js/formcraft-bright-dashboard.js'
       - 'tests/erp-suite-*.py'
       - 'tests/erp-suite-*.mjs'
@@ -26,8 +28,11 @@ on:
       - 'tests/responsive-system-*.mjs'
       - 'tests/simplified-workspace-*.py'
       - 'tests/simplified-workspace-*.mjs'
+      - 'tests/form-modal-*.py'
+      - 'tests/form-modal-*.mjs'
       - 'docs/PREMIUM_UI_E2E_AUDIT.md'
       - 'docs/RESPONSIVE_SYSTEM_AUDIT.md'
+      - 'docs/FORM_MODAL_E2E_AUDIT.md'
       - 'README.md'
       - 'index.html'
       - 'package.json'
@@ -39,6 +44,7 @@ on:
       - agent/premium-iconography-e2e
       - agent/responsive-system-audit
       - agent/simplified-shell-theme-studio
+      - agent/form-modal-responsive-e2e
     paths:
       - 'assets/js/erp-suite-*.js'
       - 'assets/css/erp-suite.css'
@@ -52,6 +58,8 @@ on:
       - 'assets/css/simplified-workspace-v4.css'
       - 'assets/js/ui-theme-studio.js'
       - 'assets/css/ui-theme-studio.css'
+      - 'assets/js/form-modal-responsive.js'
+      - 'assets/css/form-modal-responsive.css'
       - 'assets/js/formcraft-bright-dashboard.js'
       - 'tests/erp-suite-*.py'
       - 'tests/erp-suite-*.mjs'
@@ -63,8 +71,11 @@ on:
       - 'tests/responsive-system-*.mjs'
       - 'tests/simplified-workspace-*.py'
       - 'tests/simplified-workspace-*.mjs'
+      - 'tests/form-modal-*.py'
+      - 'tests/form-modal-*.mjs'
       - 'docs/PREMIUM_UI_E2E_AUDIT.md'
       - 'docs/RESPONSIVE_SYSTEM_AUDIT.md'
+      - 'docs/FORM_MODAL_E2E_AUDIT.md'
       - 'README.md'
       - 'index.html'
       - 'package.json'
@@ -118,3 +129,6 @@ jobs:
 
       - name: Run simplified workspace browser regression
         run: python tests/simplified-workspace-browser-smoke.py
+
+      - name: Run all-module form modal regression
+        run: python tests/form-modal-browser-smoke.py

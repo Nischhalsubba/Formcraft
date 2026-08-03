@@ -96,8 +96,7 @@ assert.ok(pkg.scripts.test.includes('responsive-system-audit.mjs'), 'Responsive 
 assert.ok(pkg.scripts['test:responsive'].includes('responsive-system-v2.js'), 'Responsive runtime syntax must be checked.');
 assert.ok(pkg.scripts['test:responsive'].includes('responsive-system-audit.mjs'), 'Responsive audit syntax must be checked.');
 assert.ok(workflow.includes('tests/responsive-system-browser-smoke.py'), 'Responsive browser regression must run in CI.');
-assert.ok(workflow.includes('assets/css/responsive-system-v2.css'), 'Responsive CSS must trigger CI.');
-assert.ok(workflow.includes('assets/css/responsive-system-v2-landscape.css'), 'Landscape responsive CSS must trigger CI.');
+assert.ok(workflow.includes('assets/css/responsive-system-v2*.css'), 'Responsive CSS wildcard must trigger CI.');
 assert.ok(workflow.includes('assets/js/responsive-system-v2.js'), 'Responsive runtime must trigger CI.');
 
 assert.ok(!`${css}${landscapeCss}${runtime}`.includes('odoo.com'), 'Responsive runtime must not embed Odoo assets or source code.');

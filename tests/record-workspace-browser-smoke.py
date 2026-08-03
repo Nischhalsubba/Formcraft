@@ -114,7 +114,7 @@ def test_desktop(browser, base_url):
     assert visible(page, '.rw-recovery-banner').is_visible()
     editor.locator('button[type="submit"]').click()
     page.wait_for_selector('[data-record-workspace][data-record-mode="view"]')
-    page.wait_for_function("name => document.querySelector('[data-record-workspace]')?.innerText.includes(name)", draft_name)
+    page.wait_for_function("name => document.querySelector('[data-record-workspace]')?.innerText.includes(name)", arg=draft_name)
     record_name = page.evaluate("id => FormcraftERP.collection('inventory').find(item => item.id === id).name", first_record_id)
     assert record_name == draft_name
 
@@ -134,7 +134,7 @@ def test_desktop(browser, base_url):
 
     visible(page, '[data-erp-new-record="inventory"]').click()
     page.wait_for_selector('dialog[open] form[data-erp-module="inventory"]')
-    page.wait_for_function("name => document.querySelector('dialog[open] form[data-erp-module=\"inventory\"] input[name=\"name\"]')?.value === name", modal_draft_name)
+    page.wait_for_function("name => document.querySelector('dialog[open] form[data-erp-module=\"inventory\"] input[name=\"name\"]')?.value === name", arg=modal_draft_name)
     assert 'Recovered an unsaved draft' in visible(page, 'dialog[open] form[data-erp-module="inventory"]').inner_text()
     page.evaluate("closeModal()")
     page.wait_for_function("!document.querySelector('dialog[open]')")

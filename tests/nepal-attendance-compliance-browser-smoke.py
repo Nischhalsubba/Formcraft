@@ -239,10 +239,10 @@ def test_desktop(browser, base_url):
 
     visible(page, '[data-np-view="policies"]').click()
     page.wait_for_selector('.np-policy-grid')
-    policy_text = visible(page, '[data-np-compliance-page]').inner_text().lower()
-    assert '1 day per 20 days worked' in policy_text
-    assert '14 weeks / 98 days total' in policy_text
-    assert 'configure as organization policy' in policy_text
+    leave_text = page.locator('.np-leave-reference').text_content().lower()
+    assert '1 day per 20 days worked' in leave_text
+    assert '14 weeks / 98 days total' in leave_text
+    assert 'configure as organization policy' in leave_text
 
     visible(page, '[data-np-view="evidence"]').click()
     page.wait_for_selector('.np-audit-list')

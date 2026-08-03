@@ -1,0 +1,424 @@
+/* Formcraft responsive modal hardening.
+   This layer resolves cross-module width conflicts and keeps record forms usable
+   on desktop, tablet, phones, and short mobile landscape viewports. */
+
+:root {
+  --form-modal-record-max: 1040px;
+  --form-modal-record-height: min(88dvh, 880px);
+  --form-modal-record-gutter: clamp(20px, 3vw, 32px);
+  --form-modal-record-section: clamp(18px, 2.4vw, 28px);
+  --form-modal-record-gap-x: clamp(16px, 2vw, 22px);
+  --form-modal-record-gap-y: 18px;
+}
+
+/*
+ * Root cause guard: erp-suite.css assigns .erp-record-form a 980px width while
+ * the generic form dialog is 860px wide. The more specific selector below
+ * guarantees that the form always follows the dialog instead of overflowing it.
+ */
+dialog.modal[data-surface="form"]:has(.erp-record-form) {
+  width: min(var(--form-modal-record-max), calc(100vw - 32px));
+  max-width: none;
+  height: var(--form-modal-record-height);
+  max-height: calc(100dvh - 32px);
+  overflow: hidden;
+}
+
+dialog.modal[data-surface="form"]:has(.erp-record-form) > [data-modal-content] {
+  width: 100%;
+  min-width: 0;
+  height: 100%;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.form-modal.erp-record-form {
+  width: 100%;
+  max-width: none;
+  min-width: 0;
+  height: 100%;
+  max-height: 100%;
+  margin: 0;
+  overflow: hidden;
+  background: var(--surface);
+}
+
+.erp-record-form .modal-head {
+  position: relative;
+  z-index: 2;
+  min-width: 0;
+  padding: 22px var(--form-modal-record-gutter) 18px;
+  background: color-mix(in srgb, var(--surface) 97%, transparent);
+}
+
+.erp-record-form .modal-head > div:first-child {
+  min-width: 0;
+}
+
+.erp-record-form .modal-eyebrow {
+  margin: 0 0 5px;
+  color: var(--primary);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: .08em;
+  line-height: 1.3;
+  text-transform: uppercase;
+}
+
+.erp-record-form .modal-head h2 {
+  overflow-wrap: anywhere;
+  font-size: clamp(22px, 2.1vw, 28px);
+}
+
+.erp-record-form .modal-head p:last-child {
+  max-width: 72ch;
+  margin-top: 6px;
+}
+
+.erp-record-form .modal-body {
+  min-width: 0;
+  min-height: 0;
+  padding: 24px var(--form-modal-record-gutter) 34px;
+  overflow-x: hidden;
+  overflow-y: auto;
+  background: color-mix(in srgb, var(--canvas) 44%, var(--surface));
+  overscroll-behavior: contain;
+  scrollbar-gutter: stable;
+  -webkit-overflow-scrolling: touch;
+}
+
+.erp-record-form .erp-form-sections {
+  display: grid;
+  width: 100%;
+  min-width: 0;
+  gap: 14px;
+}
+
+.erp-record-form .erp-form-sections fieldset {
+  min-inline-size: 0;
+  width: 100%;
+  min-width: 0;
+  margin: 0;
+  padding: var(--form-modal-record-section);
+  overflow: visible;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: var(--surface);
+  box-shadow: 0 1px 2px rgb(15 23 42 / .025);
+}
+
+.erp-record-form .erp-form-sections legend {
+  max-width: 100%;
+  padding: 0 8px;
+  color: var(--ink);
+  font-size: 15px;
+  font-weight: 750;
+  letter-spacing: -.015em;
+  line-height: 1.35;
+}
+
+.erp-record-form .erp-form-sections fieldset > p {
+  max-width: 74ch;
+  margin: 2px 0 20px;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.55;
+}
+
+.erp-record-form .erp-form-grid {
+  display: grid;
+  width: 100%;
+  min-width: 0;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--form-modal-record-gap-y) var(--form-modal-record-gap-x);
+  align-items: start;
+}
+
+.erp-record-form .erp-field,
+.erp-record-form .erp-switch-field {
+  min-width: 0;
+  max-width: 100%;
+}
+
+.erp-record-form .erp-field {
+  gap: 7px;
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.erp-record-form .erp-field > span:first-child {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  color: var(--ink);
+  font-weight: 690;
+}
+
+.erp-record-form .erp-field input,
+.erp-record-form .erp-field select,
+.erp-record-form .erp-field textarea {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  min-height: 46px;
+  border-color: var(--border-strong);
+  background: var(--surface);
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.erp-record-form .erp-field select {
+  overflow: hidden;
+  padding-right: 38px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.erp-record-form .erp-field textarea {
+  min-height: 112px;
+  padding-block: 11px;
+}
+
+.erp-record-form .erp-field small,
+.erp-record-form .erp-field em {
+  overflow-wrap: anywhere;
+  font-size: 10px;
+  line-height: 1.4;
+}
+
+.erp-record-form .erp-field em {
+  min-height: 14px;
+}
+
+.erp-record-form .erp-form-sections > .field-error {
+  min-height: 0;
+  margin: 0;
+  padding: 0 2px;
+  font-size: 12px;
+}
+
+.erp-record-form .modal-actions {
+  position: relative;
+  z-index: 2;
+  min-width: 0;
+  min-height: 72px;
+  padding: 12px var(--form-modal-record-gutter);
+  background: color-mix(in srgb, var(--surface) 96%, transparent);
+}
+
+.erp-record-form .modal-actions-leading {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.erp-record-form .modal-actions-trailing {
+  min-width: 0;
+}
+
+.erp-record-form .modal-actions-trailing .button {
+  min-height: 44px;
+}
+
+.erp-record-form .modal-actions-trailing .button-secondary {
+  min-width: 96px;
+}
+
+.erp-record-form .modal-actions-trailing .button-primary {
+  min-width: 148px;
+}
+
+/* Scroll-state shadows make the single internal scroll region obvious. */
+.erp-record-form[data-form-scroll-position="middle"] .modal-head,
+.erp-record-form[data-form-scroll-position="end"] .modal-head {
+  box-shadow: 0 9px 22px rgb(15 23 42 / .055);
+}
+
+.erp-record-form[data-form-scroll-position="start"] .modal-actions,
+.erp-record-form[data-form-scroll-position="middle"] .modal-actions {
+  box-shadow: 0 -9px 22px rgb(15 23 42 / .055);
+}
+
+html[data-theme="dark"] .erp-record-form .modal-body {
+  background: color-mix(in srgb, var(--canvas) 68%, var(--surface));
+}
+
+/* Tablet keeps two useful columns but uses nearly the full viewport. */
+@media (max-width: 1100px) and (min-height: 561px) {
+  dialog.modal[data-surface="form"]:has(.erp-record-form) {
+    width: calc(100vw - 28px);
+    height: calc(100dvh - 28px);
+    max-height: calc(100dvh - 28px);
+  }
+}
+
+/* Phones and short landscape screens use a true full-screen sheet. */
+html[data-formcraft-mobile-shell="true"] dialog.modal[data-surface="form"]:has(.erp-record-form) {
+  inset: 0;
+  width: 100vw;
+  max-width: 100vw;
+  height: 100dvh;
+  max-height: 100dvh;
+  margin: 0;
+  transform: none;
+  border: 0;
+  border-radius: 0;
+}
+
+html[data-formcraft-mobile-shell="true"] dialog.modal[data-surface="form"]:has(.erp-record-form) > [data-modal-content],
+html[data-formcraft-mobile-shell="true"] .form-modal.erp-record-form {
+  width: 100vw;
+  max-width: 100vw;
+  height: 100dvh;
+  max-height: 100dvh;
+}
+
+html[data-formcraft-mobile-shell="true"] .erp-record-form .modal-head {
+  gap: 14px;
+  padding: max(15px, env(safe-area-inset-top)) 16px 14px;
+}
+
+html[data-formcraft-mobile-shell="true"] .erp-record-form .modal-head h2 {
+  font-size: 21px;
+  line-height: 1.22;
+}
+
+html[data-formcraft-mobile-shell="true"] .erp-record-form .modal-head p:last-child {
+  display: -webkit-box;
+  overflow: hidden;
+  margin-top: 5px;
+  font-size: 11px;
+  line-height: 1.45;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+html[data-formcraft-mobile-shell="true"] .erp-record-form .modal-head .icon-button {
+  width: 44px;
+  height: 44px;
+}
+
+html[data-formcraft-mobile-shell="true"] .erp-record-form .modal-body {
+  padding: 18px 16px 26px;
+  background: var(--surface);
+  scrollbar-gutter: auto;
+}
+
+html[data-formcraft-mobile-shell="true"] .erp-record-form .erp-form-sections fieldset {
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+html[data-formcraft-mobile-shell="true"] .erp-record-form .erp-form-sections legend {
+  padding: 0;
+  font-size: 14px;
+}
+
+html[data-formcraft-mobile-shell="true"] .erp-record-form .erp-form-sections fieldset > p {
+  margin: 4px 0 18px;
+  font-size: 11px;
+}
+
+html[data-formcraft-mobile-shell="true"] .erp-record-form .erp-form-grid {
+  grid-template-columns: minmax(0, 1fr);
+  gap: 16px;
+}
+
+html[data-formcraft-mobile-shell="true"] .erp-record-form .erp-field.span-2,
+html[data-formcraft-mobile-shell="true"] .erp-record-form .erp-switch-field.span-2 {
+  grid-column: auto;
+}
+
+html[data-formcraft-mobile-shell="true"] .erp-record-form .erp-field input,
+html[data-formcraft-mobile-shell="true"] .erp-record-form .erp-field select,
+html[data-formcraft-mobile-shell="true"] .erp-record-form .erp-field textarea {
+  min-height: 48px;
+  font-size: 16px;
+}
+
+html[data-formcraft-mobile-shell="true"] .erp-record-form .erp-field textarea {
+  min-height: 104px;
+}
+
+html[data-formcraft-mobile-shell="true"] .erp-record-form .modal-actions {
+  display: grid;
+  min-height: 0;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 7px;
+  padding: 10px 16px max(10px, env(safe-area-inset-bottom));
+}
+
+html[data-formcraft-mobile-shell="true"] .erp-record-form .modal-actions-leading {
+  order: 2;
+  width: 100%;
+  font-size: 10px;
+  text-align: center;
+}
+
+html[data-formcraft-mobile-shell="true"] .erp-record-form .modal-actions-trailing {
+  display: grid;
+  width: 100%;
+  grid-template-columns: minmax(0, .82fr) minmax(0, 1.18fr);
+  gap: 8px;
+}
+
+html[data-formcraft-mobile-shell="true"] .erp-record-form .modal-actions-trailing .button {
+  width: 100%;
+  min-width: 0;
+  min-height: 48px;
+  padding-inline: 10px;
+  font-size: 13px;
+  line-height: 1.2;
+}
+
+@media (max-width: 390px) {
+  html[data-formcraft-mobile-shell="true"] .erp-record-form .modal-actions-leading {
+    display: none;
+  }
+}
+
+/* Short landscape phones have enough width for two columns but very little height. */
+@media (orientation: landscape) and (max-height: 560px) and (min-width: 640px) {
+  html[data-formcraft-mobile-shell="true"] .erp-record-form .modal-head {
+    padding-block: max(10px, env(safe-area-inset-top)) 10px;
+  }
+
+  html[data-formcraft-mobile-shell="true"] .erp-record-form .modal-eyebrow,
+  html[data-formcraft-mobile-shell="true"] .erp-record-form .modal-head p:last-child,
+  html[data-formcraft-mobile-shell="true"] .erp-record-form .modal-actions-leading {
+    display: none;
+  }
+
+  html[data-formcraft-mobile-shell="true"] .erp-record-form .modal-body {
+    padding-block: 14px 18px;
+  }
+
+  html[data-formcraft-mobile-shell="true"] .erp-record-form .erp-form-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px 16px;
+  }
+
+  html[data-formcraft-mobile-shell="true"] .erp-record-form .erp-field.span-2,
+  html[data-formcraft-mobile-shell="true"] .erp-record-form .erp-switch-field.span-2 {
+    grid-column: 1 / -1;
+  }
+
+  html[data-formcraft-mobile-shell="true"] .erp-record-form .modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    padding-block: 8px max(8px, env(safe-area-inset-bottom));
+  }
+
+  html[data-formcraft-mobile-shell="true"] .erp-record-form .modal-actions-trailing {
+    width: auto;
+    grid-template-columns: 112px minmax(158px, auto);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .erp-record-form .modal-head,
+  .erp-record-form .modal-actions {
+    transition: none;
+  }
+}

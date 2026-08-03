@@ -60,6 +60,25 @@ def open_inventory(page):
     page.wait_for_selector('[data-erp-open-record][data-erp-module="inventory"]')
 
 
+def click_modal_backdrop(page):
+    card = visible(page, 'dialog[open] .modal-card')
+    box = card.bounding_box()
+    assert box, 'The open dialog must expose a measurable modal card.'
+    viewport = page.viewport_size
+    candidates = [
+        (5, 5),
+        (viewport['width'] - 5, 5),
+        (5, viewport['height'] - 5),
+        (viewport['width'] - 5, viewport['height'] - 5),
+    ]
+    for x, y in candidates:
+        inside = box['x'] <= x <= box['x'] + box['width'] and box['y'] <= y <= box['y'] + box['height']
+        if not inside:
+            page.mouse.click(x, y)
+            return
+    raise AssertionError('The modal card unexpectedly covers every viewport corner.')
+
+
 def test_desktop(browser, base_url):
     page, errors = prepare_page(browser, 1440, 1000)
     page.goto(f'{base_url}/#dashboard', wait_until='domcontentloaded')
@@ -128,7 +147,7 @@ def test_desktop(browser, base_url):
     modal_draft_name = 'Recovered modal inventory item'
     modal_form.locator('input[name="name"]').fill(modal_draft_name)
     page.wait_for_timeout(120)
-    page.locator('dialog[open]').click(position={'x': 2, 'y': 2})
+    click_modal_backdrop(page)
     page.wait_for_function("!document.querySelector('dialog[open]')")
     assert page.locator('.workflow-confirm-dialog[open]').count() == 0
 
@@ -136,7 +155,7 @@ def test_desktop(browser, base_url):
     page.wait_for_selector('dialog[open] form[data-erp-module="inventory"]')
     page.wait_for_function("name => document.querySelector('dialog[open] form[data-erp-module=\"inventory\"] input[name=\"name\"]')?.value === name", arg=modal_draft_name)
     assert 'Recovered an unsaved draft' in visible(page, 'dialog[open] form[data-erp-module="inventory"]').inner_text()
-    page.evaluate("closeModal()")
+    page.keyboard.press('Escape')
     page.wait_for_function("!document.querySelector('dialog[open]')")
 
     audit = page.evaluate("FormcraftRecordWorkspace.audit()")
@@ -194,4 +213,4 @@ finally:
     server.shutdown()
     server.server_close()
 
-print('Record workspace E2E checks passed for the single sidebar control, full-page viewing and editing, route state, resumable page drafts, automatic modal draft recovery, desktop and mobile layouts.')
+print('Record workspace E2E checks passed for the single sidebar control, full-page viewing and editing, route state, resumable page drafts, backdrop and Escape modal closing, automatic modal draft recovery, desktop and mobile layouts.')

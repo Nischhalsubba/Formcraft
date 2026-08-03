@@ -23,7 +23,7 @@
 
   function replaceAppsGlyph(link) {
     const inRail = Boolean(link.closest('.fc3-app-rail'));
-    const host = link.querySelector(inRail ? '.fc3-rail-icon' : '.workspace-nav-icon');
+    const host = link.querySelector(inRail ? '.fc3-rail-icon' : '.fc4-nav-icon, .workspace-nav-icon');
     if (host && host.querySelector('svg')?.dataset.icon !== 'apps') host.innerHTML = icon('apps', inRail ? 20 : 17);
   }
 
@@ -81,9 +81,9 @@
   function normalizeAppsState() {
     const moduleActive = String(ui.route || '').startsWith('erp-');
     document.querySelectorAll('[data-erp-apps-nav]').forEach(link => {
-      const inRail = Boolean(link.closest('.fc3-app-rail'));
+      const inParentNavigation = Boolean(link.closest('.fc3-app-rail, .fc4-sidebar, .fc4-mobile-nav'));
       const actual = ui.route === 'apps';
-      const parent = inRail && moduleActive;
+      const parent = inParentNavigation && moduleActive;
       replaceAppsGlyph(link);
       link.classList.toggle('is-active', actual);
       link.classList.toggle('is-parent-active', parent && !actual);

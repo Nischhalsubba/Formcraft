@@ -1,7 +1,7 @@
 'use strict';
 
 (() => {
-  const VERSION = 'FORMCRAFT-RECORD-WORKSPACE-FIXES-1.5';
+  const VERSION = 'FORMCRAFT-RECORD-WORKSPACE-FIXES-1.6';
   const ERP = window.FormcraftERP;
   const workspace = window.FormcraftRecordWorkspace;
   const sharedModal = document.querySelector('[data-modal]');
@@ -15,6 +15,43 @@
     const record = module ? ERP.collection(module).find(item => item.id === root.dataset.recordId) : null;
     const form = root.querySelector('[data-rw-form]');
     return module && record ? { root, module, record, form } : null;
+  }
+
+  function ensureSidebarStyles() {
+    if (document.querySelector('[data-rw-sidebar-compat-style]')) return;
+    const style = document.createElement('style');
+    style.dataset.rwSidebarCompatStyle = VERSION;
+    style.textContent = `
+      @media (min-width: 1181px), (max-width: 768px) {
+        .fc3-desktop-sidebar-toggle { display: none !important; }
+      }
+      @media (min-width: 769px) and (max-width: 1180px) {
+        .fc3-desktop-sidebar-toggle { display: inline-flex !important; }
+      }
+    `;
+    document.head.append(style);
+  }
+
+  function syncSidebarControl() {
+    ensureSidebarStyles();
+    const tablet = matchMedia('(min-width: 769px) and (max-width: 1180px)').matches;
+    document.querySelectorAll('.fc3-desktop-sidebar-toggle').forEach(button => {
+      button.hidden = !tablet;
+      if (tablet) {
+        button.removeAttribute('aria-hidden');
+        button.tabIndex = 0;
+      } else {
+        button.setAttribute('aria-hidden', 'true');
+        button.tabIndex = -1;
+      }
+    });
+  }
+
+  function scheduleShellCompatibility() {
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+      decorateRecordPage();
+      syncSidebarControl();
+    }));
   }
 
   function decorateRecordPage() {
@@ -216,14 +253,16 @@
   document.addEventListener('change', updateDraftIndicator, true);
 
   if (appRoot) {
-    new MutationObserver(() => requestAnimationFrame(decorateRecordPage)).observe(appRoot, { childList: true, subtree: true });
+    new MutationObserver(scheduleShellCompatibility).observe(appRoot, { childList: true, subtree: true });
   }
-  requestAnimationFrame(decorateRecordPage);
+  window.addEventListener('resize', scheduleShellCompatibility);
+  scheduleShellCompatibility();
 
   window.FormcraftRecordWorkspaceFixes = Object.freeze({
     version: VERSION,
     context,
     decorateRecordPage,
+    syncSidebarControl,
     showDraftState,
     validate,
     publish,

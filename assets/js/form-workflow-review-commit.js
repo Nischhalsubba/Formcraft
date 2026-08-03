@@ -1,12 +1,15 @@
 'use strict';
 
 (() => {
-  const VERSION = 'FORMCRAFT-FORM-REVIEW-COMMIT-1.3';
+  const VERSION = 'FORMCRAFT-FORM-REVIEW-COMMIT-1.4';
 
   function normalizeReviewAction(root = document) {
     const review = root.querySelector?.('[data-form-review]');
     const button = review?.closest('form[data-erp-form]')?.querySelector('button[type="submit"]');
-    if (button) button.style.textTransform = 'none';
+    if (button) {
+      button.textContent = 'Confirm and save';
+      button.style.setProperty('text-transform', 'none', 'important');
+    }
   }
 
   /*
@@ -37,7 +40,7 @@
   }, true);
 
   const modal = document.querySelector('[data-modal]');
-  if (modal) new MutationObserver(() => normalizeReviewAction(modal)).observe(modal, { childList: true, subtree: true });
+  if (modal) new MutationObserver(() => normalizeReviewAction(modal)).observe(modal, { childList: true, subtree: true, characterData: true });
 
   window.FormcraftFormReviewCommit = Object.freeze({ version: VERSION, normalizeReviewAction });
 })();

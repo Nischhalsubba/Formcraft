@@ -7,10 +7,15 @@ on:
       - 'assets/css/erp-suite.css'
       - 'assets/js/workspace-architecture-v3*.js'
       - 'assets/css/workspace-architecture-v3*.css'
+      - 'assets/js/premium-*.js'
+      - 'assets/css/premium-*.css'
       - 'tests/erp-suite-*.py'
       - 'tests/erp-suite-*.mjs'
       - 'tests/workspace-architecture-v3-*.py'
       - 'tests/workspace-architecture-v3-*.mjs'
+      - 'tests/premium-*.py'
+      - 'tests/premium-*.mjs'
+      - 'docs/PREMIUM_UI_E2E_AUDIT.md'
       - 'index.html'
       - 'package.json'
       - '.github/workflows/erp-suite-browser-validation.yml'
@@ -18,15 +23,21 @@ on:
     branches:
       - main
       - agent/nepal-erp-suite
+      - agent/premium-iconography-e2e
     paths:
       - 'assets/js/erp-suite-*.js'
       - 'assets/css/erp-suite.css'
       - 'assets/js/workspace-architecture-v3*.js'
       - 'assets/css/workspace-architecture-v3*.css'
+      - 'assets/js/premium-*.js'
+      - 'assets/css/premium-*.css'
       - 'tests/erp-suite-*.py'
       - 'tests/erp-suite-*.mjs'
       - 'tests/workspace-architecture-v3-*.py'
       - 'tests/workspace-architecture-v3-*.mjs'
+      - 'tests/premium-*.py'
+      - 'tests/premium-*.mjs'
+      - 'docs/PREMIUM_UI_E2E_AUDIT.md'
       - 'index.html'
       - 'package.json'
       - '.github/workflows/erp-suite-browser-validation.yml'
@@ -70,3 +81,6 @@ jobs:
 
       - name: Run workspace architecture browser regression
         run: python tests/workspace-architecture-v3-browser-smoke.py
+
+      - name: Run premium interface browser regression
+        run: python tests/premium-interface-browser-smoke.py

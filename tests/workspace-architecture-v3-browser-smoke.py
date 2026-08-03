@@ -58,7 +58,10 @@ def run_desktop(browser, base_url):
     assert visible(page, '.fc3-context-sidebar').is_visible()
     assert visible(page, '.fc3-topbar').is_visible()
     assert not page.locator('.fc3-mobile-bottom-nav').is_visible()
-    assert visible(page, '.workspace-sidebar [data-erp-apps-nav]').is_visible()
+    launcher_link = visible(page, '.fc3-context-nav > [data-erp-apps-nav]')
+    assert launcher_link.is_visible()
+    assert 'App launcher' in launcher_link.inner_text()
+    assert visible(page, '.fc3-context-sidebar [data-erp-launcher-group="all"]').is_visible()
     assert visible(page, '.erp-launcher').is_visible()
     assert_no_overflow(page)
 
@@ -155,4 +158,4 @@ finally:
     server.shutdown()
     server.server_close()
 
-print('Workspace architecture v3 browser checks passed for desktop rail, contextual navigation, module flow, search, collapse, tablet overlay, mobile drawer, and bottom navigation.')
+print('Workspace architecture v3 browser checks passed for desktop rail, contextual navigation, distinct launcher/filter controls, module flow, search, collapse, tablet overlay, mobile drawer, and bottom navigation.')

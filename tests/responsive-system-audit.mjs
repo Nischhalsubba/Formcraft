@@ -2,9 +2,10 @@ import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 
 const root = new URL('../', import.meta.url);
-const [html, css, runtime, dashboard, pkgText, workflow, docs] = await Promise.all([
+const [html, css, landscapeCss, runtime, dashboard, pkgText, workflow, docs] = await Promise.all([
   readFile(new URL('index.html', root), 'utf8'),
   readFile(new URL('assets/css/responsive-system-v2.css', root), 'utf8'),
+  readFile(new URL('assets/css/responsive-system-v2-landscape.css', root), 'utf8'),
   readFile(new URL('assets/js/responsive-system-v2.js', root), 'utf8'),
   readFile(new URL('assets/js/formcraft-bright-dashboard.js', root), 'utf8'),
   readFile(new URL('package.json', root), 'utf8'),
@@ -14,12 +15,17 @@ const [html, css, runtime, dashboard, pkgText, workflow, docs] = await Promise.a
 
 for (const asset of [
   'assets/css/responsive-system-v2.css',
+  'assets/css/responsive-system-v2-landscape.css',
   'assets/js/responsive-system-v2.js'
 ]) assert.ok(html.includes(asset), `Missing responsive system asset: ${asset}`);
 
 assert.ok(
   html.indexOf('assets/css/responsive-system-v2.css') > html.indexOf('assets/css/premium-interface-geometry.css'),
   'Responsive CSS must load after all architecture and premium geometry layers.'
+);
+assert.ok(
+  html.indexOf('assets/css/responsive-system-v2-landscape.css') > html.indexOf('assets/css/responsive-system-v2.css'),
+  'Short landscape extension must load after the primary responsive system.'
 );
 assert.ok(
   html.indexOf('assets/js/responsive-system-v2.js') > html.indexOf('assets/js/premium-interface-runtime.js'),
@@ -48,7 +54,17 @@ for (const contract of [
 ]) assert.ok(css.includes(contract), `Missing responsive CSS contract: ${contract}`);
 
 for (const contract of [
+  '@media (max-height: 560px) and (orientation: landscape) and (max-width: 1000px)',
+  '.fc3-mobile-bottom-nav',
+  '.fc3-mobile-drawer.mobile-drawer',
+  'dialog.modal[data-surface="record"]',
+  '.product-project-mobile'
+]) assert.ok(landscapeCss.includes(contract), `Missing landscape responsive contract: ${contract}`);
+
+for (const contract of [
   "const VERSION = 'FORMCRAFT-RESPONSIVE-2.0'",
+  'const isShortLandscape',
+  'const usesMobileShell',
   'function updateViewportState',
   'function decorateResponsiveTables',
   'function syncBottomInset',
@@ -81,7 +97,8 @@ assert.ok(pkg.scripts['test:responsive'].includes('responsive-system-v2.js'), 'R
 assert.ok(pkg.scripts['test:responsive'].includes('responsive-system-audit.mjs'), 'Responsive audit syntax must be checked.');
 assert.ok(workflow.includes('tests/responsive-system-browser-smoke.py'), 'Responsive browser regression must run in CI.');
 assert.ok(workflow.includes('assets/css/responsive-system-v2.css'), 'Responsive CSS must trigger CI.');
+assert.ok(workflow.includes('assets/css/responsive-system-v2-landscape.css'), 'Landscape responsive CSS must trigger CI.');
 assert.ok(workflow.includes('assets/js/responsive-system-v2.js'), 'Responsive runtime must trigger CI.');
 
-assert.ok(!`${css}${runtime}`.includes('odoo.com'), 'Responsive runtime must not embed Odoo assets or source code.');
+assert.ok(!`${css}${landscapeCss}${runtime}`.includes('odoo.com'), 'Responsive runtime must not embed Odoo assets or source code.');
 console.log('Responsive system contracts passed for dashboard, tables, boards, records, forms, calendar, invoices, mobile, tablet, landscape, and desktop layouts.');

@@ -190,6 +190,9 @@ def create_sales_order_through_ui(page):
     assert audit['status'] == 'ready-to-test', audit
     fill_required_controls(page, 'sales')
     visible(page, 'dialog[open] button[type="submit"]').click()
+    if page.locator('dialog[open] [data-form-review]').count():
+        page.wait_for_selector('dialog[open] [data-form-review]')
+        visible(page, 'dialog[open] button[type="submit"]').click()
     page.wait_for_selector('[data-erp-record-page="sales"]', timeout=7000)
     assert page.evaluate("FormcraftERP.collection('sales').length > 0")
     assert visible(page, '[data-erp-record-page="sales"]').is_visible()

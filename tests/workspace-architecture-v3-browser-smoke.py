@@ -37,11 +37,12 @@ def prepare_page(browser, width=1440, height=1000):
 def wait_ready(page, errors):
     page.wait_for_function("document.documentElement.dataset.backend === 'ready'", timeout=15000)
     page.wait_for_function(
-        "Boolean(window.FormcraftERP && window.FormcraftERPUI && window.FormcraftWorkspaceArchitecture)",
+        "Boolean(window.FormcraftERP && window.FormcraftERPUI && window.FormcraftWorkspaceArchitecture && window.FormcraftSimpleShell)",
         timeout=10000,
     )
     page.wait_for_selector('[data-workspace-architecture="WORKSPACE-ARCH-3.0"]', timeout=8000)
-    page.wait_for_timeout(150)
+    page.wait_for_function("document.documentElement.dataset.workspaceShell === 'FORMCRAFT-SIMPLE-SHELL-4.0'")
+    page.wait_for_timeout(180)
     assert not errors, errors
 
 
@@ -49,41 +50,34 @@ def assert_no_overflow(page):
     assert page.evaluate('document.documentElement.scrollWidth <= window.innerWidth + 2')
 
 
+def stable_labels(page, selector='.fc4-sidebar'):
+    return page.locator(f'{selector} .fc4-nav-label').all_text_contents()
+
+
 def run_desktop(browser, base_url):
     page, errors = prepare_page(browser)
     page.goto(f'{base_url}/#apps', wait_until='domcontentloaded')
     wait_ready(page, errors)
 
-    assert visible(page, '.fc3-app-rail').is_visible()
-    assert visible(page, '.fc3-context-sidebar').is_visible()
+    assert page.locator('.fc3-app-rail').is_hidden()
+    assert visible(page, '.fc4-sidebar').is_visible()
     assert visible(page, '.fc3-topbar').is_visible()
     assert not page.locator('.fc3-mobile-bottom-nav').is_visible()
-    launcher_link = visible(page, '.fc3-context-nav > [data-erp-apps-nav]')
-    assert launcher_link.is_visible()
-    assert 'App launcher' in launcher_link.inner_text()
-    assert visible(page, '.fc3-context-sidebar [data-erp-launcher-group="all"]').is_visible()
+    labels = stable_labels(page)
+    assert labels[:2] == ['Home', 'All apps'], labels
+    assert 'Projects' in labels and 'CRM' in labels and 'Inventory' in labels and 'Settings' in labels
+    assert visible(page, '.fc4-sidebar [data-nav-key="apps"]').get_attribute('aria-current') == 'page'
     assert visible(page, '.erp-launcher').is_visible()
     assert_no_overflow(page)
 
-    sidebar_toggle = visible(page, '.fc3-context-sidebar [data-fc3-toggle-sidebar]')
-    sidebar_toggle.click()
-    page.wait_for_function("document.body.classList.contains('fc3-sidebar-collapsed')")
-    page.wait_for_selector('.fc3-context-sidebar', state='hidden')
-    assert not page.locator('.fc3-context-sidebar').is_visible()
-    assert visible(page, '.fc3-topbar [data-fc3-toggle-sidebar]').is_visible()
-    visible(page, '.fc3-topbar [data-fc3-toggle-sidebar]').click()
-    page.wait_for_function("!document.body.classList.contains('fc3-sidebar-collapsed')")
-    page.wait_for_selector('.fc3-context-sidebar', state='visible')
-    assert visible(page, '.fc3-context-sidebar').is_visible()
-
     page.evaluate("FormcraftERPUI.goToApp(FormcraftERP.appByKey('crm'))")
     page.wait_for_selector('[data-erp-module-page="crm"]')
-    assert 'CRM' in visible(page, '.fc3-current-app').inner_text()
-    assert 'Sales' in visible(page, '.fc3-context-sidebar').inner_text()
-    assert visible(page, '.fc3-context-sidebar [data-erp-open-app="crm"]').get_attribute('aria-current') == 'page'
-    assert page.locator('.erp-module-intro').evaluate('element => getComputedStyle(element).display') == 'none'
-    assert visible(page, '.fc3-page-header').is_visible()
+    page.wait_for_timeout(140)
+    assert stable_labels(page) == labels
+    assert visible(page, '.fc4-sidebar [data-nav-key="crm"]').get_attribute('aria-current') == 'page'
+    assert visible(page, '.fc4-sidebar [data-nav-key="apps"]').get_attribute('data-nav-state') == 'parent'
     assert visible(page, '[data-erp-new-record="crm"]').is_visible()
+    assert not page.locator('.fc3-page-header').is_visible()
     assert_no_overflow(page)
 
     visible(page, '[data-search-focus]').click()
@@ -99,16 +93,15 @@ def run_tablet(browser, base_url):
     page.goto(f'{base_url}/#apps', wait_until='domcontentloaded')
     wait_ready(page, errors)
 
-    assert visible(page, '.fc3-app-rail').is_visible()
-    assert not page.locator('.fc3-context-sidebar').is_visible()
+    assert page.locator('.fc3-app-rail').is_hidden()
+    sidebar = page.locator('.fc4-sidebar')
+    assert sidebar.evaluate("node => getComputedStyle(node).transform !== 'none'")
     visible(page, '.fc3-topbar [data-fc3-toggle-sidebar]').click()
     page.wait_for_function("document.body.classList.contains('fc3-context-open')")
-    page.wait_for_selector('.fc3-context-sidebar', state='visible')
-    assert visible(page, '.fc3-context-sidebar').is_visible()
+    page.wait_for_function("Math.abs(document.querySelector('.fc4-sidebar').getBoundingClientRect().left) < 2")
+    assert stable_labels(page)[:2] == ['Home', 'All apps']
     page.keyboard.press('Escape')
     page.wait_for_function("!document.body.classList.contains('fc3-context-open')")
-    page.wait_for_selector('.fc3-context-sidebar', state='hidden')
-    assert not page.locator('.fc3-context-sidebar').is_visible()
     assert_no_overflow(page)
     assert not errors, errors
     page.close()
@@ -119,8 +112,8 @@ def run_mobile(browser, base_url):
     page.goto(f'{base_url}/#apps', wait_until='domcontentloaded')
     wait_ready(page, errors)
 
-    assert not page.locator('.fc3-app-rail').is_visible()
-    assert not page.locator('.fc3-context-sidebar').is_visible()
+    assert page.locator('.fc3-app-rail').is_hidden()
+    assert page.locator('.fc4-sidebar').is_hidden()
     assert visible(page, '.fc3-mobile-bottom-nav').is_visible()
     assert visible(page, '[data-bright-more]').is_visible()
     assert_no_overflow(page)
@@ -128,12 +121,11 @@ def run_mobile(browser, base_url):
     visible(page, '[data-bright-more]').click()
     page.wait_for_function("document.body.classList.contains('drawer-open')")
     assert visible(page, '.fc3-mobile-drawer').is_visible()
-    assert visible(page, '.fc3-mobile-drawer [data-erp-apps-nav]').is_visible()
-    visible(page, '.fc3-mobile-drawer [data-erp-launcher-group="sales"]').click()
-    page.wait_for_function("!document.body.classList.contains('drawer-open')")
-    page.wait_for_selector('[data-erp-open-app="crm"]')
-    visible(page, '[data-erp-open-app="crm"]').click()
+    mobile_labels = stable_labels(page, '.fc4-mobile-nav')
+    assert mobile_labels[:2] == ['Home', 'All apps'], mobile_labels
+    visible(page, '.fc4-mobile-nav [data-nav-key="crm"]').click()
     page.wait_for_selector('[data-erp-module-page="crm"]')
+    page.wait_for_function("!document.body.classList.contains('drawer-open')")
     assert visible(page, '.fc3-mobile-bottom-nav').is_visible()
     assert visible(page, '[data-erp-new-record="crm"]').is_visible()
     assert_no_overflow(page)
@@ -158,4 +150,4 @@ finally:
     server.shutdown()
     server.server_close()
 
-print('Workspace architecture v3 browser checks passed for desktop rail, contextual navigation, distinct launcher/filter controls, module flow, search, collapse, tablet overlay, mobile drawer, and bottom navigation.')
+print('Workspace architecture browser checks passed for a stable desktop sidebar, tablet overlay, mobile drawer, launcher, module flow, search, and responsive navigation.')

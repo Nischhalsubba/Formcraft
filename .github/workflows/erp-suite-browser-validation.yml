@@ -11,6 +11,10 @@ on:
       - 'assets/css/premium-*.css'
       - 'assets/js/responsive-system-v2.js'
       - 'assets/css/responsive-system-v2*.css'
+      - 'assets/js/simplified-workspace-*.js'
+      - 'assets/css/simplified-workspace-v4.css'
+      - 'assets/js/ui-theme-studio.js'
+      - 'assets/css/ui-theme-studio.css'
       - 'assets/js/formcraft-bright-dashboard.js'
       - 'tests/erp-suite-*.py'
       - 'tests/erp-suite-*.mjs'
@@ -20,8 +24,11 @@ on:
       - 'tests/premium-*.mjs'
       - 'tests/responsive-system-*.py'
       - 'tests/responsive-system-*.mjs'
+      - 'tests/simplified-workspace-*.py'
+      - 'tests/simplified-workspace-*.mjs'
       - 'docs/PREMIUM_UI_E2E_AUDIT.md'
       - 'docs/RESPONSIVE_SYSTEM_AUDIT.md'
+      - 'README.md'
       - 'index.html'
       - 'package.json'
       - '.github/workflows/erp-suite-browser-validation.yml'
@@ -31,6 +38,7 @@ on:
       - agent/nepal-erp-suite
       - agent/premium-iconography-e2e
       - agent/responsive-system-audit
+      - agent/simplified-shell-theme-studio
     paths:
       - 'assets/js/erp-suite-*.js'
       - 'assets/css/erp-suite.css'
@@ -40,6 +48,10 @@ on:
       - 'assets/css/premium-*.css'
       - 'assets/js/responsive-system-v2.js'
       - 'assets/css/responsive-system-v2*.css'
+      - 'assets/js/simplified-workspace-*.js'
+      - 'assets/css/simplified-workspace-v4.css'
+      - 'assets/js/ui-theme-studio.js'
+      - 'assets/css/ui-theme-studio.css'
       - 'assets/js/formcraft-bright-dashboard.js'
       - 'tests/erp-suite-*.py'
       - 'tests/erp-suite-*.mjs'
@@ -49,8 +61,11 @@ on:
       - 'tests/premium-*.mjs'
       - 'tests/responsive-system-*.py'
       - 'tests/responsive-system-*.mjs'
+      - 'tests/simplified-workspace-*.py'
+      - 'tests/simplified-workspace-*.mjs'
       - 'docs/PREMIUM_UI_E2E_AUDIT.md'
       - 'docs/RESPONSIVE_SYSTEM_AUDIT.md'
+      - 'README.md'
       - 'index.html'
       - 'package.json'
       - '.github/workflows/erp-suite-browser-validation.yml'
@@ -62,7 +77,7 @@ concurrency:
 jobs:
   browser-validation:
     runs-on: ubuntu-24.04
-    timeout-minutes: 20
+    timeout-minutes: 24
     env:
       SUPABASE_URL: https://formcraft-test.supabase.co
       SUPABASE_PUBLISHABLE_KEY: sb_publishable_formcraft_browser_test_key_1234567890
@@ -100,3 +115,6 @@ jobs:
 
       - name: Run responsive system browser regression
         run: python tests/responsive-system-browser-smoke.py
+
+      - name: Run simplified workspace browser regression
+        run: python tests/simplified-workspace-browser-smoke.py

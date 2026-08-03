@@ -1,0 +1,469 @@
+/* Formcraft UI theme studio
+   Shared design tokens are applied to existing components instead of creating
+   a second, parallel component library. */
+
+:root {
+  --font-display: "Manrope", ui-sans-serif, system-ui, sans-serif;
+  --ui-font-size: 14px;
+  --ui-font-scale: 1;
+  --ui-line-height: 1.5;
+  --ui-spacing-scale: 1;
+  --ui-section-gap: 22px;
+  --ui-card-padding: 18px;
+  --ui-control-height: 42px;
+  --ui-sidebar-width: 252px;
+  --ui-content-max: 1480px;
+  --ui-radius: 12px;
+  --ui-icon-size: 18px;
+  --ui-shadow: 0 1px 2px rgb(16 24 40 / .04), 0 8px 24px rgb(16 24 40 / .045);
+}
+
+body {
+  font-family: var(--font);
+  font-size: var(--ui-font-size);
+  line-height: var(--ui-line-height);
+}
+
+:is(h1, h2, h3, h4, .metric-value, .product-summary-item strong, .erp-summary-grid strong, .ops-summary-strip strong) {
+  font-family: var(--font-display);
+}
+
+.page-stack,
+.product-dashboard,
+.erp-launcher,
+.erp-module-page,
+.erp-record-content,
+.ops-record-content,
+.settings-layout > div:last-child {
+  gap: var(--ui-section-gap);
+}
+
+:is(.product-panel, .panel, .settings-panel, .erp-card, .ops-card, .ops-work-section, .ops-portfolio-report) {
+  padding: var(--ui-card-padding);
+}
+
+:is(.button, .select-control, .search-control, .field input, .field select, .field textarea, .erp-field input, .erp-field select, .erp-field textarea, .backend-field input, .backend-field textarea) {
+  min-height: var(--ui-control-height);
+  border-radius: calc(var(--ui-radius) * .72);
+}
+
+:is(.button, .filter-chip, .theme-option, .action-button, .icon-button, .command-button, .erp-view-switch button, .ops-view-switch button) {
+  border-radius: calc(var(--ui-radius) * .72);
+}
+
+:is(.product-panel, .panel, .settings-panel, .erp-card, .project-card, .task-card, .erp-app-card, .ops-card, .command-button, .modal-card, .form-modal) {
+  box-shadow: var(--ui-shadow);
+}
+
+html[data-ui-density="compact"] {
+  --ui-card-padding: max(10px, calc(16px * var(--ui-spacing-scale)));
+  --ui-section-gap: max(12px, calc(18px * var(--ui-spacing-scale)));
+}
+
+html[data-ui-density="spacious"] {
+  --ui-card-padding: max(20px, calc(22px * var(--ui-spacing-scale)));
+  --ui-section-gap: max(26px, calc(28px * var(--ui-spacing-scale)));
+}
+
+html[data-ui-motion="reduced"] *,
+body.ui-motion-reduced * {
+  scroll-behavior: auto !important;
+  animation-duration: .01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: .01ms !important;
+}
+
+.ui-settings-layout {
+  grid-template-columns: 210px minmax(0, 1fr);
+  align-items: start;
+  gap: 24px;
+}
+
+.ui-studio-panel,
+.ui-navigation-panel {
+  overflow: hidden;
+}
+
+.ui-studio-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.ui-admin-notice {
+  margin-bottom: 16px;
+  padding: 11px 13px;
+  border: 1px solid color-mix(in srgb, var(--warning) 35%, var(--border));
+  border-radius: calc(var(--ui-radius) * .72);
+  background: color-mix(in srgb, var(--warning) 8%, var(--surface));
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.ui-preset-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 18px 0;
+  padding-bottom: 18px;
+  border-bottom: 1px solid var(--border);
+}
+
+.ui-studio-section {
+  display: grid;
+  gap: 14px;
+  padding: 20px 0;
+  border-top: 1px solid var(--border);
+}
+
+.ui-studio-section:first-of-type {
+  border-top: 0;
+}
+
+.ui-studio-section-heading {
+  display: grid;
+  gap: 3px;
+}
+
+.ui-studio-section-heading h3 {
+  margin: 0;
+  color: var(--ink);
+  font-size: 15px;
+}
+
+.ui-studio-section-heading p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 11.5px;
+}
+
+.ui-token-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.ui-token-grid-colors {
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+}
+
+.ui-token-field {
+  display: grid;
+  min-width: 0;
+  align-content: start;
+  gap: 7px;
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 650;
+}
+
+.ui-token-field > span:first-child {
+  color: var(--ink);
+}
+
+.ui-token-field select {
+  width: 100%;
+  min-height: var(--ui-control-height);
+  padding: 0 34px 0 11px;
+  border: 1px solid var(--border);
+  border-radius: calc(var(--ui-radius) * .72);
+  background: var(--surface);
+  color: var(--ink);
+}
+
+.ui-color-control {
+  display: grid;
+  min-width: 0;
+  grid-template-columns: 46px minmax(0, 1fr);
+  align-items: center;
+  gap: 8px;
+  min-height: var(--ui-control-height);
+  padding: 5px 9px 5px 5px;
+  border: 1px solid var(--border);
+  border-radius: calc(var(--ui-radius) * .72);
+  background: var(--surface);
+}
+
+.ui-color-control input[type="color"] {
+  width: 38px;
+  height: 32px;
+  padding: 0;
+  overflow: hidden;
+  border: 0;
+  border-radius: calc(var(--ui-radius) * .55);
+  background: transparent;
+  cursor: pointer;
+}
+
+.ui-color-control input[type="color"]::-webkit-color-swatch-wrapper { padding: 0; }
+.ui-color-control input[type="color"]::-webkit-color-swatch { border: 1px solid var(--border); border-radius: calc(var(--ui-radius) * .55); }
+.ui-color-control output {
+  overflow: hidden;
+  color: var(--muted);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 10px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ui-range-control {
+  display: grid;
+  min-width: 0;
+  grid-template-columns: minmax(0, 1fr) 52px;
+  align-items: center;
+  gap: 8px;
+  min-height: var(--ui-control-height);
+  padding: 0 10px;
+  border: 1px solid var(--border);
+  border-radius: calc(var(--ui-radius) * .72);
+  background: var(--surface);
+}
+
+.ui-range-control input[type="range"] {
+  width: 100%;
+  min-width: 0;
+  accent-color: var(--primary);
+}
+
+.ui-range-control output {
+  color: var(--muted);
+  font-size: 10px;
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+
+.ui-studio-preview {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: start;
+  gap: 14px 20px;
+  margin-top: 16px;
+  padding: var(--ui-card-padding);
+  border: 1px solid var(--border);
+  border-radius: var(--ui-radius);
+  background: var(--surface-soft);
+}
+
+.ui-studio-preview h3,
+.ui-studio-preview p {
+  margin: 0;
+}
+
+.ui-studio-preview h3 {
+  font-size: 18px;
+}
+
+.ui-studio-preview p:last-child {
+  margin-top: 4px;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.ui-studio-preview .field {
+  grid-column: 1 / -1;
+}
+
+.ui-preview-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.ui-studio-actions {
+  position: sticky;
+  z-index: 4;
+  bottom: 0;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px;
+  margin: 20px calc(-1 * var(--ui-card-padding)) calc(-1 * var(--ui-card-padding));
+  padding: 14px var(--ui-card-padding);
+  border-top: 1px solid var(--border);
+  background: color-mix(in srgb, var(--surface) 94%, transparent);
+  backdrop-filter: blur(14px);
+}
+
+.ui-import-button {
+  position: relative;
+  overflow: hidden;
+  cursor: pointer;
+}
+
+.ui-import-button input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.ui-import-button.is-disabled {
+  opacity: .5;
+  pointer-events: none;
+}
+
+.ui-navigation-options {
+  margin: 18px 0;
+}
+
+.ui-navigation-groups {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.ui-navigation-groups fieldset {
+  min-width: 0;
+  margin: 0;
+  padding: 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--ui-radius);
+  background: var(--surface-soft);
+}
+
+.ui-navigation-groups legend {
+  padding: 0 5px;
+  color: var(--muted-2);
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+
+.ui-navigation-groups fieldset > div {
+  display: grid;
+  gap: 5px;
+}
+
+.ui-nav-choice {
+  display: grid;
+  min-width: 0;
+  grid-template-columns: 20px 32px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 8px;
+  min-height: 48px;
+  padding: 6px 8px;
+  border-radius: calc(var(--ui-radius) * .72);
+  cursor: pointer;
+}
+
+.ui-nav-choice:hover {
+  background: var(--surface);
+}
+
+.ui-nav-choice input {
+  accent-color: var(--primary);
+}
+
+.ui-nav-choice-icon {
+  display: inline-grid;
+  width: 32px;
+  height: 32px;
+  place-items: center;
+  border-radius: calc(var(--ui-radius) * .62);
+  background: var(--surface);
+  color: var(--primary);
+}
+
+.ui-nav-choice > span:nth-of-type(2) {
+  display: grid;
+  min-width: 0;
+  line-height: 1.2;
+}
+
+.ui-nav-choice strong,
+.ui-nav-choice small {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ui-nav-choice strong {
+  color: var(--ink);
+  font-size: 12px;
+}
+
+.ui-nav-choice small {
+  margin-top: 3px;
+  color: var(--muted);
+  font-size: 9.5px;
+}
+
+.ui-nav-choice em {
+  color: var(--muted-2);
+  font-size: 9px;
+  font-style: normal;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+@media (max-width: 1180px) {
+  .ui-token-grid,
+  .ui-token-grid-colors {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 900px) {
+  .ui-settings-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .ui-settings-layout .settings-nav {
+    position: static;
+    display: flex;
+    overflow-x: auto;
+    padding-bottom: 4px;
+  }
+
+  .ui-settings-layout .settings-nav button {
+    flex: 0 0 auto;
+    white-space: nowrap;
+  }
+}
+
+@media (max-width: 680px) {
+  .ui-token-grid,
+  .ui-token-grid-colors,
+  .ui-navigation-groups {
+    grid-template-columns: 1fr;
+  }
+
+  .ui-studio-heading,
+  .ui-studio-preview {
+    grid-template-columns: 1fr;
+  }
+
+  .ui-preview-actions {
+    justify-content: flex-start;
+  }
+
+  .ui-studio-actions {
+    position: static;
+    margin-inline: calc(-1 * var(--ui-card-padding));
+  }
+
+  .ui-studio-actions .button,
+  .ui-studio-actions .ui-import-button {
+    flex: 1 1 calc(50% - 8px);
+    justify-content: center;
+  }
+}
+
+@media (max-width: 380px) {
+  .ui-studio-actions .button,
+  .ui-studio-actions .ui-import-button {
+    flex-basis: 100%;
+  }
+
+  .ui-nav-choice {
+    grid-template-columns: 20px 32px minmax(0, 1fr);
+  }
+
+  .ui-nav-choice em {
+    grid-column: 3;
+  }
+}

@@ -130,11 +130,23 @@
     return false;
   }
 
+  function isInsideClosedOverlayNavigation(element) {
+    const drawer = element.closest('.fc3-mobile-drawer');
+    if (drawer && !document.body.classList.contains('drawer-open')) return true;
+
+    const sidebar = element.closest('.fc4-sidebar, .fc3-context-sidebar');
+    if (!sidebar) return false;
+    const rect = sidebar.getBoundingClientRect();
+    const offscreen = rect.right <= 2 || rect.left >= (window.visualViewport?.width || window.innerWidth) - 2;
+    const open = document.body.classList.contains('fc3-context-open') || document.body.classList.contains('drawer-open');
+    return offscreen && !open;
+  }
+
   function clippedInteractiveElements() {
     const width = window.visualViewport?.width || window.innerWidth;
     const candidates = [...document.querySelectorAll('button, a[href], input, select, textarea, [tabindex="0"]')];
     return candidates.filter(element => {
-      if (!isVisible(element) || element.closest('.fc3-mobile-drawer') && !document.body.classList.contains('drawer-open')) return false;
+      if (!isVisible(element) || isInsideClosedOverlayNavigation(element)) return false;
       if (isInsideHorizontalScroller(element)) return false;
       const rect = element.getBoundingClientRect();
       return rect.left < -2 || rect.right > width + 2;
@@ -153,14 +165,26 @@
       .map(cell => cell.parentElement?.rowIndex ?? -1);
   }
 
+  function hasVisiblePageIdentity() {
+    const pageHeader = document.querySelector('.fc3-page-header');
+    if (pageHeader && isVisible(pageHeader) && pageHeader.querySelector('h1')?.textContent?.trim()) return true;
+
+    const intentionallyHeaderless = document.body.classList.contains('fc4-module-route')
+      || document.body.classList.contains('fc4-launcher-route')
+      || document.body.classList.contains('ops-record-open');
+    if (!intentionallyHeaderless) return !pageHeader;
+
+    const localSurface = document.querySelector('.erp-module-page, .erp-launcher, [data-record-page]');
+    return Boolean(localSurface && isVisible(localSurface) && localSurface.textContent?.trim());
+  }
+
   function audit() {
     decorate();
     const viewport = updateViewportState();
     const rootOverflow = Math.max(document.documentElement.scrollWidth, document.body.scrollWidth) - viewport.width;
     const clipped = clippedInteractiveElements();
     const missingLabels = missingTableLabels();
-    const pageHeader = document.querySelector('.fc3-page-header');
-    const headerVisible = !pageHeader || isVisible(pageHeader) && Boolean(pageHeader.querySelector('h1')?.textContent?.trim());
+    const headerVisible = hasVisiblePageIdentity();
     const bottomNav = document.querySelector('.fc3-mobile-bottom-nav');
     const bottomNavVisible = viewport.mobileShell ? Boolean(bottomNav && isVisible(bottomNav)) : true;
 

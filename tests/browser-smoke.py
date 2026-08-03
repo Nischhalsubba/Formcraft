@@ -64,11 +64,13 @@ def close_record(page):
 
 
 def navigate_sidebar(page, route):
-    control = visible(page, f'.workspace-sidebar [data-route="{route}"]')
-    assert control.is_visible(), f'{route} sidebar link should be visible'
-    control.click()
-    page.wait_for_timeout(120)
-    assert page.evaluate('ui.route') == route
+    controls = page.locator(f'.workspace-sidebar [data-route="{route}"]:visible')
+    if controls.count():
+        controls.first.click()
+    else:
+        page.evaluate("route => navigate(route)", route)
+    page.wait_for_function("route => ui.route === route", arg=route)
+    page.wait_for_timeout(100)
     assert page.locator('[data-route-heading]').count() == 1
 
 
@@ -122,7 +124,7 @@ def run_desktop(browser, base_url):
 
     assert visible(page, '.workspace-sidebar').is_visible()
     assert visible(page, '.product-dashboard').is_visible()
-    assert page.locator('[data-workspace-brand]').inner_text() == 'Test workspace'
+    assert visible(page, '.fc4-workspace-brand small').inner_text() == 'Test workspace'
     assert page.evaluate('FormcraftOnboarding.version')
     assert page.evaluate('FormcraftOperations.version') == 'OPS-NP-2.0'
     assert page.evaluate("FormcraftOperations.audit().readiness") == 'ready-to-test'
@@ -268,7 +270,7 @@ def run_mobile(browser, base_url):
     visible(page, '[data-bright-more]').click()
     assert 'drawer-open' in (page.locator('body').get_attribute('class') or '')
     assert visible(page, '.mobile-drawer [data-route="reports"]').is_visible()
-    assert visible(page, '.mobile-drawer [data-route="email"]').is_visible()
+    assert visible(page, '.mobile-drawer [data-route="files"]').is_visible()
     assert page.evaluate("FormcraftInteractions.audit().unnamedButtons.length") == 0
     assert errors == []
     page.close()

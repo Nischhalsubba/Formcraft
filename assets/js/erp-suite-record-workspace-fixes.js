@@ -1,7 +1,7 @@
 'use strict';
 
 (() => {
-  const VERSION = 'FORMCRAFT-RECORD-WORKSPACE-FIXES-1.6';
+  const VERSION = 'FORMCRAFT-RECORD-WORKSPACE-FIXES-1.7';
   const ERP = window.FormcraftERP;
   const workspace = window.FormcraftRecordWorkspace;
   const sharedModal = document.querySelector('[data-modal]');
@@ -134,7 +134,9 @@
   }
 
   function isOutsideModalCard(event) {
-    const rect = modalCard()?.getBoundingClientRect();
+    const card = modalCard();
+    if (card && event.target instanceof Node && card.contains(event.target)) return false;
+    const rect = card?.getBoundingClientRect();
     if (!rect) return true;
     return event.clientX < rect.left
       || event.clientX > rect.right

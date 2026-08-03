@@ -5,7 +5,11 @@
   const appRoot = document.querySelector('#app') || document.body;
   let scheduled = false;
 
-  const viewportName = width => {
+  const isShortLandscape = (width, height) => width <= 1000 && height <= 560 && width > height;
+  const usesMobileShell = (width, height) => width <= 820 || isShortLandscape(width, height);
+
+  const viewportName = (width, height) => {
+    if (isShortLandscape(width, height)) return 'mobile-landscape';
     if (width <= 360) return 'compact';
     if (width <= 520) return 'phone';
     if (width <= 820) return 'mobile';
@@ -18,12 +22,15 @@
     const visual = window.visualViewport;
     const width = Math.round(visual?.width || window.innerWidth || document.documentElement.clientWidth || 0);
     const height = Math.round(visual?.height || window.innerHeight || document.documentElement.clientHeight || 0);
-    const viewport = viewportName(width);
+    const viewport = viewportName(width, height);
+    const mobileShell = usesMobileShell(width, height);
     document.documentElement.dataset.formcraftViewport = viewport;
+    document.documentElement.dataset.formcraftMobileShell = String(mobileShell);
     document.documentElement.style.setProperty('--fc-rsp-visual-width', `${width}px`);
     document.documentElement.style.setProperty('--fc-rsp-visual-height', `${height}px`);
     document.body?.classList.toggle('fc-rsp-touch', matchMedia('(hover: none), (pointer: coarse)').matches);
-    return { width, height, viewport };
+    document.body?.classList.toggle('fc-rsp-short-landscape', isShortLandscape(width, height));
+    return { width, height, viewport, mobileShell };
   }
 
   function cleanHeaderLabel(value = '') {
@@ -82,7 +89,8 @@
     const height = nav && getComputedStyle(nav).display !== 'none'
       ? Math.ceil(nav.getBoundingClientRect().height)
       : 0;
-    document.documentElement.style.setProperty('--fc-rsp-mobile-nav', `${Math.max(72, height)}px`);
+    const fallback = document.body?.classList.contains('fc-rsp-short-landscape') ? 58 : 72;
+    document.documentElement.style.setProperty('--fc-rsp-mobile-nav', `${Math.max(fallback, height)}px`);
   }
 
   function decorate(root = document) {
@@ -154,7 +162,7 @@
     const pageHeader = document.querySelector('.fc3-page-header');
     const headerVisible = !pageHeader || isVisible(pageHeader) && Boolean(pageHeader.querySelector('h1')?.textContent?.trim());
     const bottomNav = document.querySelector('.fc3-mobile-bottom-nav');
-    const bottomNavVisible = viewport.width <= 820 ? Boolean(bottomNav && isVisible(bottomNav)) : true;
+    const bottomNavVisible = viewport.mobileShell ? Boolean(bottomNav && isVisible(bottomNav)) : true;
 
     return {
       version: VERSION,

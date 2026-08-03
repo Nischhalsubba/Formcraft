@@ -54,7 +54,7 @@ for (const contract of [
   'function syncBottomInset',
   'function clippedInteractiveElements',
   'function audit()',
-  'data.responsiveTable',
+  'table.dataset.responsiveTable',
   'visualViewport',
   'window.FormcraftResponsive'
 ]) assert.ok(runtime.includes(contract), `Missing responsive runtime contract: ${contract}`);

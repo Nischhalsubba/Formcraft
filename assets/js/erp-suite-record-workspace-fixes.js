@@ -1,7 +1,7 @@
 'use strict';
 
 (() => {
-  const VERSION = 'FORMCRAFT-RECORD-WORKSPACE-FIXES-1.0';
+  const VERSION = 'FORMCRAFT-RECORD-WORKSPACE-FIXES-1.1';
   const ERP = window.FormcraftERP;
   const workspace = window.FormcraftRecordWorkspace;
   if (!ERP || !workspace) return;
@@ -24,6 +24,64 @@
       delete form.dataset.rwIndicatorTimer;
     }, 430);
     form.dataset.rwIndicatorTimer = String(timer);
+  }
+
+  function valueFor(schema, control) {
+    if (schema.type === 'boolean') return Boolean(control.checked);
+    if (schema.type === 'tags') return String(control.value || '').split(',').map(value => value.trim()).filter(Boolean);
+    if (['number', 'money'].includes(schema.type)) return control.value === '' ? 0 : Number(control.value);
+    return control.value;
+  }
+
+  function validate(page) {
+    const errors = [];
+    page.module.fields.forEach(schema => {
+      const control = page.form?.elements?.[schema.name];
+      if (!control) return;
+      const raw = control.type === 'checkbox' ? control.checked : String(control.value || '').trim();
+      let message = '';
+      if (schema.required && (raw === '' || raw === null || raw === undefined)) message = `${schema.label} is required.`;
+      else if (schema.type === 'email' && raw && !/^\S+@\S+\.\S+$/.test(raw)) message = `Enter a valid ${schema.label.toLowerCase()}.`;
+      else if (schema.type === 'url' && raw) {
+        try { new URL(raw); } catch { message = `Enter a complete URL for ${schema.label.toLowerCase()}.`; }
+      }
+      if (!message && ['number', 'money'].includes(schema.type) && raw !== '') {
+        const numeric = Number(raw);
+        if (!Number.isFinite(numeric)) message = `${schema.label} must be a number.`;
+        else if (schema.min !== undefined && numeric < Number(schema.min)) message = `${schema.label} must be at least ${schema.min}.`;
+        else if (schema.max !== undefined && numeric > Number(schema.max)) message = `${schema.label} must be no more than ${schema.max}.`;
+      }
+      const target = page.form.querySelector(`[data-rw-error="${CSS.escape(schema.name)}"]`);
+      control.toggleAttribute('aria-invalid', Boolean(message));
+      if (target) target.textContent = message;
+      if (message) errors.push({ control, message });
+    });
+    const summary = page.form?.querySelector('[data-rw-form-summary]');
+    if (summary) summary.innerHTML = errors.length
+      ? `<strong>Fix ${errors.length} field${errors.length === 1 ? '' : 's'} before saving.</strong><span>${errors.map(item => item.message).join(' ')}</span>`
+      : '';
+    errors[0]?.control?.focus();
+    return errors.length === 0;
+  }
+
+  async function publish(page) {
+    if (!page.form || !validate(page)) return;
+    const originalTitle = ERP.titleFor(page.module, page.record);
+    page.module.fields.forEach(schema => {
+      const control = page.form.elements[schema.name];
+      if (control) page.record[schema.name] = valueFor(schema, control);
+    });
+    const updatedTitle = ERP.titleFor(page.module, page.record);
+    ERP.recordAudit(
+      page.module,
+      page.record,
+      'Updated from record workspace',
+      originalTitle === updatedTitle ? 'Details changed' : `Renamed from ${originalTitle}`
+    );
+    workspace.clearPageDraft(page.module, page.record);
+    await Promise.resolve(saveState());
+    workspace.openRecord(page.module.key, page.record.id, { replace: true });
+    toast(`${page.module.singular} updated.`);
   }
 
   document.addEventListener('click', event => {
@@ -76,6 +134,16 @@
     }
   }, true);
 
+  document.addEventListener('submit', event => {
+    const form = event.target instanceof HTMLFormElement ? event.target : null;
+    if (!form?.matches('[data-rw-form]')) return;
+    event.preventDefault();
+    event.stopImmediatePropagation();
+    const page = context(form);
+    if (!page) return;
+    publish(page).catch(error => toast(error.message || 'Record could not be saved.', 'error'));
+  }, true);
+
   const updateDraftIndicator = event => {
     const form = event.target instanceof Element ? event.target.closest('[data-rw-form]') : null;
     if (form) showDraftState(form);
@@ -83,5 +151,5 @@
   document.addEventListener('input', updateDraftIndicator, true);
   document.addEventListener('change', updateDraftIndicator, true);
 
-  window.FormcraftRecordWorkspaceFixes = Object.freeze({ version: VERSION, context, showDraftState });
+  window.FormcraftRecordWorkspaceFixes = Object.freeze({ version: VERSION, context, showDraftState, validate, publish });
 })();

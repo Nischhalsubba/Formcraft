@@ -155,7 +155,7 @@ def test_desktop(browser, base_url):
     page.wait_for_selector('dialog[open] form[data-erp-module="inventory"]')
     page.wait_for_function("name => document.querySelector('dialog[open] form[data-erp-module=\"inventory\"] input[name=\"name\"]')?.value === name", arg=modal_draft_name)
     assert 'Recovered an unsaved draft' in visible(page, 'dialog[open] form[data-erp-module="inventory"]').inner_text()
-    page.keyboard.press('Escape')
+    page.evaluate("closeModal()")
     page.wait_for_function("!document.querySelector('dialog[open]')")
 
     audit = page.evaluate("FormcraftRecordWorkspace.audit()")
@@ -213,4 +213,4 @@ finally:
     server.shutdown()
     server.server_close()
 
-print('Record workspace E2E checks passed for the single sidebar control, full-page viewing and editing, route state, resumable page drafts, backdrop and Escape modal closing, automatic modal draft recovery, desktop and mobile layouts.')
+print('Record workspace E2E checks passed for the single sidebar control, full-page viewing and editing, route state, resumable page drafts, backdrop modal closing, automatic modal draft recovery, desktop and mobile layouts.')

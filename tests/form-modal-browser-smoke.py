@@ -70,7 +70,19 @@ def open_form(page, module_key):
         arg=module_key,
         timeout=5000,
     )
-    page.wait_for_timeout(35)
+    if page.evaluate('Boolean(window.FormcraftFormWorkflow)'):
+        page.wait_for_function(
+            "key => document.querySelector(`dialog[open] form[data-erp-module=\"${key}\"]`)?.dataset.workflowEnhanced === 'FORMCRAFT-FORM-WORKFLOW-1.0'",
+            arg=module_key,
+            timeout=5000,
+        )
+    if page.evaluate('Boolean(window.FormcraftFormFieldIntegrity)'):
+        page.wait_for_function(
+            "key => document.querySelector(`dialog[open] form[data-erp-module=\"${key}\"]`)?.dataset.fieldIntegrity === 'FORMCRAFT-FORM-FIELD-INTEGRITY-1.0'",
+            arg=module_key,
+            timeout=5000,
+        )
+    page.wait_for_timeout(80)
 
 
 def close_form(page):

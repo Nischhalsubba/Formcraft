@@ -69,7 +69,7 @@ def assert_rect_within_viewport(page, selector):
 
 def navigate(page, route):
     page.evaluate("route => navigate(route)", route)
-    page.wait_for_function("route => ui.route === route", route)
+    page.wait_for_function("route => ui.route === route", arg=route)
     page.wait_for_timeout(180)
 
 

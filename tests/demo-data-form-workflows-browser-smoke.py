@@ -146,18 +146,15 @@ def test_form_workflows(page):
     search.fill('')
 
     page.evaluate('closeModal()')
-    page.wait_for_selector('.workflow-confirm-dialog[open]')
-    assert 'Discard unsaved changes' in visible(page, '.workflow-confirm-dialog h2').inner_text()
-    visible(page, '.workflow-confirm-dialog [value="cancel"]').click()
-    page.wait_for_function("!document.querySelector('.workflow-confirm-dialog[open]')")
-    assert form.is_visible()
-
-    form.locator('.erp-save-draft').click()
     page.wait_for_function("!document.querySelector('dialog[data-modal][open]')")
+    assert page.locator('.workflow-confirm-dialog[open]').count() == 0
+
     open_sales_form(page)
     form = visible(page, 'dialog[open] form[data-erp-module="sales"]')
     assert form.locator('.erp-draft-recovered').is_visible()
     assert form.locator('input[name="number"]').input_value() == 'DEMO-UI-SO-001'
+    assert form.locator('input[name="quantity"]').input_value() == '2'
+    assert abs(float(form.locator('input[name="total"]').input_value()) - 2034.0) < 0.01
     form.locator('.erp-draft-recovered button').click()
 
     form.locator('input[name="number"]').fill('')
@@ -271,4 +268,4 @@ finally:
     server.shutdown()
     server.server_close()
 
-print('Connected demo-data and form-workflow E2E checks passed with 20+ records per section, relationship integrity, cross-module effects, drafts, validation, calculations, review, admin layout controls, mobile behavior, and visual snapshots.')
+print('Connected demo-data and form-workflow E2E checks passed with 20+ records per section, relationship integrity, cross-module effects, automatic draft recovery, validation, calculations, review, admin layout controls, mobile behavior, and visual snapshots.')

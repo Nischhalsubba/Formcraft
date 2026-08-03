@@ -134,7 +134,7 @@
 
   function monthRegister() {
     const range = currentMonthRange();
-    const employees = ERP.collection('employees').filter(employee => employee.status !== 'inactive');
+    const employees = ERP.collection('employees');
     const attendance = ERP.collection('attendance').filter(item => item.date >= range.start && item.date <= range.end);
     const days = [];
     for (let date = range.start; date && date <= range.end; date = addDays(date, 1)) days.push(date);
@@ -151,8 +151,6 @@
     });
     return { range, days, rows };
   }
-
-
 
   window.FormcraftNepalComplianceCore = Object.freeze({
     ...O,

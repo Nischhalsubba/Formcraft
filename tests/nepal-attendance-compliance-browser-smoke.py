@@ -89,8 +89,19 @@ def seed_and_configure(page):
         }, { enforcePermissions: false });
         saveState();
         renderShell();
-        const employee = FormcraftERP.collection('employees')[0];
-        return { employeeId: employee.id, employeeName: employee.name, fiscalYear, regularDate, holidayDate, manualDate, compDueDate: addDays(holidayDate, 21) };
+        const employees = FormcraftERP.collection('employees');
+        const employee = employees.find(item => item.status !== 'inactive' && String(item.name || '').trim())
+          || employees.find(item => String(item.name || '').trim())
+          || employees[0];
+        return {
+          employeeId: employee.id,
+          employeeName: employee.name || employee.employeeCode || employee.id,
+          fiscalYear,
+          regularDate,
+          holidayDate,
+          manualDate,
+          compDueDate: addDays(holidayDate, 21)
+        };
       }
     """)
     page.wait_for_timeout(160)
@@ -228,17 +239,18 @@ def test_desktop(browser, base_url):
 
     visible(page, '[data-np-view="policies"]').click()
     page.wait_for_selector('.np-policy-grid')
-    policy_text = visible(page, '[data-np-compliance-page]').inner_text().lower()
-    assert '1 day per 20 days worked' in policy_text
-    assert '14 weeks / 98 days total' in policy_text
-    assert 'configure as organization policy' in policy_text
+    leave_text = page.locator('.np-leave-reference').text_content().lower()
+    assert '1 day per 20 days worked' in leave_text
+    assert '14 weeks / 98 days total' in leave_text
+    assert 'configure as organization policy' in leave_text
 
     visible(page, '[data-np-view="evidence"]').click()
     page.wait_for_selector('.np-audit-list')
-    evidence = visible(page, '[data-np-compliance-page]').inner_text().lower()
-    assert 'clean-room adaptation' in evidence
-    assert 'does not copy' in evidence
-    assert 'manual attendance added' in evidence
+    evidence_note = page.locator('.np-evidence-note').text_content().lower()
+    audit_text = page.locator('.np-audit-list').text_content().lower()
+    assert 'clean-room adaptation' in evidence_note
+    assert 'does not copy' in evidence_note
+    assert 'manual attendance added' in audit_text
     assert errors == [], errors
     page.close()
 

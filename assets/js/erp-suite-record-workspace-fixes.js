@@ -1,7 +1,7 @@
 'use strict';
 
 (() => {
-  const VERSION = 'FORMCRAFT-RECORD-WORKSPACE-FIXES-1.3';
+  const VERSION = 'FORMCRAFT-RECORD-WORKSPACE-FIXES-1.4';
   const ERP = window.FormcraftERP;
   const workspace = window.FormcraftRecordWorkspace;
   const sharedModal = document.querySelector('[data-modal]');
@@ -85,33 +85,60 @@
     toast(`${page.module.singular} updated.`);
   }
 
-  function dismissSharedModal(event) {
-    if (!sharedModal?.open) return;
-    const card = sharedModal.querySelector('.modal-card, form, [role="document"]');
-    const rect = card?.getBoundingClientRect();
-    const outsideCard = !rect
-      || event.clientX < rect.left
+  function modalCard() {
+    return sharedModal?.querySelector('.modal-card, form, [role="document"]') || null;
+  }
+
+  function isOutsideModalCard(event) {
+    const rect = modalCard()?.getBoundingClientRect();
+    if (!rect) return true;
+    return event.clientX < rect.left
       || event.clientX > rect.right
       || event.clientY < rect.top
       || event.clientY > rect.bottom;
-    if (event.target !== sharedModal && !outsideCard) return;
-    event.preventDefault();
-    event.stopImmediatePropagation();
-    closeModal();
   }
 
-  sharedModal?.addEventListener('click', dismissSharedModal, true);
+  function forceCloseSharedModal() {
+    if (!sharedModal?.open) return;
+    try {
+      closeModal();
+    } catch (error) {
+      console.warn('The normal modal close path failed; using the safe fallback.', error);
+    }
+    if (!sharedModal.open) return;
+    document.querySelectorAll('.workflow-confirm-dialog[open]').forEach(dialog => {
+      try { dialog.close(); } catch {}
+      dialog.remove();
+    });
+    try { sharedModal.close(); } catch {}
+    const content = sharedModal.querySelector('[data-modal-content]');
+    if (content) content.innerHTML = '';
+    document.body.classList.remove('modal-open');
+  }
+
+  function dismissSharedModal(event) {
+    if (!sharedModal?.open || !isOutsideModalCard(event)) return;
+    event.preventDefault();
+    event.stopImmediatePropagation();
+    forceCloseSharedModal();
+  }
+
+  document.addEventListener('pointerdown', dismissSharedModal, true);
+  sharedModal?.addEventListener('click', event => {
+    if (event.target !== sharedModal) return;
+    dismissSharedModal(event);
+  }, true);
   sharedModal?.addEventListener('cancel', event => {
     event.preventDefault();
     event.stopImmediatePropagation();
-    closeModal();
+    forceCloseSharedModal();
   }, true);
 
   document.addEventListener('keydown', event => {
     if (event.key !== 'Escape' || !sharedModal?.open) return;
     event.preventDefault();
     event.stopImmediatePropagation();
-    closeModal();
+    forceCloseSharedModal();
   }, true);
 
   document.addEventListener('click', event => {
@@ -181,5 +208,14 @@
   document.addEventListener('input', updateDraftIndicator, true);
   document.addEventListener('change', updateDraftIndicator, true);
 
-  window.FormcraftRecordWorkspaceFixes = Object.freeze({ version: VERSION, context, showDraftState, validate, publish, dismissSharedModal });
+  window.FormcraftRecordWorkspaceFixes = Object.freeze({
+    version: VERSION,
+    context,
+    showDraftState,
+    validate,
+    publish,
+    dismissSharedModal,
+    isOutsideModalCard,
+    forceCloseSharedModal
+  });
 })();

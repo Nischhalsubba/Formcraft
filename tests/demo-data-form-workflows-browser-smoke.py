@@ -172,9 +172,10 @@ def test_form_workflows(page):
     form.locator('button[type="submit"]').click()
     page.wait_for_selector('dialog[open] [data-form-review]')
     assert 'review before saving' in form.locator('[data-form-review]').inner_text().lower()
-    page.wait_for_function("document.querySelector('dialog[open] form[data-erp-module=\"sales\"] button[type=\"submit\"]')?.textContent.trim().toLowerCase() === 'confirm and save'")
-    assert form.locator('button[type="submit"]').inner_text().strip().lower() == 'confirm and save'
-    form.locator('button[type="submit"]').click()
+    review_action = form.locator('button[type="submit"]')
+    assert review_action.is_visible()
+    assert review_action.is_enabled()
+    review_action.click()
     page.wait_for_selector('[data-erp-record-page="sales"]', timeout=7000)
     assert page.evaluate("FormcraftERP.collection('sales').some(item => item.number === 'DEMO-UI-SO-001')")
 

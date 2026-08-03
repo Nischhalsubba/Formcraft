@@ -37,11 +37,12 @@ def prepare_page(browser, width=1440, height=1000):
 def wait_ready(page, errors):
     page.wait_for_function("document.documentElement.dataset.backend === 'ready'", timeout=15000)
     page.wait_for_function(
-        "Boolean(window.FormcraftIconography && window.FormcraftPremiumInterface && window.FormcraftERPUI)",
+        "Boolean(window.FormcraftIconography && window.FormcraftPremiumInterface && window.FormcraftERPUI && window.FormcraftSimpleShell)",
         timeout=10000,
     )
     page.wait_for_selector('.formcraft-premium-interface', state='attached')
-    page.wait_for_timeout(180)
+    page.wait_for_function("document.documentElement.dataset.workspaceShell === 'FORMCRAFT-SIMPLE-SHELL-4.0'")
+    page.wait_for_timeout(200)
     assert not errors, errors
 
 
@@ -57,24 +58,21 @@ def run_desktop_launcher(browser, base_url):
 
     geometry = page.evaluate("""() => {
       const root = getComputedStyle(document.documentElement);
-      const rail = document.querySelector('.fc3-app-rail').getBoundingClientRect();
-      const sidebar = document.querySelector('.fc3-context-sidebar').getBoundingClientRect();
-      const main = getComputedStyle(document.querySelector('.fc3-main'));
+      const sidebar = document.querySelector('.fc4-sidebar').getBoundingClientRect();
+      const main = document.querySelector('.fc3-main').getBoundingClientRect();
       return {
-        railVariable: parseFloat(root.getPropertyValue('--fc3-rail-width')),
-        sidebarVariable: parseFloat(root.getPropertyValue('--fc3-sidebar-width')),
-        railWidth: rail.width,
+        sidebarVariable: parseFloat(root.getPropertyValue('--ui-sidebar-width')),
         sidebarLeft: sidebar.left,
         sidebarWidth: sidebar.width,
-        mainMarginLeft: parseFloat(main.marginLeft)
+        sidebarRight: sidebar.right,
+        mainLeft: main.left
       };
     }""")
-    assert abs(geometry['railVariable'] - 72) < 0.5, geometry
-    assert abs(geometry['sidebarVariable'] - 272) < 0.5, geometry
-    assert abs(geometry['railWidth'] - geometry['railVariable']) < 0.5, geometry
-    assert abs(geometry['sidebarLeft'] - geometry['railWidth']) < 0.5, geometry
+    assert abs(geometry['sidebarVariable'] - 252) < 0.5, geometry
+    assert abs(geometry['sidebarLeft']) < 0.5, geometry
     assert abs(geometry['sidebarWidth'] - geometry['sidebarVariable']) < 0.5, geometry
-    assert abs(geometry['mainMarginLeft'] - geometry['railWidth'] - geometry['sidebarWidth']) < 0.5, geometry
+    assert abs(geometry['sidebarRight'] - geometry['mainLeft']) < 0.5, geometry
+    assert page.locator('.fc3-app-rail').is_hidden()
 
     icon_audit = page.evaluate('FormcraftIconography.audit()')
     assert icon_audit['status'] == 'ready-to-test', icon_audit
@@ -112,14 +110,10 @@ def run_desktop_launcher(browser, base_url):
     )
     assert icon_background not in ('rgba(0, 0, 0, 0)', 'transparent'), icon_background
 
-    rail_apps = visible(page, '.fc3-app-rail [data-erp-apps-nav]')
-    assert rail_apps.get_attribute('data-nav-state') == 'active'
-    assert rail_apps.get_attribute('aria-current') == 'page'
-    launcher_link = visible(page, '.fc3-context-nav > [data-erp-apps-nav]')
-    assert launcher_link.is_visible()
-    assert 'App launcher' in launcher_link.inner_text()
-    assert launcher_link.get_attribute('aria-label') == 'Open app launcher'
-    assert visible(page, '.fc3-context-sidebar [data-erp-launcher-group="all"]').get_attribute('data-nav-state') == 'active'
+    apps_item = visible(page, '.fc4-sidebar [data-nav-key="apps"]')
+    assert apps_item.get_attribute('data-nav-state') == 'active'
+    assert apps_item.get_attribute('aria-current') == 'page'
+    assert apps_item.locator('svg').get_attribute('data-icon') == 'apps'
 
     finance_card = visible(page, '.erp-app-card[data-app-key="accounting"]')
     sales_card = visible(page, '.erp-app-card[data-app-key="crm"]')
@@ -129,16 +123,14 @@ def run_desktop_launcher(browser, base_url):
 
     visible(page, '[data-erp-open-app="crm"]').click()
     page.wait_for_selector('[data-erp-module-page="crm"]')
-    page.wait_for_function("document.querySelector('.fc3-app-rail [data-erp-apps-nav]').dataset.navState === 'parent'")
-    assert visible(page, '.fc3-app-rail [data-erp-apps-nav]').get_attribute('data-nav-state') == 'parent'
-    assert visible(page, '.fc3-app-rail [data-erp-apps-nav]').get_attribute('aria-current') is None
-    crm_nav = visible(page, '.fc3-context-sidebar [data-erp-open-app="crm"]')
-    sales_nav = visible(page, '.fc3-context-sidebar [data-erp-open-app="sales"]')
+    page.wait_for_function("document.querySelector('.fc4-sidebar [data-nav-key=\"apps\"]').dataset.navState === 'parent'")
+    assert visible(page, '.fc4-sidebar [data-nav-key="apps"]').get_attribute('aria-current') is None
+    crm_nav = visible(page, '.fc4-sidebar [data-nav-key="crm"]')
+    sales_nav = visible(page, '.fc4-sidebar [data-nav-key="sales"]')
     assert crm_nav.get_attribute('data-nav-state') == 'active'
     assert sales_nav.get_attribute('data-nav-state') == 'inactive'
     assert crm_nav.locator('svg').get_attribute('data-icon') == 'crm'
     assert sales_nav.locator('svg').get_attribute('data-icon') == 'sales'
-    assert crm_nav.locator('svg').get_attribute('data-icon') != sales_nav.locator('svg').get_attribute('data-icon')
     assert_no_overflow(page)
     assert not errors, errors
     page.close()
@@ -150,20 +142,21 @@ def run_dashboard_navigation(browser, base_url):
     wait_ready(page, errors)
 
     expected = {
-        'dashboard': 'dashboard', 'projects': 'projects', 'tasks': 'tasks', 'calendar': 'calendar',
-        'team': 'team', 'reports': 'reports', 'email': 'mail', 'files': 'files',
-        'invoices': 'invoices', 'activity': 'activity', 'settings': 'settings'
+        'dashboard': 'dashboard', 'apps': 'apps', 'projects': 'projects', 'tasks': 'tasks',
+        'calendar': 'calendar', 'crm': 'crm', 'sales': 'sales', 'invoices': 'invoices',
+        'inventory': 'inventory', 'purchase': 'purchase', 'employees': 'employees',
+        'payroll': 'payroll', 'reports': 'reports', 'files': 'files', 'settings': 'settings'
     }
     seen = []
-    for route, icon_name in expected.items():
-        item = visible(page, f'.fc3-context-sidebar [data-route="{route}"]')
-        assert item.is_visible(), route
+    for key, icon_name in expected.items():
+        item = visible(page, f'.fc4-sidebar [data-nav-key="{key}"]')
+        assert item.is_visible(), key
         rendered = item.locator('svg').get_attribute('data-icon')
-        assert rendered == icon_name, (route, rendered)
+        assert rendered == icon_name, (key, rendered)
         seen.append(rendered)
     assert len(seen) == len(set(seen)), seen
-    assert visible(page, '.fc3-context-sidebar [data-route="dashboard"]').get_attribute('data-nav-state') == 'active'
-    assert visible(page, '.fc3-context-sidebar [data-route="projects"]').get_attribute('data-nav-state') == 'inactive'
+    assert visible(page, '.fc4-sidebar [data-nav-key="dashboard"]').get_attribute('data-nav-state') == 'active'
+    assert visible(page, '.fc4-sidebar [data-nav-key="projects"]').get_attribute('data-nav-state') == 'inactive'
     assert_no_overflow(page)
     assert not errors, errors
     page.close()
@@ -181,11 +174,11 @@ def run_mobile(browser, base_url):
     visible(page, '[data-bright-more]').click()
     page.wait_for_function("document.body.classList.contains('drawer-open')")
     assert visible(page, '.fc3-mobile-drawer').is_visible()
-    all_apps = visible(page, '.fc3-mobile-drawer [data-erp-apps-nav]')
+    all_apps = visible(page, '.fc4-mobile-nav [data-nav-key="apps"]')
     assert all_apps.locator('svg').get_attribute('data-icon') == 'apps'
-    visible(page, '.fc3-mobile-drawer [data-erp-launcher-group="finance"]').click()
+    visible(page, '.fc4-mobile-nav [data-nav-key="crm"]').click()
     page.wait_for_function("!document.body.classList.contains('drawer-open')")
-    page.wait_for_selector('.erp-app-card[data-app-group="finance"]')
+    page.wait_for_selector('[data-erp-module-page="crm"]')
     assert_no_overflow(page)
     assert not errors, errors
     page.close()
@@ -208,4 +201,4 @@ finally:
     server.shutdown()
     server.server_close()
 
-print('Premium interface E2E checks passed for geometry, unique SVG shapes, iconography, typography, semantic group tones, explicit active/parent/inactive states, dashboard navigation, app launcher, and mobile flow.')
+print('Premium interface E2E checks passed for single-sidebar geometry, unique SVG shapes, iconography, typography, semantic group tones, navigation states, launcher, and mobile flow.')

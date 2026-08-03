@@ -119,6 +119,24 @@
     }).join('');
   }
 
+  function navigationSignature(mobile = false) {
+    const settings = ensureNavigationSettings();
+    const counts = settings.items.map(key => {
+      const item = NAV_ITEMS[key];
+      return item ? itemCount(item) : 0;
+    });
+    return JSON.stringify({
+      mobile,
+      route: ui.route,
+      items: settings.items,
+      showCounts: settings.showCounts,
+      counts,
+      workspace: state.settings?.workspaceName || '',
+      member: typeof currentUserName === 'function' ? currentUserName() : '',
+      role: window.FormcraftBackend?.role || 'member'
+    });
+  }
+
   function staticSidebarMarkup() {
     const workspaceName = state.settings?.workspaceName || 'Formcraft workspace';
     return `<header class="fc4-sidebar-header">
@@ -175,23 +193,31 @@
     const sidebar = document.querySelector('.fc3-context-sidebar');
     if (sidebar) {
       sidebar.classList.add('fc4-sidebar');
-      sidebar.innerHTML = staticSidebarMarkup();
-      bindNavigation(sidebar);
-      sidebar.querySelector('[data-fc4-collapse-sidebar]')?.addEventListener('click', () => {
-        document.body.classList.toggle('fc4-sidebar-collapsed');
-        try { localStorage.setItem('formcraft:simple-shell:collapsed', String(document.body.classList.contains('fc4-sidebar-collapsed'))); } catch {}
-      });
+      const signature = navigationSignature(false);
+      if (sidebar.dataset.fc4Signature !== signature) {
+        sidebar.dataset.fc4Signature = signature;
+        sidebar.innerHTML = staticSidebarMarkup();
+        bindNavigation(sidebar);
+        sidebar.querySelector('[data-fc4-collapse-sidebar]')?.addEventListener('click', () => {
+          document.body.classList.toggle('fc4-sidebar-collapsed');
+          try { localStorage.setItem('formcraft:simple-shell:collapsed', String(document.body.classList.contains('fc4-sidebar-collapsed'))); } catch {}
+        });
+      }
     }
 
     const drawer = document.querySelector('.fc3-mobile-drawer');
     const drawerNav = drawer?.querySelector('.fc3-drawer-nav, .workspace-nav');
     if (drawerNav) {
       drawerNav.classList.add('fc4-mobile-nav');
-      drawerNav.innerHTML = mobileNavigationMarkup();
-      bindNavigation(drawerNav);
+      const signature = navigationSignature(true);
+      if (drawerNav.dataset.fc4Signature !== signature) {
+        drawerNav.dataset.fc4Signature = signature;
+        drawerNav.innerHTML = mobileNavigationMarkup();
+        bindNavigation(drawerNav);
+      }
     }
     const drawerTitle = drawer?.querySelector('.fc3-drawer-head strong, .drawer-head strong');
-    if (drawerTitle) drawerTitle.textContent = 'Menu';
+    if (drawerTitle && drawerTitle.textContent !== 'Menu') drawerTitle.textContent = 'Menu';
   }
 
   let scheduled = false;

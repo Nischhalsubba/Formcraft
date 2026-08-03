@@ -34,8 +34,9 @@
       if (!app) return;
       card.dataset.appKey = app.key;
       card.dataset.appGroup = app.group;
-      const glyph = card.querySelector('svg[data-icon]');
+      const glyph = card.querySelector('.erp-app-icon svg[data-icon]');
       if (glyph) card.dataset.iconName = glyph.dataset.icon;
+      else delete card.dataset.iconName;
       const title = card.querySelector('.erp-app-copy strong')?.textContent?.trim() || app.label;
       opener.setAttribute('aria-label', `Open ${title}`);
     });

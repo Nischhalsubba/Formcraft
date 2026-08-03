@@ -5,6 +5,7 @@
   const Views = window.FormcraftNepalComplianceViews;
   const Dialogs = window.FormcraftNepalComplianceDialogs;
   if (!Core || !Views || !Dialogs) return;
+  if (typeof globalThis.bsLabel !== 'function') globalThis.bsLabel = Core.bsLabel;
   const {
     VERSION, ERP, LEGAL_RULES, LEAVE_REFERENCE, ensureState, parseImportText,
     previewPunchRows, importPunchRows, addManualAttendance, addHoliday, removeHoliday,

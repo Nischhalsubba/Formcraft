@@ -1,0 +1,854 @@
+/* Nepal attendance and labour-compliance workspace.
+   Operational evidence only: this UI deliberately avoids claiming legal certification. */
+
+.np-compliance {
+  display: grid;
+  gap: 16px;
+  padding-bottom: 34px;
+}
+
+.np-compliance-hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 22px;
+  padding: clamp(20px, 3vw, 32px);
+  overflow: hidden;
+  border: 1px solid color-mix(in srgb, var(--primary) 24%, var(--border));
+  border-radius: 18px;
+  background:
+    radial-gradient(circle at 88% 18%, color-mix(in srgb, var(--primary) 16%, transparent), transparent 34%),
+    linear-gradient(140deg, color-mix(in srgb, var(--primary) 6%, var(--surface)), var(--surface));
+}
+
+.np-compliance-hero > div:first-child {
+  display: grid;
+  min-width: 0;
+  gap: 7px;
+}
+
+.np-compliance-hero h1,
+.np-compliance-hero p {
+  margin: 0;
+}
+
+.np-compliance-hero h1 {
+  max-width: 25ch;
+  color: var(--ink);
+  font-family: var(--font-display, Manrope, Inter, sans-serif);
+  font-size: clamp(24px, 3vw, 38px);
+  letter-spacing: -.035em;
+  line-height: 1.08;
+}
+
+.np-compliance-hero > div:first-child > p:last-child {
+  max-width: 76ch;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+.np-compliance-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.np-compliance-actions .button {
+  min-height: 44px;
+}
+
+.np-boundary {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: 10px;
+  padding: 11px 14px;
+  border: 1px solid color-mix(in srgb, var(--warning) 32%, var(--border));
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--warning) 7%, var(--surface));
+}
+
+.np-boundary strong {
+  color: var(--ink);
+  font-size: 10.5px;
+  white-space: nowrap;
+}
+
+.np-boundary span {
+  color: var(--muted);
+  font-size: 10.5px;
+  line-height: 1.5;
+}
+
+.np-compliance-metrics {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: var(--border);
+  gap: 1px;
+}
+
+.np-compliance-metrics article {
+  display: grid;
+  min-height: 94px;
+  align-content: center;
+  gap: 4px;
+  padding: 15px;
+  background: var(--surface);
+}
+
+.np-compliance-metrics span,
+.np-compliance-metrics small {
+  color: var(--muted);
+  font-size: 9.5px;
+}
+
+.np-compliance-metrics strong {
+  color: var(--ink);
+  font-family: var(--font-display, Manrope, Inter, sans-serif);
+  font-size: clamp(20px, 2vw, 28px);
+  font-variant-numeric: tabular-nums;
+}
+
+.np-compliance-tabs {
+  display: flex;
+  gap: 4px;
+  overflow-x: auto;
+  padding: 4px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--surface-soft);
+  scrollbar-width: thin;
+}
+
+.np-compliance-tabs button {
+  min-height: 40px;
+  flex: 0 0 auto;
+  padding: 8px 13px;
+  border: 0;
+  border-radius: 9px;
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+  font: inherit;
+  font-size: 10.5px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.np-compliance-tabs button:hover,
+.np-compliance-tabs button:focus-visible,
+.np-compliance-tabs button.is-active {
+  background: var(--surface);
+  color: var(--ink);
+  outline: none;
+  box-shadow: 0 1px 3px rgb(15 23 42 / .08);
+}
+
+.np-compliance-tabs button.is-active {
+  color: var(--primary);
+}
+
+.np-compliance-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.np-panel {
+  display: grid;
+  min-width: 0;
+  align-content: start;
+  gap: 13px;
+  padding: clamp(16px, 2vw, 22px);
+  border: 1px solid var(--border);
+  border-radius: 15px;
+  background: var(--surface);
+  box-shadow: 0 1px 2px rgb(15 23 42 / .025);
+}
+
+.np-panel-wide {
+  grid-column: 1 / -1;
+}
+
+.np-panel > header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.np-panel > header > div:first-child {
+  display: grid;
+  min-width: 0;
+  gap: 3px;
+}
+
+.np-panel > header span {
+  color: var(--primary);
+  font-size: 8.5px;
+  font-weight: 800;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+
+.np-panel > header h2,
+.np-panel > header p,
+.np-panel > p {
+  margin: 0;
+}
+
+.np-panel > header h2 {
+  color: var(--ink);
+  font-size: 17px;
+}
+
+.np-panel > header p,
+.np-panel > p {
+  max-width: 82ch;
+  color: var(--muted);
+  font-size: 10.5px;
+  line-height: 1.55;
+}
+
+.np-compliance-issues,
+.np-holiday-list,
+.np-comp-list,
+.np-import-history,
+.np-audit-list {
+  display: grid;
+  gap: 8px;
+}
+
+.np-compliance-issues article {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 11px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--surface-soft);
+}
+
+.np-compliance-issues article > span {
+  min-width: 48px;
+  padding: 4px 7px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--muted) 10%, var(--surface));
+  color: var(--muted);
+  font-size: 8px;
+  font-weight: 800;
+  letter-spacing: .06em;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+.np-compliance-issues article[data-severity="high"] > span {
+  background: color-mix(in srgb, var(--danger) 11%, var(--surface));
+  color: var(--danger);
+}
+
+.np-compliance-issues article[data-severity="medium"] > span {
+  background: color-mix(in srgb, var(--warning) 13%, var(--surface));
+  color: color-mix(in srgb, var(--warning) 80%, var(--ink));
+}
+
+.np-compliance-issues article > div {
+  display: grid;
+  min-width: 0;
+  gap: 2px;
+}
+
+.np-compliance-issues strong,
+.np-compliance-issues p {
+  margin: 0;
+}
+
+.np-compliance-issues strong {
+  color: var(--ink);
+  font-size: 10.5px;
+}
+
+.np-compliance-issues p {
+  overflow: hidden;
+  color: var(--muted);
+  font-size: 9.5px;
+  line-height: 1.45;
+  text-overflow: ellipsis;
+}
+
+.np-compliance-issues button,
+.np-module-links button,
+.np-source-list a {
+  min-height: 34px;
+  padding: 7px 10px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface);
+  color: var(--ink);
+  cursor: pointer;
+  font: inherit;
+  font-size: 9.5px;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.np-compliance-issues button:hover,
+.np-compliance-issues button:focus-visible,
+.np-module-links button:hover,
+.np-module-links button:focus-visible,
+.np-source-list a:hover,
+.np-source-list a:focus-visible {
+  border-color: var(--primary);
+  color: var(--primary);
+  outline: none;
+}
+
+.np-holiday-list article,
+.np-comp-list article,
+.np-import-history article {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 10px 11px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--surface-soft);
+}
+
+.np-holiday-list article > div,
+.np-comp-list article > div,
+.np-import-history article > div {
+  display: grid;
+  min-width: 0;
+  gap: 2px;
+}
+
+.np-holiday-list span,
+.np-comp-list span,
+.np-import-history span {
+  color: var(--primary);
+  font-size: 8px;
+  font-weight: 800;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+}
+
+.np-holiday-list strong,
+.np-comp-list strong,
+.np-import-history strong {
+  overflow: hidden;
+  color: var(--ink);
+  font-size: 10.5px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.np-holiday-list small,
+.np-comp-list small,
+.np-import-history small,
+.np-comp-list em {
+  color: var(--muted);
+  font-size: 9px;
+  font-style: normal;
+  line-height: 1.45;
+}
+
+.np-import-history article {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) repeat(3, auto);
+}
+
+.np-import-history article > span {
+  min-width: 70px;
+  padding: 5px 7px;
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--muted);
+  text-align: center;
+}
+
+.np-fiscal-status {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  align-items: center;
+  gap: 18px;
+  padding: 15px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--surface-soft);
+}
+
+.np-fiscal-status > div {
+  display: grid;
+  gap: 4px;
+}
+
+.np-fiscal-status > div > span {
+  color: var(--primary);
+  font-size: 8.5px;
+  font-weight: 800;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+}
+
+.np-fiscal-status > div > strong {
+  color: var(--ink);
+  font-size: 18px;
+}
+
+.np-fiscal-status > div > p {
+  max-width: 72ch;
+  margin: 0;
+  color: var(--muted);
+  font-size: 9.5px;
+  line-height: 1.5;
+}
+
+.np-fiscal-status dl,
+.np-leave-reference dl {
+  display: grid;
+  gap: 5px;
+  margin: 0;
+}
+
+.np-fiscal-status dl > div,
+.np-leave-reference dl > div {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.np-fiscal-status dt,
+.np-leave-reference dt {
+  color: var(--muted);
+  font-size: 8.5px;
+}
+
+.np-fiscal-status dd,
+.np-leave-reference dd {
+  margin: 0;
+  color: var(--ink);
+  font-size: 9px;
+  font-weight: 700;
+}
+
+.np-policy-grid,
+.np-leave-reference {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.np-policy-grid article,
+.np-leave-reference article {
+  display: grid;
+  align-content: start;
+  gap: 6px;
+  padding: 13px;
+  border: 1px solid var(--border);
+  border-radius: 11px;
+  background: var(--surface-soft);
+}
+
+.np-policy-grid article > span,
+.np-leave-reference article > span {
+  width: max-content;
+  padding: 4px 6px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--primary) 9%, var(--surface));
+  color: var(--primary);
+  font-size: 7.5px;
+  font-weight: 800;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+}
+
+.np-leave-reference article[data-kind="company-policy"] > span,
+.np-leave-reference article[data-kind="operational"] > span {
+  background: color-mix(in srgb, var(--warning) 10%, var(--surface));
+  color: color-mix(in srgb, var(--warning) 80%, var(--ink));
+}
+
+.np-policy-grid strong,
+.np-leave-reference strong {
+  color: var(--ink);
+  font-size: 11px;
+}
+
+.np-policy-grid p,
+.np-leave-reference p {
+  margin: 0;
+  color: var(--ink);
+  font-size: 10px;
+  line-height: 1.45;
+}
+
+.np-policy-grid small,
+.np-leave-reference small {
+  margin-top: auto;
+  color: var(--muted);
+  font-size: 8.5px;
+  line-height: 1.4;
+}
+
+.np-source-list,
+.np-module-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+}
+
+.np-hajiri-scroll {
+  width: 100%;
+  max-width: 100%;
+  overflow: auto;
+  border: 1px solid var(--border);
+  border-radius: 11px;
+}
+
+.np-hajiri-table {
+  width: max-content;
+  min-width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  color: var(--ink);
+  font-size: 9px;
+  font-variant-numeric: tabular-nums;
+}
+
+.np-hajiri-table th,
+.np-hajiri-table td {
+  min-width: 36px;
+  height: 38px;
+  padding: 6px;
+  border-right: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  background: var(--surface);
+  text-align: center;
+}
+
+.np-hajiri-table thead th {
+  position: sticky;
+  top: 0;
+  z-index: 3;
+  background: var(--surface-soft);
+  color: var(--muted);
+  font-weight: 800;
+}
+
+.np-hajiri-table thead th small {
+  display: block;
+  color: var(--muted);
+  font-size: 7px;
+  font-weight: 500;
+}
+
+.np-hajiri-table th:first-child {
+  position: sticky;
+  left: 0;
+  z-index: 2;
+  min-width: 170px;
+  max-width: 170px;
+  text-align: left;
+}
+
+.np-hajiri-table thead th:first-child {
+  z-index: 4;
+}
+
+.np-hajiri-table tbody th {
+  display: table-cell;
+}
+
+.np-hajiri-table tbody th strong,
+.np-hajiri-table tbody th small {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.np-hajiri-table tbody th strong {
+  font-size: 9.5px;
+}
+
+.np-hajiri-table tbody th small {
+  margin-top: 2px;
+  color: var(--muted);
+  font-size: 8px;
+}
+
+.np-hajiri-table td[data-code="P"] {
+  background: color-mix(in srgb, var(--success) 8%, var(--surface));
+  color: var(--success);
+  font-weight: 900;
+}
+
+.np-hajiri-table td[data-code="A"] {
+  background: color-mix(in srgb, var(--danger) 7%, var(--surface));
+  color: var(--danger);
+  font-weight: 800;
+}
+
+.np-hajiri-table td[data-code="SAT"],
+.np-hajiri-table td[data-code="PH"],
+.np-hajiri-table td[data-code="FH"],
+.np-hajiri-table td[data-code="NH"],
+.np-hajiri-table td[data-code="OH"],
+.np-hajiri-table td[data-code="H"] {
+  background: color-mix(in srgb, var(--primary) 6%, var(--surface));
+  color: var(--primary);
+  font-weight: 800;
+}
+
+.np-register-note,
+.np-copy {
+  margin: 0;
+  color: var(--muted);
+  font-size: 9.5px;
+  line-height: 1.5;
+}
+
+.np-audit-list article {
+  display: grid;
+  grid-template-columns: 150px minmax(0, 1fr) auto;
+  align-items: start;
+  gap: 12px;
+  padding: 10px 11px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--surface-soft);
+}
+
+.np-audit-list time,
+.np-audit-list > article > span {
+  color: var(--muted);
+  font-size: 8.5px;
+}
+
+.np-audit-list > article > div {
+  display: grid;
+  gap: 2px;
+}
+
+.np-audit-list strong {
+  color: var(--ink);
+  font-size: 10px;
+}
+
+.np-audit-list p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 9px;
+  line-height: 1.45;
+}
+
+.np-compliance-empty {
+  display: grid;
+  min-height: 118px;
+  place-content: center;
+  gap: 4px;
+  padding: 20px;
+  border: 1px dashed var(--border);
+  border-radius: 10px;
+  background: var(--surface-soft);
+  text-align: center;
+}
+
+.np-compliance-empty strong {
+  color: var(--ink);
+  font-size: 11px;
+}
+
+.np-compliance-empty span {
+  max-width: 58ch;
+  color: var(--muted);
+  font-size: 9.5px;
+  line-height: 1.5;
+}
+
+.np-import-form .modal-body {
+  display: grid;
+  gap: 14px;
+}
+
+.np-import-preview {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.np-import-preview > div {
+  display: grid;
+  gap: 2px;
+  padding: 12px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--surface-soft);
+}
+
+.np-import-preview > div strong {
+  color: var(--ink);
+  font-size: 18px;
+}
+
+.np-import-preview > div span,
+.np-import-preview > p {
+  color: var(--muted);
+  font-size: 9px;
+}
+
+.np-import-preview > p {
+  grid-column: 1 / -1;
+  margin: 0;
+  line-height: 1.45;
+}
+
+@media (max-width: 980px) {
+  .np-compliance-hero {
+    grid-template-columns: 1fr;
+  }
+
+  .np-compliance-actions {
+    justify-content: flex-start;
+  }
+
+  .np-compliance-metrics {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .np-policy-grid,
+  .np-leave-reference {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .np-fiscal-status {
+    grid-template-columns: 1fr auto;
+  }
+
+  .np-fiscal-status dl {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 680px) {
+  .np-compliance {
+    gap: 12px;
+  }
+
+  .np-compliance-hero,
+  .np-panel {
+    padding: 15px;
+    border-radius: 13px;
+  }
+
+  .np-boundary {
+    grid-template-columns: 1fr;
+  }
+
+  .np-boundary strong {
+    white-space: normal;
+  }
+
+  .np-compliance-actions {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+
+  .np-compliance-actions .button {
+    width: 100%;
+  }
+
+  .np-compliance-metrics,
+  .np-compliance-grid,
+  .np-policy-grid,
+  .np-leave-reference,
+  .np-import-preview {
+    grid-template-columns: 1fr;
+  }
+
+  .np-panel-wide {
+    grid-column: auto;
+  }
+
+  .np-panel > header,
+  .np-holiday-list article,
+  .np-comp-list article {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .np-compliance-issues article {
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+
+  .np-compliance-issues article button {
+    grid-column: 1 / -1;
+    width: 100%;
+  }
+
+  .np-import-history article,
+  .np-audit-list article,
+  .np-fiscal-status {
+    grid-template-columns: 1fr;
+  }
+
+  .np-import-history article > span {
+    min-width: 0;
+  }
+
+  .np-fiscal-status dl {
+    grid-column: auto;
+  }
+
+  .np-hajiri-table th:first-child {
+    min-width: 138px;
+    max-width: 138px;
+  }
+}
+
+@media print {
+  .np-compliance-hero,
+  .np-boundary,
+  .np-compliance-actions,
+  .np-compliance-tabs,
+  .np-module-links,
+  .np-panel > header .button,
+  .np-holiday-list .icon-button,
+  .np-comp-list .button {
+    display: none !important;
+  }
+
+  .np-compliance,
+  .np-panel {
+    padding: 0;
+    border: 0;
+    box-shadow: none;
+  }
+
+  .np-hajiri-scroll {
+    overflow: visible;
+    border: 0;
+  }
+
+  .np-hajiri-table {
+    width: 100%;
+    font-size: 6.5pt;
+  }
+
+  .np-hajiri-table th,
+  .np-hajiri-table td {
+    position: static !important;
+    min-width: 0;
+    height: auto;
+    padding: 3px;
+    border-color: #777;
+  }
+}

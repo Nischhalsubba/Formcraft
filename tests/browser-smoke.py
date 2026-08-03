@@ -122,7 +122,7 @@ def run_desktop(browser, base_url):
 
     assert visible(page, '.workspace-sidebar').is_visible()
     assert visible(page, '.product-dashboard').is_visible()
-    assert page.locator('[data-workspace-brand]').inner_text() == 'Test workspace'
+    assert visible(page, '.fc4-workspace-brand small').inner_text() == 'Test workspace'
     assert page.evaluate('FormcraftOnboarding.version')
     assert page.evaluate('FormcraftOperations.version') == 'OPS-NP-2.0'
     assert page.evaluate("FormcraftOperations.audit().readiness") == 'ready-to-test'

@@ -17,7 +17,7 @@ on:
       - 'assets/css/ui-theme-studio.css'
       - 'assets/js/form-modal-responsive.js'
       - 'assets/css/form-modal-responsive.css'
-      - 'assets/js/form-workflow-enhancements.js'
+      - 'assets/js/form-workflow-*.js'
       - 'assets/css/form-workflow-enhancements.css'
       - 'assets/js/demo-data-system.js'
       - 'assets/css/demo-data-system.css'
@@ -69,7 +69,7 @@ on:
       - 'assets/css/ui-theme-studio.css'
       - 'assets/js/form-modal-responsive.js'
       - 'assets/css/form-modal-responsive.css'
-      - 'assets/js/form-workflow-enhancements.js'
+      - 'assets/js/form-workflow-*.js'
       - 'assets/css/form-workflow-enhancements.css'
       - 'assets/js/demo-data-system.js'
       - 'assets/css/demo-data-system.css'
@@ -154,7 +154,7 @@ jobs:
         run: python tests/demo-data-form-workflows-browser-smoke.py
 
       - name: Upload demo-data visual snapshots
-        if: always()
+        if: success()
         uses: actions/upload-artifact@v4
         with:
           name: demo-data-visual-snapshots

@@ -64,9 +64,18 @@ def create_record(page, module_key, fields):
             control.select_option(str(value))
         elif input_type == 'checkbox':
             control.set_checked(bool(value))
-        else:
+        elif control.is_editable():
             control.fill(str(value))
-    visible(page, 'dialog[open] [data-erp-form] button[type="submit"]').click()
+        else:
+            page.wait_for_function(
+                "([selector, expected]) => Math.abs(Number(document.querySelector(selector)?.value || 0) - Number(expected)) < 0.01",
+                arg=[f'dialog[open] [data-erp-form] [name="{name}"]', str(value)],
+            )
+    submit = visible(page, 'dialog[open] [data-erp-form] button[type="submit"]')
+    submit.click()
+    if page.locator('dialog[open] [data-form-review]').count():
+        page.wait_for_selector('dialog[open] [data-form-review]')
+        visible(page, 'dialog[open] [data-erp-form] button[type="submit"]').click()
     page.wait_for_selector(f'[data-erp-record-page="{module_key}"]', timeout=7000)
     return page.evaluate(
         "key => FormcraftERP.collection(key)[0]?.id || ''",

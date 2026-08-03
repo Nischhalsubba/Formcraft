@@ -42,8 +42,14 @@ def wait_ready(page, errors):
     )
     page.wait_for_selector('[data-workspace-architecture="WORKSPACE-ARCH-3.0"]', timeout=8000)
     page.wait_for_function("document.documentElement.dataset.workspaceShell === 'FORMCRAFT-SIMPLE-SHELL-4.0'")
-    page.wait_for_timeout(180)
+    page.wait_for_function("!window.FormcraftDemoData || Boolean(document.querySelector('.fc4-sidebar [data-demo-data-nav]'))")
+    page.wait_for_timeout(100)
     assert not errors, errors
+
+
+def wait_stable_navigation(page):
+    page.wait_for_function("!window.FormcraftDemoData || Boolean(document.querySelector('.fc4-sidebar [data-demo-data-nav]'))")
+    page.wait_for_timeout(60)
 
 
 def assert_no_overflow(page):
@@ -66,13 +72,14 @@ def run_desktop(browser, base_url):
     labels = stable_labels(page)
     assert labels[:2] == ['Home', 'All apps'], labels
     assert 'Projects' in labels and 'CRM' in labels and 'Inventory' in labels and 'Settings' in labels
+    assert 'Demo data' in labels
     assert visible(page, '.fc4-sidebar [data-nav-key="apps"]').get_attribute('aria-current') == 'page'
     assert visible(page, '.erp-launcher').is_visible()
     assert_no_overflow(page)
 
     page.evaluate("FormcraftERPUI.goToApp(FormcraftERP.appByKey('crm'))")
     page.wait_for_selector('[data-erp-module-page="crm"]')
-    page.wait_for_timeout(140)
+    wait_stable_navigation(page)
     assert stable_labels(page) == labels
     assert visible(page, '.fc4-sidebar [data-nav-key="crm"]').get_attribute('aria-current') == 'page'
     assert visible(page, '.fc4-sidebar [data-nav-key="apps"]').get_attribute('data-nav-state') == 'parent'
@@ -99,7 +106,10 @@ def run_tablet(browser, base_url):
     visible(page, '.fc3-topbar [data-fc3-toggle-sidebar]').click()
     page.wait_for_function("document.body.classList.contains('fc3-context-open')")
     page.wait_for_function("Math.abs(document.querySelector('.fc4-sidebar').getBoundingClientRect().left) < 2")
-    assert stable_labels(page)[:2] == ['Home', 'All apps']
+    wait_stable_navigation(page)
+    labels = stable_labels(page)
+    assert labels[:2] == ['Home', 'All apps']
+    assert 'Demo data' in labels
     page.keyboard.press('Escape')
     page.wait_for_function("!document.body.classList.contains('fc3-context-open')")
     assert_no_overflow(page)
@@ -121,8 +131,10 @@ def run_mobile(browser, base_url):
     visible(page, '[data-bright-more]').click()
     page.wait_for_function("document.body.classList.contains('drawer-open')")
     assert visible(page, '.fc3-mobile-drawer').is_visible()
+    page.wait_for_function("!window.FormcraftDemoData || Boolean(document.querySelector('.fc4-mobile-nav [data-demo-data-nav]'))")
     mobile_labels = stable_labels(page, '.fc4-mobile-nav')
     assert mobile_labels[:2] == ['Home', 'All apps'], mobile_labels
+    assert 'Demo data' in mobile_labels
     visible(page, '.fc4-mobile-nav [data-nav-key="crm"]').click()
     page.wait_for_selector('[data-erp-module-page="crm"]')
     page.wait_for_function("!document.body.classList.contains('drawer-open')")
@@ -150,4 +162,4 @@ finally:
     server.shutdown()
     server.server_close()
 
-print('Workspace architecture browser checks passed for a stable desktop sidebar, tablet overlay, mobile drawer, launcher, module flow, search, and responsive navigation.')
+print('Workspace architecture browser checks passed for a stable desktop sidebar, tablet overlay, mobile drawer, launcher, module flow, search, demo-data navigation, and responsive navigation.')

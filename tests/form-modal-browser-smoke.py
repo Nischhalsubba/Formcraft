@@ -70,7 +70,19 @@ def open_form(page, module_key):
         arg=module_key,
         timeout=5000,
     )
-    page.wait_for_timeout(35)
+    if page.evaluate('Boolean(window.FormcraftFormWorkflow)'):
+        page.wait_for_function(
+            "key => document.querySelector(`dialog[open] form[data-erp-module=\"${key}\"]`)?.dataset.workflowEnhanced === 'FORMCRAFT-FORM-WORKFLOW-1.0'",
+            arg=module_key,
+            timeout=5000,
+        )
+    if page.evaluate('Boolean(window.FormcraftFormFieldIntegrity)'):
+        page.wait_for_function(
+            "key => document.querySelector(`dialog[open] form[data-erp-module=\"${key}\"]`)?.dataset.fieldIntegrity === 'FORMCRAFT-FORM-FIELD-INTEGRITY-1.0'",
+            arg=module_key,
+            timeout=5000,
+        )
+    page.wait_for_timeout(80)
 
 
 def close_form(page):
@@ -190,6 +202,9 @@ def create_sales_order_through_ui(page):
     assert audit['status'] == 'ready-to-test', audit
     fill_required_controls(page, 'sales')
     visible(page, 'dialog[open] button[type="submit"]').click()
+    if page.locator('dialog[open] [data-form-review]').count():
+        page.wait_for_selector('dialog[open] [data-form-review]')
+        visible(page, 'dialog[open] button[type="submit"]').click()
     page.wait_for_selector('[data-erp-record-page="sales"]', timeout=7000)
     assert page.evaluate("FormcraftERP.collection('sales').length > 0")
     assert visible(page, '[data-erp-record-page="sales"]').is_visible()

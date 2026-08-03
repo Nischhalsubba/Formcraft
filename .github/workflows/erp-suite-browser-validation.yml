@@ -17,6 +17,10 @@ on:
       - 'assets/css/ui-theme-studio.css'
       - 'assets/js/form-modal-responsive.js'
       - 'assets/css/form-modal-responsive.css'
+      - 'assets/js/form-workflow-*.js'
+      - 'assets/css/form-workflow-enhancements.css'
+      - 'assets/js/demo-data-system.js'
+      - 'assets/css/demo-data-system.css'
       - 'assets/js/formcraft-bright-dashboard.js'
       - 'tests/erp-suite-*.py'
       - 'tests/erp-suite-*.mjs'
@@ -30,9 +34,13 @@ on:
       - 'tests/simplified-workspace-*.mjs'
       - 'tests/form-modal-*.py'
       - 'tests/form-modal-*.mjs'
+      - 'tests/form-workflow-*.mjs'
+      - 'tests/demo-data-*.py'
+      - 'tests/demo-data-*.mjs'
       - 'docs/PREMIUM_UI_E2E_AUDIT.md'
       - 'docs/RESPONSIVE_SYSTEM_AUDIT.md'
       - 'docs/FORM_MODAL_E2E_AUDIT.md'
+      - 'docs/DEMO_DATA_AND_FORM_WORKFLOWS.md'
       - 'README.md'
       - 'index.html'
       - 'package.json'
@@ -45,6 +53,7 @@ on:
       - agent/responsive-system-audit
       - agent/simplified-shell-theme-studio
       - agent/form-modal-responsive-e2e
+      - agent/demo-data-form-workflows
     paths:
       - 'assets/js/erp-suite-*.js'
       - 'assets/css/erp-suite.css'
@@ -60,6 +69,10 @@ on:
       - 'assets/css/ui-theme-studio.css'
       - 'assets/js/form-modal-responsive.js'
       - 'assets/css/form-modal-responsive.css'
+      - 'assets/js/form-workflow-*.js'
+      - 'assets/css/form-workflow-enhancements.css'
+      - 'assets/js/demo-data-system.js'
+      - 'assets/css/demo-data-system.css'
       - 'assets/js/formcraft-bright-dashboard.js'
       - 'tests/erp-suite-*.py'
       - 'tests/erp-suite-*.mjs'
@@ -73,9 +86,13 @@ on:
       - 'tests/simplified-workspace-*.mjs'
       - 'tests/form-modal-*.py'
       - 'tests/form-modal-*.mjs'
+      - 'tests/form-workflow-*.mjs'
+      - 'tests/demo-data-*.py'
+      - 'tests/demo-data-*.mjs'
       - 'docs/PREMIUM_UI_E2E_AUDIT.md'
       - 'docs/RESPONSIVE_SYSTEM_AUDIT.md'
       - 'docs/FORM_MODAL_E2E_AUDIT.md'
+      - 'docs/DEMO_DATA_AND_FORM_WORKFLOWS.md'
       - 'README.md'
       - 'index.html'
       - 'package.json'
@@ -88,7 +105,7 @@ concurrency:
 jobs:
   browser-validation:
     runs-on: ubuntu-24.04
-    timeout-minutes: 24
+    timeout-minutes: 30
     env:
       SUPABASE_URL: https://formcraft-test.supabase.co
       SUPABASE_PUBLISHABLE_KEY: sb_publishable_formcraft_browser_test_key_1234567890
@@ -132,3 +149,15 @@ jobs:
 
       - name: Run all-module form modal regression
         run: python tests/form-modal-browser-smoke.py
+
+      - name: Run connected demo data and form workflow regression
+        run: python tests/demo-data-form-workflows-browser-smoke.py
+
+      - name: Upload demo-data visual snapshots
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: demo-data-visual-snapshots
+          path: test-artifacts/demo-data-visual-snapshots
+          if-no-files-found: error
+          retention-days: 30

@@ -96,9 +96,10 @@
     const attributes = item.kind === 'route'
       ? `data-route="${escape(item.route)}" href="#${escape(item.route)}"`
       : `data-erp-open-app="${escape(item.appKey)}" type="button"`;
+    const compatibility = item.key === 'apps' ? 'data-erp-apps-nav' : '';
     const tag = item.kind === 'route' ? 'a' : 'button';
     const stateName = active ? 'active' : parent ? 'parent' : 'inactive';
-    return `<${tag} ${attributes} class="fc4-nav-item ${active ? 'is-active' : ''} ${parent ? 'is-parent-active' : ''}" data-nav-key="${escape(item.key)}" data-nav-state="${stateName}" ${active ? 'aria-current="page"' : ''} ${mobile ? 'data-fc4-mobile-item' : ''}>
+    return `<${tag} ${attributes} ${compatibility} class="fc4-nav-item ${active ? 'is-active' : ''} ${parent ? 'is-parent-active' : ''}" data-nav-key="${escape(item.key)}" data-nav-state="${stateName}" ${active ? 'aria-current="page"' : ''} ${mobile ? 'data-fc4-mobile-item' : ''}>
       <span class="fc4-nav-icon">${icon(resolvedIcon || 'grid', 18)}</span>
       <span class="fc4-nav-label">${escape(item.label)}</span>
       ${count > 0 ? `<span class="fc4-nav-count">${count > 99 ? '99+' : count}</span>` : ''}

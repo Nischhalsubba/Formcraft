@@ -114,13 +114,24 @@ def run_reported_phone_case(browser, base_url):
     assert columns == 2, columns
     assert visible(page, '.fc3-mobile-bottom-nav').is_visible()
 
-    page.evaluate('window.scrollTo(0, document.documentElement.scrollHeight)')
-    page.wait_for_timeout(100)
+    page.evaluate("""
+        () => {
+          document.documentElement.style.scrollBehavior = 'auto';
+          document.body.style.scrollBehavior = 'auto';
+          window.scrollTo(0, Math.max(document.documentElement.scrollHeight, document.body.scrollHeight));
+        }
+    """)
+    page.wait_for_function("""
+        () => {
+          const max = Math.max(document.documentElement.scrollHeight, document.body.scrollHeight) - window.innerHeight;
+          return Math.abs(window.scrollY - Math.max(0, max)) < 4;
+        }
+    """)
     overlap = page.evaluate("""
         () => {
           const nav = document.querySelector('.fc3-mobile-bottom-nav').getBoundingClientRect();
           const last = document.querySelector('.product-dashboard > :last-child').getBoundingClientRect();
-          return { lastBottom: last.bottom, navTop: nav.top };
+          return { lastBottom: last.bottom, navTop: nav.top, scrollY: window.scrollY };
         }
     """)
     assert overlap['lastBottom'] <= overlap['navTop'] + 2, overlap
@@ -232,10 +243,12 @@ def run_landscape_phone(browser, base_url):
     page.goto(f'{base_url}/#dashboard', wait_until='domcontentloaded')
     wait_ready(page, errors)
 
+    assert page.locator('html').get_attribute('data-formcraft-viewport') == 'mobile-landscape'
     nav_box = visible(page, '.fc3-mobile-bottom-nav').bounding_box()
     assert nav_box and nav_box['height'] <= 66, nav_box
     assert visible(page, '.fc3-page-header h1').inner_text().strip()
     assert_no_root_overflow(page)
+    assert_responsive_audit(page)
     assert errors == [], errors
     page.close()
 

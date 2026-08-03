@@ -1,7 +1,7 @@
 'use strict';
 
 (() => {
-  const VERSION = 'FORMCRAFT-RECORD-WORKSPACE-FIXES-1.2';
+  const VERSION = 'FORMCRAFT-RECORD-WORKSPACE-FIXES-1.3';
   const ERP = window.FormcraftERP;
   const workspace = window.FormcraftRecordWorkspace;
   const sharedModal = document.querySelector('[data-modal]');
@@ -102,6 +102,13 @@
 
   sharedModal?.addEventListener('click', dismissSharedModal, true);
   sharedModal?.addEventListener('cancel', event => {
+    event.preventDefault();
+    event.stopImmediatePropagation();
+    closeModal();
+  }, true);
+
+  document.addEventListener('keydown', event => {
+    if (event.key !== 'Escape' || !sharedModal?.open) return;
     event.preventDefault();
     event.stopImmediatePropagation();
     closeModal();

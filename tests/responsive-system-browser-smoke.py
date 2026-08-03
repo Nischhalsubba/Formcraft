@@ -183,8 +183,7 @@ def run_tablet(browser, base_url):
     assert sidebar.evaluate("node => getComputedStyle(node).transform !== 'none'")
     visible(page, '.fc3-topbar [data-fc3-toggle-sidebar]').click()
     page.wait_for_function("document.body.classList.contains('fc3-context-open')")
-    page.wait_for_timeout(100)
-    assert sidebar.evaluate("node => Math.abs(node.getBoundingClientRect().left) < 2")
+    page.wait_for_function("Math.abs(document.querySelector('.fc4-sidebar').getBoundingClientRect().left) < 2")
     page.keyboard.press('Escape')
     page.wait_for_function("!document.body.classList.contains('fc3-context-open')")
 

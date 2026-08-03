@@ -104,7 +104,7 @@ def run_reported_phone_case(browser, base_url):
     card_box = project_card.bounding_box()
     assert card_box and card_box['height'] < 360, card_box
     assert visible(page, '.product-project-card-title .text-button').inner_text().strip()
-    assert visible(page, '.product-project-card-meta').locator('> div').count() == 2
+    assert visible(page, '.product-project-card-meta').locator(':scope > div').count() == 2
     assert visible(page, '.product-project-card-progress').is_visible()
     assert_rect_within_viewport(page, '.product-project-card')
 

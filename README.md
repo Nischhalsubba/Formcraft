@@ -1,5 +1,89 @@
 # Formcraft
 
+<!-- interactive-readme-standard:start -->
+
+> [!NOTE]
+> **Branch-specific documentation:** this section is maintained for [`main`](https://github.com/Nischhalsubba/Formcraft/tree/main). It is generated from the files present on this branch and preserves the project-authored README below.
+
+<details open>
+<summary><strong>Interactive repository guide</strong></summary>
+
+## Branch overview
+
+| Item | Value |
+|---|---|
+| Repository | [`Nischhalsubba/Formcraft`](https://github.com/Nischhalsubba/Formcraft) |
+| Branch | [`main`](https://github.com/Nischhalsubba/Formcraft/tree/main) |
+| Detected stack | JavaScript, CSS, Python, HTML, TypeScript |
+| Detected manifests | package.json |
+| Documentation policy | Every maintained branch must explain purpose, setup, structure, architecture, flows, testing, delivery, security, and ownership. |
+
+## Repository structure
+
+```mermaid
+flowchart TD
+    ROOT["Formcraft / main"]
+    ROOT --> P0[".github/"]
+    ROOT --> P1["assets/"]
+    ROOT --> P2["docs/"]
+    ROOT --> P3["scripts/"]
+    ROOT --> P4["supabase/"]
+    ROOT --> P5["tests/"]
+    ROOT --> P6[".env.example"]
+    ROOT --> P7[".gitignore"]
+    ROOT --> P8["AGENTS.md"]
+    ROOT --> P9["index.html"]
+    ROOT --> P10["netlify.toml"]
+    ROOT --> P11["package.json"]
+```
+
+The diagram is generated from the branch's actual top-level files and directories. Use the branch link above for complete source navigation.
+
+## Website or application structure
+
+```mermaid
+flowchart TD
+    APP["Formcraft"]
+    APP --> SOURCE["No conventional route directory detected"]
+    SOURCE --> VERIFY["Inspect the project-specific documentation below"]
+```
+
+## Application and responsibility flow
+
+```mermaid
+flowchart LR
+    ACTOR["User / contributor"]
+    ACTOR --> A0["Quality: tests"]
+    A0 --> A1["Documentation: docs"]
+    A1 --> A2["Delivery: .github, scripts"]
+    A2 --> DELIVERY["Delivery: netlify.toml, GitHub Actions"]
+```
+
+## Change-to-delivery flow
+
+```mermaid
+flowchart LR
+    CHANGE["Change on main"]
+    CHECK["Validate: npm run build, npm run test"]
+    REVIEW["Review documentation and architecture impact"]
+    RELEASE["Merge, release, or deploy according to this branch"]
+    CHANGE --> CHECK --> REVIEW --> RELEASE
+```
+
+## README requirements for this branch
+
+- Explain what this branch contains and how it differs from the default branch.
+- Keep installation, configuration, usage, testing, deployment, security, support, and license information accurate.
+- Document repository, website or application, API, data, authentication, background-job, and deployment flows when they exist.
+- Prefer Mermaid diagrams and expandable `<details>` sections for visual navigation.
+- Link diagrams and modules to real source paths; never invent missing components.
+- Preserve project-specific documentation and update diagrams whenever architecture or major paths change.
+- Treat secrets, private infrastructure, customer data, and credentials as prohibited README content.
+
+</details>
+
+<!-- interactive-readme-standard:end -->
+
 Formcraft is a Nepal-first, authenticated business workspace that connects projects, Jira-style tasks, calendars, files, communication, invoicing, customer work, finance foundations, operations, people, and reporting through one shared application shell.
 
 > The product goal is not “many pages in a sidebar.” The goal is one understandable operating system where related records, actions, permissions, and reports share the same context.

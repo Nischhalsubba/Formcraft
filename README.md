@@ -185,6 +185,7 @@ flowchart LR
 
 - [`.github/workflows/apply-interactive-readme.yml`](https://github.com/Nischhalsubba/Formcraft/blob/main/.github/workflows/apply-interactive-readme.yml)
 - [`.github/workflows/erp-suite-browser-validation.yml`](https://github.com/Nischhalsubba/Formcraft/blob/main/.github/workflows/erp-suite-browser-validation.yml)
+- [`.github/workflows/hrms-production-activation.yml`](https://github.com/Nischhalsubba/Formcraft/blob/main/.github/workflows/hrms-production-activation.yml)
 - [`.github/workflows/interaction-audit.yml`](https://github.com/Nischhalsubba/Formcraft/blob/main/.github/workflows/interaction-audit.yml)
 - [`.github/workflows/record-workspace-validation.yml`](https://github.com/Nischhalsubba/Formcraft/blob/main/.github/workflows/record-workspace-validation.yml)
 - [`.github/workflows/ui-audit.yml`](https://github.com/Nischhalsubba/Formcraft/blob/main/.github/workflows/ui-audit.yml)

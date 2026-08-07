@@ -172,8 +172,9 @@ body.fc-worldclass .fc-context-select-option:disabled { cursor:not-allowed; opac
 body.fc-worldclass .fc-context-select-check { margin-left:auto; color:var(--primary); font-weight:800; }
 body.fc-worldclass details.menu > .menu-popover, body.fc-worldclass details.more-menu > .popover-menu, body.fc-worldclass details.erp-row-menu > .menu-popover { position:fixed!important; inset:auto!important; }
 
-/* Dialogs */
-body.fc-worldclass dialog.modal, body.fc-worldclass [data-modal].modal { z-index:var(--fcw-z-dialog); max-width:min(760px,calc(100vw - 28px)); max-height:min(88vh,920px); padding:0; overflow:auto; border:1px solid var(--border); border-radius:var(--fcw-radius-xl); background-color:var(--surface-raised); color:var(--ink); box-shadow:var(--fcw-shadow-2); }
+/* Dialogs: style the surface, but let dedicated form-modal CSS own form geometry and scrolling. */
+body.fc-worldclass dialog.modal, body.fc-worldclass [data-modal].modal { z-index:var(--fcw-z-dialog); padding:0; border-color:var(--border); background-color:var(--surface-raised); color:var(--ink); box-shadow:var(--fcw-shadow-2); }
+body.fc-worldclass dialog.modal:not([data-surface="form"]), body.fc-worldclass [data-modal].modal:not([data-surface="form"]) { max-width:min(760px,calc(100vw - 28px)); max-height:min(88vh,920px); overflow:auto; border-radius:var(--fcw-radius-xl); }
 body.fc-worldclass dialog.modal::backdrop, body.fc-worldclass [data-modal].modal::backdrop { background-color:rgb(7 16 14 / .50); backdrop-filter:blur(4px); }
 body.fc-worldclass .toast-region { z-index:var(--fcw-z-toast); }
 
@@ -218,7 +219,7 @@ body.fc-worldclass [data-fcw-reveal].fcw-reveal-complete { will-change:auto; }
   body.fc-worldclass .fc3-page-surface { padding-bottom:92px; }
   body.fc-worldclass .product-panel { padding:16px; border-radius:14px!important; }
   body.fc-worldclass .product-summary-item { min-height:102px; padding:16px; border-radius:14px; }
-  body.fc-worldclass dialog.modal, body.fc-worldclass [data-modal].modal { max-width:calc(100vw - 16px); max-height:calc(100svh - 16px); border-radius:20px; }
+  body.fc-worldclass dialog.modal:not([data-surface="form"]), body.fc-worldclass [data-modal].modal:not([data-surface="form"]) { max-width:calc(100vw - 16px); max-height:calc(100svh - 16px); border-radius:20px; }
   body.fc-worldclass .backend-gate { min-height:100svh; padding:14px; }
   body.fc-worldclass .backend-card { padding:24px 20px; border-radius:22px; }
   body.fc-worldclass .fc-floating-panel { max-width:calc(100vw - 24px)!important; }

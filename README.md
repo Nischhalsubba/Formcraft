@@ -48,6 +48,7 @@ npm run test
 ### Configuration surface
 
 - `.env.example`
+- `device-bridge/.env.example`
 
 > Never commit secrets, private keys, production credentials, customer data, or unredacted infrastructure details.
 
@@ -58,17 +59,18 @@ flowchart TD
     ROOT["Formcraft / main"]
     ROOT --> P0[".github/"]
     ROOT --> P1["assets/"]
-    ROOT --> P2["docs/"]
-    ROOT --> P3["scripts/"]
-    ROOT --> P4["supabase/"]
-    ROOT --> P5["tests/"]
-    ROOT --> P6[".env.example"]
-    ROOT --> P7[".gitignore"]
-    ROOT --> P8["AGENTS.md"]
-    ROOT --> P9["index.html"]
-    ROOT --> P10["MASTER.md"]
-    ROOT --> P11["netlify.toml"]
-    ROOT --> P12["package.json"]
+    ROOT --> P2["device-bridge/"]
+    ROOT --> P3["docs/"]
+    ROOT --> P4["scripts/"]
+    ROOT --> P5["supabase/"]
+    ROOT --> P6["tests/"]
+    ROOT --> P7[".env.example"]
+    ROOT --> P8[".gitignore"]
+    ROOT --> P9["AGENTS.md"]
+    ROOT --> P10["index.html"]
+    ROOT --> P11["MASTER.md"]
+    ROOT --> P12["netlify.toml"]
+    ROOT --> P13["package.json"]
 ```
 
 | Responsibility | Detected source paths |
@@ -128,7 +130,7 @@ flowchart LR
     READ --> OUTPUT["UI, API, report, or export"]
 ```
 
-Detected data areas: [`supabase`](https://github.com/Nischhalsubba/Formcraft/tree/main/supabase), [`supabase/migrations/20260802170000_erp_relational_foundation.sql`](https://github.com/Nischhalsubba/Formcraft/blob/main/supabase/migrations/20260802170000_erp_relational_foundation.sql), [`supabase/migrations/20260730030000_formcraft_dynamic_backend.sql`](https://github.com/Nischhalsubba/Formcraft/blob/main/supabase/migrations/20260730030000_formcraft_dynamic_backend.sql), [`supabase/migrations/20260802174000_nepal_invoice_sequence_and_outbox.sql`](https://github.com/Nischhalsubba/Formcraft/blob/main/supabase/migrations/20260802174000_nepal_invoice_sequence_and_outbox.sql), [`supabase/migrations/20260730043000_installation_owner_state.sql`](https://github.com/Nischhalsubba/Formcraft/blob/main/supabase/migrations/20260730043000_installation_owner_state.sql), [`supabase/migrations/20260730030100_invitation_activation.sql`](https://github.com/Nischhalsubba/Formcraft/blob/main/supabase/migrations/20260730030100_invitation_activation.sql), [`supabase/functions/invite-member/deno.json`](https://github.com/Nischhalsubba/Formcraft/blob/main/supabase/functions/invite-member/deno.json), [`supabase/functions/invite-member/index.ts`](https://github.com/Nischhalsubba/Formcraft/blob/main/supabase/functions/invite-member/index.ts), [`tests/supabase-browser-mock.js`](https://github.com/Nischhalsubba/Formcraft/blob/main/tests/supabase-browser-mock.js).
+Detected data areas: [`supabase`](https://github.com/Nischhalsubba/Formcraft/tree/main/supabase), [`tests/supabase-browser-mock.js`](https://github.com/Nischhalsubba/Formcraft/blob/main/tests/supabase-browser-mock.js), [`supabase/migrations/20260802174000_nepal_invoice_sequence_and_outbox.sql`](https://github.com/Nischhalsubba/Formcraft/blob/main/supabase/migrations/20260802174000_nepal_invoice_sequence_and_outbox.sql), [`supabase/migrations/20260730030100_invitation_activation.sql`](https://github.com/Nischhalsubba/Formcraft/blob/main/supabase/migrations/20260730030100_invitation_activation.sql), [`supabase/migrations/20260807170000_hrms_zkteco_bridge.sql`](https://github.com/Nischhalsubba/Formcraft/blob/main/supabase/migrations/20260807170000_hrms_zkteco_bridge.sql), [`supabase/migrations/20260730043000_installation_owner_state.sql`](https://github.com/Nischhalsubba/Formcraft/blob/main/supabase/migrations/20260730043000_installation_owner_state.sql), [`supabase/migrations/20260802170000_erp_relational_foundation.sql`](https://github.com/Nischhalsubba/Formcraft/blob/main/supabase/migrations/20260802170000_erp_relational_foundation.sql), [`supabase/migrations/20260730030000_formcraft_dynamic_backend.sql`](https://github.com/Nischhalsubba/Formcraft/blob/main/supabase/migrations/20260730030000_formcraft_dynamic_backend.sql), [`supabase/functions/invite-member/deno.json`](https://github.com/Nischhalsubba/Formcraft/blob/main/supabase/functions/invite-member/deno.json), [`supabase/functions/invite-member/index.ts`](https://github.com/Nischhalsubba/Formcraft/blob/main/supabase/functions/invite-member/index.ts).
 
 </details>
 

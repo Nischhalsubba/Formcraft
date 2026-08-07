@@ -1,16 +1,24 @@
-/* Formcraft alignment system
-   Final geometry layer for page rhythm, panels, controls, forms, tables,
-   dialogs, floating surfaces, and responsive alignment. Solid colors only. */
+/* Formcraft Geometry System 2026.3
+   Final layout contract for the full workspace. This file owns alignment,
+   spacing rhythm, control geometry, floating-surface bounds, and responsive
+   gutters. It does not own business-state layout or module-specific scrolling. */
 
 :root {
   --fc-align-page-max: 1540px;
   --fc-align-gutter: clamp(18px, 2.2vw, 34px);
-  --fc-align-section-gap: 18px;
+  --fc-align-section-gap: 20px;
+  --fc-align-panel-pad: 20px;
   --fc-align-row-gap: 12px;
   --fc-align-control-gap: 8px;
-  --fc-align-panel-pad: 20px;
   --fc-align-control-h: 44px;
   --fc-align-field-h: 44px;
+  --fc-align-radius-control: 10px;
+  --fc-align-radius-panel: 16px;
+  --fc-layer-content: 1;
+  --fc-layer-sticky: 80;
+  --fc-layer-popover: 420;
+  --fc-layer-modal: 700;
+  --fc-layer-tour: 900;
 }
 
 body.fc-worldclass {
@@ -18,26 +26,11 @@ body.fc-worldclass {
   --fc4-page-gutter: var(--fc-align-gutter);
 }
 
-/* One content axis across every workspace page. */
-body.fc-worldclass.fc4-simple-shell .fc3-page-header.workspace-page-header,
-body.fc-worldclass.fc4-simple-shell .fc3-page-surface {
-  width: min(var(--fc-align-page-max), calc(100% - (var(--fc-align-gutter) * 2))) !important;
-  max-width: var(--fc-align-page-max) !important;
-  margin-inline: auto !important;
-  box-sizing: border-box;
-}
-
-body.fc-worldclass .fc3-page-header.workspace-page-header {
-  min-width: 0;
-  align-items: flex-start;
-  gap: 24px;
-}
-
-body.fc-worldclass .fc3-page-surface {
-  min-width: 0;
-}
-
-body.fc-worldclass :is(
+body.fc-worldclass :where(
+  .workspace-shell,
+  .workspace-main,
+  .fc3-page-header,
+  .fc3-page-surface,
   .product-dashboard,
   .page-stack,
   .settings-layout,
@@ -54,31 +47,43 @@ body.fc-worldclass :is(
   .module-layout,
   .module-content
 ) {
-  width: 100%;
   min-width: 0;
-  max-width: 100%;
-  margin-inline: 0;
   box-sizing: border-box;
 }
 
-body.fc-worldclass :is(
+/* One horizontal content axis on every workspace page. */
+body.fc-worldclass.fc4-simple-shell .fc3-page-header.workspace-page-header,
+body.fc-worldclass.fc4-simple-shell .fc3-page-surface {
+  width: min(var(--fc-align-page-max), calc(100% - (var(--fc-align-gutter) * 2))) !important;
+  max-width: var(--fc-align-page-max) !important;
+  margin-inline: auto !important;
+}
+
+body.fc-worldclass .fc3-page-surface > * {
+  min-width: 0;
+  max-width: 100%;
+}
+
+body.fc-worldclass :where(
   .product-dashboard,
   .page-stack,
+  .settings-layout,
   .erp-module-page,
   .erp-record-page,
   .ops-shell,
-  .ops-record-page,
-  .settings-layout
+  .ops-record-page
 ) {
+  width: 100%;
+  max-width: 100%;
+  margin-inline: 0;
   gap: var(--fc-align-section-gap);
 }
 
-/* Headings and their actions share one baseline. */
-body.fc-worldclass :is(
+/* Header geometry: copy owns available width; actions never collapse into it. */
+body.fc-worldclass :where(
   .workspace-page-header,
   .product-panel-head,
   .panel-head,
-  .erp-module-intro,
   .erp-module-header,
   .erp-record-heading,
   .ops-page-header,
@@ -90,7 +95,7 @@ body.fc-worldclass :is(
   min-width: 0;
 }
 
-body.fc-worldclass :is(
+body.fc-worldclass :where(
   .workspace-page-header,
   .product-panel-head,
   .panel-head,
@@ -102,25 +107,27 @@ body.fc-worldclass :is(
   .report-head
 ) {
   align-items: flex-start;
+  column-gap: 20px;
+  row-gap: 12px;
 }
 
-body.fc-worldclass :is(
+body.fc-worldclass :where(
   .workspace-page-heading,
   .fc3-page-copy,
-  .product-panel-head > div,
-  .panel-head > div,
-  .erp-module-intro > div,
-  .erp-module-header > div,
-  .erp-record-heading > div,
-  .ops-page-header > div,
-  .ops-section-head > div,
-  .settings-panel-head > div,
-  .report-head > div
+  .product-panel-head > :first-child,
+  .panel-head > :first-child,
+  .erp-module-header > :first-child,
+  .erp-record-heading > :first-child,
+  .ops-page-header > :first-child,
+  .ops-section-head > :first-child,
+  .settings-panel-head > :first-child,
+  .report-head > :first-child
 ) {
   min-width: 0;
+  flex: 1 1 auto;
 }
 
-body.fc-worldclass :is(
+body.fc-worldclass :where(
   .workspace-page-actions,
   .page-actions,
   .panel-actions,
@@ -135,12 +142,13 @@ body.fc-worldclass :is(
 ) {
   display: flex;
   min-width: 0;
+  flex: 0 0 auto;
   flex-wrap: wrap;
   align-items: center;
   gap: var(--fc-align-control-gap);
 }
 
-body.fc-worldclass :is(
+body.fc-worldclass :where(
   .workspace-page-actions,
   .page-actions,
   .panel-actions,
@@ -153,8 +161,8 @@ body.fc-worldclass :is(
   justify-content: flex-end;
 }
 
-/* Cards and panels use one internal rhythm. */
-body.fc-worldclass :is(
+/* Panel geometry: components can keep their visual identity while sharing rhythm. */
+body.fc-worldclass :where(
   .product-panel,
   .panel,
   .settings-panel,
@@ -169,22 +177,18 @@ body.fc-worldclass :is(
   .stat-card,
   .form-section
 ) {
-  box-sizing: border-box;
   min-width: 0;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
-body.fc-worldclass :is(.product-panel-head, .panel-head, .ops-section-head, .settings-panel-head) {
+body.fc-worldclass :where(.product-panel-head, .panel-head, .ops-section-head, .settings-panel-head) {
   display: flex;
   justify-content: space-between;
-  gap: 16px;
 }
 
-body.fc-worldclass :is(.product-panel-head, .panel-head, .ops-section-head, .settings-panel-head) > :first-child {
-  min-width: 0;
-}
-
-/* Controls align to a common physical height. */
-body.fc-worldclass :is(
+/* Controls use one physical height and one alignment model. */
+body.fc-worldclass :where(
   button,
   .button,
   .utility-button,
@@ -196,13 +200,25 @@ body.fc-worldclass :is(
   .ops-button
 ) {
   box-sizing: border-box;
+  vertical-align: middle;
 }
 
-body.fc-worldclass :is(.button, .fc-context-select-trigger, .erp-button, .ops-button) {
+body.fc-worldclass :where(.button, .fc-context-select-trigger, .erp-button, .ops-button) {
   min-height: var(--fc-align-control-h);
 }
 
-body.fc-worldclass :is(
+body.fc-worldclass :where(
+  .button,
+  .utility-button,
+  .action-button,
+  .fc-context-select-trigger,
+  .erp-button,
+  .ops-button
+) {
+  align-items: center;
+}
+
+body.fc-worldclass :where(
   .field,
   .erp-field,
   .backend-field,
@@ -213,7 +229,7 @@ body.fc-worldclass :is(
   align-content: start;
 }
 
-body.fc-worldclass :is(
+body.fc-worldclass :where(
   .field input,
   .field select,
   .erp-field input,
@@ -229,7 +245,7 @@ body.fc-worldclass :is(
   box-sizing: border-box;
 }
 
-body.fc-worldclass :is(
+body.fc-worldclass :where(
   .field input,
   .field select,
   .field textarea,
@@ -250,35 +266,59 @@ body.fc-worldclass :is(
   max-width: 100%;
 }
 
-body.fc-worldclass :is(.form-grid, .erp-form-grid, .backend-form-grid, .settings-form-grid) {
+body.fc-worldclass :where(.form-grid, .erp-form-grid, .backend-form-grid, .settings-form-grid) {
+  min-width: 0;
   align-items: start;
   column-gap: 16px;
   row-gap: 14px;
 }
 
-/* Data rows should line up visually even when content lengths differ. */
-body.fc-worldclass :is(table, .erp-table, .product-project-table) {
+/* Tables and list rows keep a stable vertical axis. */
+body.fc-worldclass :where(table, .erp-table, .product-project-table) {
   width: 100%;
+  max-width: 100%;
+  border-collapse: collapse;
 }
 
-body.fc-worldclass :is(th, td, .table-cell, .erp-table-cell) {
+body.fc-worldclass :where(th, td, .table-cell, .erp-table-cell) {
   vertical-align: middle;
 }
 
-body.fc-worldclass :is(.product-task-row, .product-event-row, .product-activity-row, .report-row, .email-row) {
+body.fc-worldclass :where(.product-task-row, .product-event-row, .product-activity-row, .report-row, .email-row) {
   min-width: 0;
   align-items: center;
 }
 
-body.fc-worldclass :is(.empty-state, .product-empty-state, .erp-empty, .ops-empty) {
+body.fc-worldclass :where(.empty-state, .product-empty-state, .erp-empty, .ops-empty) {
   box-sizing: border-box;
   width: 100%;
   min-width: 0;
   text-align: center;
 }
 
-/* Generic dialogs are centered and internally aligned. Dedicated form modals
-   keep their own geometry and scroll ownership. */
+/* Floating UI shares one bounded surface contract. Position is owned by JS. */
+body.fc-worldclass :where(
+  .fc-floating-panel,
+  .popover-menu,
+  .utility-popover,
+  .menu-popover,
+  .fc-context-select-popover
+) {
+  z-index: var(--fc-layer-popover) !important;
+  box-sizing: border-box;
+  max-width: calc(100vw - 24px) !important;
+  border-radius: 12px;
+}
+
+body.fc-worldclass :where(.fc-floating-panel, .fc-context-select-popover) > * {
+  min-width: 0;
+}
+
+/* Generic dialogs center on the viewport. Form modals keep their own scroll system. */
+dialog.modal:not(:has(.form-modal)) {
+  box-sizing: border-box;
+}
+
 dialog.modal:not(:has(.form-modal)) > [data-modal-content] {
   width: min(680px, calc(100vw - 32px));
   max-width: 680px;
@@ -288,12 +328,14 @@ dialog.modal:not(:has(.form-modal)) > [data-modal-content] {
 body.fc-worldclass .modal-card:not(.form-modal) {
   box-sizing: border-box;
   width: 100%;
+  max-width: 100%;
   margin-inline: auto;
 }
 
 body.fc-worldclass .modal-head {
   display: flex;
   justify-content: space-between;
+  align-items: flex-start;
   gap: 16px;
 }
 
@@ -305,46 +347,16 @@ body.fc-worldclass .modal-actions {
   justify-content: flex-end;
 }
 
-/* The invisible anchor makes Welcome / You're ready center on workspace content
-   rather than on the full viewport including the desktop sidebar. */
-.driver-active-element[data-formcraft-tour-center] {
-  position: fixed !important;
-  z-index: -1 !important;
-  border-radius: 0 !important;
-  outline: 0 !important;
-  box-shadow: none !important;
-  filter: none !important;
+/* Focus never changes layout bounds. */
+body.fc-worldclass :where(button, a, input, select, textarea, [tabindex]):focus-visible {
+  outline-offset: 2px;
 }
 
-[data-formcraft-tour-center] {
-  position: fixed;
-  z-index: -1;
-  width: 1px;
-  height: 1px;
-  pointer-events: none;
-  opacity: .001;
-}
-
-/* Responsive alignment: preserve the same axis and rhythm, just reduce it. */
 @media (max-width: 1100px) {
   :root {
     --fc-align-gutter: 18px;
     --fc-align-section-gap: 16px;
     --fc-align-panel-pad: 18px;
-  }
-
-  body.fc-worldclass :is(
-    .workspace-page-header,
-    .product-panel-head,
-    .panel-head,
-    .erp-module-header,
-    .erp-record-heading,
-    .ops-page-header,
-    .ops-section-head,
-    .settings-panel-head,
-    .report-head
-  ) {
-    gap: 14px;
   }
 }
 
@@ -354,8 +366,6 @@ body.fc-worldclass .modal-actions {
     --fc-align-section-gap: 14px;
     --fc-align-row-gap: 10px;
     --fc-align-panel-pad: 15px;
-    --fc-align-control-h: 44px;
-    --fc-align-field-h: 44px;
   }
 
   body.fc-worldclass.fc4-simple-shell .fc3-page-header.workspace-page-header,
@@ -365,25 +375,7 @@ body.fc-worldclass .modal-actions {
     margin-inline: auto !important;
   }
 
-  body.fc-worldclass .fc3-page-header.workspace-page-header {
-    gap: 12px;
-  }
-
-  body.fc-worldclass :is(
-    .workspace-page-header,
-    .product-panel-head,
-    .panel-head,
-    .erp-module-header,
-    .erp-record-heading,
-    .ops-page-header,
-    .ops-section-head,
-    .settings-panel-head,
-    .report-head
-  ) {
-    min-width: 0;
-  }
-
-  body.fc-worldclass :is(
+  body.fc-worldclass :where(
     .product-panel-head,
     .panel-head,
     .erp-module-header,
@@ -397,7 +389,7 @@ body.fc-worldclass .modal-actions {
     flex-direction: column;
   }
 
-  body.fc-worldclass :is(
+  body.fc-worldclass :where(
     .workspace-page-actions,
     .page-actions,
     .panel-actions,
@@ -412,12 +404,12 @@ body.fc-worldclass .modal-actions {
     justify-content: flex-start;
   }
 
-  body.fc-worldclass :is(.form-grid, .erp-form-grid, .backend-form-grid, .settings-form-grid) {
+  body.fc-worldclass :where(.form-grid, .erp-form-grid, .backend-form-grid, .settings-form-grid) {
     grid-template-columns: minmax(0, 1fr) !important;
   }
 
-  body.fc-worldclass :is(.product-panel, .panel, .settings-panel, .erp-card, .ops-card, .ops-work-section, .ops-portfolio-report) {
-    padding-inline: var(--fc-align-panel-pad);
+  body.fc-worldclass :where(.product-panel, .panel, .settings-panel, .erp-card, .ops-card, .ops-work-section, .ops-portfolio-report) {
+    max-width: 100%;
   }
 
   dialog.modal:not(:has(.form-modal)) > [data-modal-content] {
@@ -425,11 +417,7 @@ body.fc-worldclass .modal-actions {
     max-width: calc(100vw - 20px);
   }
 
-  body.fc-worldclass .modal-actions {
-    align-items: stretch;
-  }
-
-  body.fc-worldclass .modal-actions > :is(button, .button) {
+  body.fc-worldclass .modal-actions > :where(button, .button) {
     min-height: 44px;
   }
 }
@@ -440,14 +428,8 @@ body.fc-worldclass .modal-actions {
     align-items: stretch;
   }
 
-  body.fc-worldclass :is(.workspace-page-actions, .page-actions) {
+  body.fc-worldclass :where(.workspace-page-actions, .page-actions) {
     width: 100%;
     justify-content: flex-start;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .driver-active-element[data-formcraft-tour-center] {
-    transition: none !important;
   }
 }

@@ -7,14 +7,14 @@ Generator: `aed303eed8a536f2dda075c8be583693325aac37`
 | Branch | Result | Detail |
 |---|---|---|
 | `agent/global-alignment-system` | updated | Branch-specific README committed |
-| `agent/nepal-erp-suite` | updated | Branch-specific README committed |
-| `agent/onboarding-visual-refresh` | updated | Branch-specific README committed |
-| `agent/performance-mobile-stability` | updated | Branch-specific README committed |
-| `agent/simplify-product-tour` | updated | Branch-specific README committed |
-| `agent/topbar-auth-stability` | updated | Branch-specific README committed |
-| `agent/unified-design-system` | updated | Branch-specific README committed |
-| `agent/unify-production-design-state` | updated | Branch-specific README committed |
-| `fix/first-owner-autofill` | updated | Branch-specific README committed |
-| `fix/netlify-config-fallback` | updated | Branch-specific README committed |
-| `fix/owner-setup-state` | updated | Branch-specific README committed |
+| `agent/nepal-erp-suite` | unchanged | README already matched the standard |
+| `agent/onboarding-visual-refresh` | unchanged | README already matched the standard |
+| `agent/performance-mobile-stability` | unchanged | README already matched the standard |
+| `agent/simplify-product-tour` | unchanged | README already matched the standard |
+| `agent/topbar-auth-stability` | unchanged | README already matched the standard |
+| `agent/unified-design-system` | unchanged | README already matched the standard |
+| `agent/unify-production-design-state` | unchanged | README already matched the standard |
+| `fix/first-owner-autofill` | unchanged | README already matched the standard |
+| `fix/netlify-config-fallback` | unchanged | README already matched the standard |
+| `fix/owner-setup-state` | unchanged | README already matched the standard |
 | `main` | updated | Branch-specific README committed |

@@ -2,10 +2,14 @@
 
 (() => {
   const TOUR_VERSION = '2026.08.02.1';
+  const DRIVER_VERSION = '1.8.0';
+  const DRIVER_SCRIPT = `https://cdn.jsdelivr.net/npm/driver.js@${DRIVER_VERSION}/dist/driver.js.iife.js`;
+  const DRIVER_STYLES = `https://cdn.jsdelivr.net/npm/driver.js@${DRIVER_VERSION}/dist/driver.css`;
   const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
   let activeTour = null;
   let autoStartTimer = null;
   let fallbackOpen = false;
+  let driverAssetsPromise = null;
 
   function userIdentity() {
     const user = window.FormcraftBackend?.session?.user;
@@ -47,6 +51,48 @@
   function complete(status = 'completed') {
     writeState(status);
     document.dispatchEvent(new CustomEvent('formcraft:product-tour-finished', { detail: { status, version: TOUR_VERSION } }));
+  }
+
+  function ensureDriverAssets() {
+    const existing = window.driver?.js?.driver;
+    if (typeof existing === 'function') return Promise.resolve(existing);
+    if (driverAssetsPromise) return driverAssetsPromise;
+
+    driverAssetsPromise = new Promise((resolve, reject) => {
+      if (!document.querySelector('link[data-formcraft-driver-css]')) {
+        const stylesheet = document.createElement('link');
+        stylesheet.rel = 'stylesheet';
+        stylesheet.href = DRIVER_STYLES;
+        stylesheet.dataset.formcraftDriverCss = 'true';
+        document.head.append(stylesheet);
+      }
+
+      const finish = () => {
+        const factory = window.driver?.js?.driver;
+        if (typeof factory === 'function') resolve(factory);
+        else reject(new Error('Driver.js loaded without a driver factory.'));
+      };
+
+      const existingScript = document.querySelector('script[data-formcraft-driver-js]');
+      if (existingScript) {
+        existingScript.addEventListener('load', finish, { once: true });
+        existingScript.addEventListener('error', () => reject(new Error('Driver.js failed to load.')), { once: true });
+        return;
+      }
+
+      const script = document.createElement('script');
+      script.src = DRIVER_SCRIPT;
+      script.defer = true;
+      script.dataset.formcraftDriverJs = 'true';
+      script.addEventListener('load', finish, { once: true });
+      script.addEventListener('error', () => reject(new Error('Driver.js failed to load.')), { once: true });
+      document.head.append(script);
+    }).catch(error => {
+      driverAssetsPromise = null;
+      throw error;
+    });
+
+    return driverAssetsPromise;
   }
 
   function desktopSteps() {
@@ -258,8 +304,17 @@
     if (ui.route !== 'dashboard') navigate('dashboard');
     window.FormcraftFeatures?.enhance?.();
 
-    window.setTimeout(() => {
-      const driverFactory = window.driver?.js?.driver;
+    window.setTimeout(async () => {
+      let driverFactory = window.driver?.js?.driver;
+      if (typeof driverFactory !== 'function') {
+        try {
+          driverFactory = await ensureDriverAssets();
+        } catch {
+          showFallbackTour();
+          return;
+        }
+      }
+
       if (typeof driverFactory !== 'function') {
         showFallbackTour();
         return;
@@ -322,9 +377,15 @@
     }
   }, true);
 
-  const observer = new MutationObserver(considerAutoStart);
-  observer.observe(document.documentElement, { attributes: true, attributeFilter: ['data-backend'] });
-  observer.observe(document.body, { childList: true, subtree: true });
+  const backendObserver = new MutationObserver(considerAutoStart);
+  backendObserver.observe(document.documentElement, { attributes: true, attributeFilter: ['data-backend'] });
+
+  const appRoot = document.querySelector('#app');
+  const appObserver = appRoot ? new MutationObserver(mutations => {
+    if (mutations.some(mutation => mutation.type === 'childList' && mutation.addedNodes.length)) considerAutoStart();
+  }) : null;
+  appObserver?.observe(appRoot, { childList: true });
+
   document.addEventListener('formcraft:workspace-ready', considerAutoStart);
 
   window.FormcraftOnboarding = Object.freeze({

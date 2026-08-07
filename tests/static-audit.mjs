@@ -61,7 +61,7 @@ assert.ok(html.indexOf('assets/js/workspace-enhancements.js') > html.indexOf('as
 assert.ok(html.indexOf('assets/js/motion.js') > html.indexOf('assets/js/workspace-enhancements.js'), 'motion runtime must wrap the enhanced application');
 assert.ok(html.indexOf('assets/js/onboarding-tour.js') > html.indexOf('assets/js/motion.js'), 'onboarding must load after application and motion runtimes');
 assert.match(html, /data-backend="loading"/);
-assert.match(html, /theme-color" content="#F7F8FA"/);
+assert.match(html, /theme-color" content="#F2F4F1"/);
 assert.doesNotMatch(html, /maven-system|formcraft-components/);
 
 assert.match(directionCss, /--canvas: #f7f8fa/);

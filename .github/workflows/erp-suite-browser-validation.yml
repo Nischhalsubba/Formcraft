@@ -234,19 +234,19 @@ jobs:
           (root / '.github/workflows/hrms-payload-apply.yml').unlink(missing_ok=True)
           PY
 
+          git config user.name "Formcraft CI"
+          git config user.email "actions@users.noreply.github.com"
+          git add -A
+          git commit -m "Assemble additive HRMS and ZKTeco source"
+          git push origin "HEAD:${GITHUB_HEAD_REF}"
+          echo "changed=true" >> "$GITHUB_OUTPUT"
+
           node --check assets/js/hrms-xlsx.js
           node --check assets/js/hrms-suite-core.js
           node --check assets/js/hrms-suite-ui.js
           node --check tests/hrms-additive-audit.mjs
           python -m py_compile device-bridge/formcraft_bridge.py tests/hrms-additive-browser-smoke.py
           node tests/hrms-additive-audit.mjs
-
-          git config user.name "Formcraft CI"
-          git config user.email "actions@users.noreply.github.com"
-          git add -A
-          git commit -m "Add additive HRMS and ZKTeco bridge suite"
-          git push origin "HEAD:${GITHUB_HEAD_REF}"
-          echo "changed=true" >> "$GITHUB_OUTPUT"
 
   browser-validation:
     needs: assemble-hrms

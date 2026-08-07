@@ -57,6 +57,7 @@ on:
       - 'index.html'
       - 'package.json'
       - '.github/workflows/erp-suite-browser-validation.yml'
+      - '.github/workflows/hrms-production-activation.yml'
   push:
     branches:
       - main
@@ -123,6 +124,7 @@ on:
       - 'index.html'
       - 'package.json'
       - '.github/workflows/erp-suite-browser-validation.yml'
+      - '.github/workflows/hrms-production-activation.yml'
 
 permissions:
   contents: read

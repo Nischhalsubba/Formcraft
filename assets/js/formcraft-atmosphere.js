@@ -43,9 +43,11 @@ function createAtmosphere(gate) {
   const pointCount = lowPower ? 90 : 180;
   const positions = new Float32Array(pointCount * 3);
   const colors = new Float32Array(pointCount * 3);
-  const teal = new THREE.Color(0x72d4bf);
-  const warm = new THREE.Color(0xf09a72);
-  const mixed = new THREE.Color();
+  const palette = [
+    new THREE.Color(0x72d4bf),
+    new THREE.Color(0x4cae99),
+    new THREE.Color(0xf09a72)
+  ];
 
   for (let index = 0; index < pointCount; index += 1) {
     const i = index * 3;
@@ -56,10 +58,10 @@ function createAtmosphere(gate) {
     positions[i + 1] = elevation;
     positions[i + 2] = (Math.random() - 0.5) * 4.5;
 
-    mixed.copy(teal).lerp(warm, Math.random() * 0.34);
-    colors[i] = mixed.r;
-    colors[i + 1] = mixed.g;
-    colors[i + 2] = mixed.b;
+    const color = palette[index % palette.length];
+    colors[i] = color.r;
+    colors[i + 1] = color.g;
+    colors[i + 2] = color.b;
   }
 
   const pointGeometry = new THREE.BufferGeometry();
@@ -70,7 +72,7 @@ function createAtmosphere(gate) {
     size: lowPower ? 0.025 : 0.032,
     sizeAttenuation: true,
     transparent: true,
-    opacity: 0.72,
+    opacity: 0.68,
     vertexColors: true,
     depthWrite: false
   });
@@ -83,7 +85,7 @@ function createAtmosphere(gate) {
     color: 0x8adbc9,
     wireframe: true,
     transparent: true,
-    opacity: 0.065,
+    opacity: 0.06,
     depthWrite: false
   });
   const form = new THREE.Mesh(formGeometry, formMaterial);

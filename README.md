@@ -4,27 +4,27 @@
 
 # Formcraft
 
-**Branch-aware technical guide for [`main`](https://github.com/Nischhalsubba/Formcraft/tree/main)**
+**Branch-aware technical guide for [`agent/hrms-zkteco-complete-additive`](https://github.com/Nischhalsubba/Formcraft/tree/agent/hrms-zkteco-complete-additive)**
 
-<p><img alt="branch: main" src="https://img.shields.io/static/v1?label=&message=branch%3A%20main&color=5965F2&style=flat-square"> <img alt="JavaScript" src="https://img.shields.io/static/v1?label=&message=JavaScript&color=24292F&style=flat-square"> <img alt="CSS" src="https://img.shields.io/static/v1?label=&message=CSS&color=24292F&style=flat-square"> <img alt="Python" src="https://img.shields.io/static/v1?label=&message=Python&color=24292F&style=flat-square"> <img alt="HTML" src="https://img.shields.io/static/v1?label=&message=HTML&color=24292F&style=flat-square"> <img alt="TypeScript" src="https://img.shields.io/static/v1?label=&message=TypeScript&color=24292F&style=flat-square"> <img alt="docs: branch-aware" src="https://img.shields.io/static/v1?label=&message=docs%3A%20branch-aware&color=8250DF&style=flat-square"></p>
+<p><img alt="branch: agent/hrms-zkteco-complete-additive" src="https://img.shields.io/static/v1?label=&message=branch%3A%20agent%2Fhrms-zkteco-complete-additive&color=5965F2&style=flat-square"> <img alt="JavaScript" src="https://img.shields.io/static/v1?label=&message=JavaScript&color=24292F&style=flat-square"> <img alt="CSS" src="https://img.shields.io/static/v1?label=&message=CSS&color=24292F&style=flat-square"> <img alt="Python" src="https://img.shields.io/static/v1?label=&message=Python&color=24292F&style=flat-square"> <img alt="HTML" src="https://img.shields.io/static/v1?label=&message=HTML&color=24292F&style=flat-square"> <img alt="TypeScript" src="https://img.shields.io/static/v1?label=&message=TypeScript&color=24292F&style=flat-square"> <img alt="docs: branch-aware" src="https://img.shields.io/static/v1?label=&message=docs%3A%20branch-aware&color=8250DF&style=flat-square"></p>
 
 <p>
-  <a href="https://github.com/Nischhalsubba/Formcraft/tree/main"><strong>Browse source</strong></a> ·
+  <a href="https://github.com/Nischhalsubba/Formcraft/tree/agent/hrms-zkteco-complete-additive"><strong>Browse source</strong></a> ·
   <a href="https://github.com/Nischhalsubba/Formcraft/issues"><strong>Issues</strong></a> ·
-  <a href="https://github.com/Nischhalsubba/Formcraft/codespaces/new?ref=main"><strong>Open in Codespaces</strong></a>
+  <a href="https://github.com/Nischhalsubba/Formcraft/codespaces/new?ref=agent%2Fhrms-zkteco-complete-additive"><strong>Open in Codespaces</strong></a>
 </p>
 
 </div>
 
 > [!IMPORTANT]
-> This guide is generated from the files actually present on `main`. It links to detected source paths, preserves project-authored notes, and avoids claiming components that were not found.
+> This guide is generated from the files actually present on `agent/hrms-zkteco-complete-additive`. It links to detected source paths, preserves project-authored notes, and avoids claiming components that were not found.
 
 ## At a glance
 
 | Item | Detected value |
 |---|---|
 | Purpose | A JavaScript project documented from the current branch structure and manifests. |
-| Branch role | Default branch |
+| Branch role | Compared with `main` |
 | Stack | JavaScript, CSS, Python, HTML, TypeScript |
 | Manifests | package.json |
 | Prerequisites | Node.js |
@@ -33,7 +33,7 @@
 
 ## Branch scope
 
-This is the repository's default branch.
+No branch-specific file differences were detected against the default branch at generation time.
 
 
 
@@ -48,6 +48,7 @@ npm run test
 ### Configuration surface
 
 - `.env.example`
+- `device-bridge/.env.example`
 
 > Never commit secrets, private keys, production credentials, customer data, or unredacted infrastructure details.
 
@@ -55,28 +56,29 @@ npm run test
 
 ```mermaid
 flowchart TD
-    ROOT["Formcraft / main"]
+    ROOT["Formcraft / agent/hrms-zkteco-complete-additive"]
     ROOT --> P0[".github/"]
     ROOT --> P1["assets/"]
-    ROOT --> P2["docs/"]
-    ROOT --> P3["scripts/"]
-    ROOT --> P4["supabase/"]
-    ROOT --> P5["tests/"]
-    ROOT --> P6[".env.example"]
-    ROOT --> P7[".gitignore"]
-    ROOT --> P8["AGENTS.md"]
-    ROOT --> P9["index.html"]
-    ROOT --> P10["MASTER.md"]
-    ROOT --> P11["netlify.toml"]
-    ROOT --> P12["package.json"]
+    ROOT --> P2["device-bridge/"]
+    ROOT --> P3["docs/"]
+    ROOT --> P4["scripts/"]
+    ROOT --> P5["supabase/"]
+    ROOT --> P6["tests/"]
+    ROOT --> P7[".env.example"]
+    ROOT --> P8[".gitignore"]
+    ROOT --> P9["AGENTS.md"]
+    ROOT --> P10["index.html"]
+    ROOT --> P11["MASTER.md"]
+    ROOT --> P12["netlify.toml"]
+    ROOT --> P13["package.json"]
 ```
 
 | Responsibility | Detected source paths |
 |---|---|
-| Data | [`supabase`](https://github.com/Nischhalsubba/Formcraft/tree/main/supabase) |
-| Quality | [`tests`](https://github.com/Nischhalsubba/Formcraft/tree/main/tests) |
-| Documentation | [`docs`](https://github.com/Nischhalsubba/Formcraft/tree/main/docs) |
-| Delivery | [`.github`](https://github.com/Nischhalsubba/Formcraft/tree/main/.github), [`scripts`](https://github.com/Nischhalsubba/Formcraft/tree/main/scripts) |
+| Data | [`supabase`](https://github.com/Nischhalsubba/Formcraft/tree/agent/hrms-zkteco-complete-additive/supabase) |
+| Quality | [`tests`](https://github.com/Nischhalsubba/Formcraft/tree/agent/hrms-zkteco-complete-additive/tests) |
+| Documentation | [`docs`](https://github.com/Nischhalsubba/Formcraft/tree/agent/hrms-zkteco-complete-additive/docs) |
+| Delivery | [`.github`](https://github.com/Nischhalsubba/Formcraft/tree/agent/hrms-zkteco-complete-additive/.github), [`scripts`](https://github.com/Nischhalsubba/Formcraft/tree/agent/hrms-zkteco-complete-additive/scripts) |
 
 ## Website or application map
 
@@ -111,7 +113,7 @@ flowchart LR
     VERIFY -->|failure| RECOVER["Error or recovery path"]
 ```
 
-Relevant detected files: [`assets/js/auth-onboarding.js`](https://github.com/Nischhalsubba/Formcraft/blob/main/assets/js/auth-onboarding.js).
+Relevant detected files: [`assets/js/auth-onboarding.js`](https://github.com/Nischhalsubba/Formcraft/blob/agent/hrms-zkteco-complete-additive/assets/js/auth-onboarding.js).
 
 > The diagram expresses the responsibility sequence only. Confirm exact providers, token formats, roles, and recovery behavior in the linked source.
 
@@ -128,7 +130,7 @@ flowchart LR
     READ --> OUTPUT["UI, API, report, or export"]
 ```
 
-Detected data areas: [`supabase`](https://github.com/Nischhalsubba/Formcraft/tree/main/supabase), [`supabase/migrations/20260802170000_erp_relational_foundation.sql`](https://github.com/Nischhalsubba/Formcraft/blob/main/supabase/migrations/20260802170000_erp_relational_foundation.sql), [`supabase/migrations/20260730030000_formcraft_dynamic_backend.sql`](https://github.com/Nischhalsubba/Formcraft/blob/main/supabase/migrations/20260730030000_formcraft_dynamic_backend.sql), [`supabase/migrations/20260802174000_nepal_invoice_sequence_and_outbox.sql`](https://github.com/Nischhalsubba/Formcraft/blob/main/supabase/migrations/20260802174000_nepal_invoice_sequence_and_outbox.sql), [`supabase/migrations/20260730043000_installation_owner_state.sql`](https://github.com/Nischhalsubba/Formcraft/blob/main/supabase/migrations/20260730043000_installation_owner_state.sql), [`supabase/migrations/20260730030100_invitation_activation.sql`](https://github.com/Nischhalsubba/Formcraft/blob/main/supabase/migrations/20260730030100_invitation_activation.sql), [`supabase/functions/invite-member/deno.json`](https://github.com/Nischhalsubba/Formcraft/blob/main/supabase/functions/invite-member/deno.json), [`supabase/functions/invite-member/index.ts`](https://github.com/Nischhalsubba/Formcraft/blob/main/supabase/functions/invite-member/index.ts), [`tests/supabase-browser-mock.js`](https://github.com/Nischhalsubba/Formcraft/blob/main/tests/supabase-browser-mock.js).
+Detected data areas: [`supabase`](https://github.com/Nischhalsubba/Formcraft/tree/agent/hrms-zkteco-complete-additive/supabase), [`tests/supabase-browser-mock.js`](https://github.com/Nischhalsubba/Formcraft/blob/agent/hrms-zkteco-complete-additive/tests/supabase-browser-mock.js), [`supabase/migrations/20260802174000_nepal_invoice_sequence_and_outbox.sql`](https://github.com/Nischhalsubba/Formcraft/blob/agent/hrms-zkteco-complete-additive/supabase/migrations/20260802174000_nepal_invoice_sequence_and_outbox.sql), [`supabase/migrations/20260730030100_invitation_activation.sql`](https://github.com/Nischhalsubba/Formcraft/blob/agent/hrms-zkteco-complete-additive/supabase/migrations/20260730030100_invitation_activation.sql), [`supabase/migrations/20260807170000_hrms_zkteco_bridge.sql`](https://github.com/Nischhalsubba/Formcraft/blob/agent/hrms-zkteco-complete-additive/supabase/migrations/20260807170000_hrms_zkteco_bridge.sql), [`supabase/migrations/20260730043000_installation_owner_state.sql`](https://github.com/Nischhalsubba/Formcraft/blob/agent/hrms-zkteco-complete-additive/supabase/migrations/20260730043000_installation_owner_state.sql), [`supabase/migrations/20260802170000_erp_relational_foundation.sql`](https://github.com/Nischhalsubba/Formcraft/blob/agent/hrms-zkteco-complete-additive/supabase/migrations/20260802170000_erp_relational_foundation.sql), [`supabase/migrations/20260730030000_formcraft_dynamic_backend.sql`](https://github.com/Nischhalsubba/Formcraft/blob/agent/hrms-zkteco-complete-additive/supabase/migrations/20260730030000_formcraft_dynamic_backend.sql), [`supabase/functions/invite-member/deno.json`](https://github.com/Nischhalsubba/Formcraft/blob/agent/hrms-zkteco-complete-additive/supabase/functions/invite-member/deno.json), [`supabase/functions/invite-member/index.ts`](https://github.com/Nischhalsubba/Formcraft/blob/agent/hrms-zkteco-complete-additive/supabase/functions/invite-member/index.ts).
 
 </details>
 
@@ -140,7 +142,7 @@ Detected data areas: [`supabase`](https://github.com/Nischhalsubba/Formcraft/tre
 
 ### Quality
 
-- [`tests`](https://github.com/Nischhalsubba/Formcraft/tree/main/tests)
+- [`tests`](https://github.com/Nischhalsubba/Formcraft/tree/agent/hrms-zkteco-complete-additive/tests)
 
 Detected commands:
 - `npm run build`
@@ -172,7 +174,7 @@ Define useful logs, metrics, traces, alerts, and rollback signals for production
 
 ```mermaid
 flowchart LR
-    CHANGE["Change on main"] --> CHECK["Tests and quality checks"]
+    CHANGE["Change on agent/hrms-zkteco-complete-additive"] --> CHECK["Tests and quality checks"]
     CHECK --> REVIEW["Review architecture and documentation impact"]
     REVIEW --> BUILD["Build or package"]
     BUILD --> DEPLOY["Deploy or release"]
@@ -181,12 +183,12 @@ flowchart LR
 
 ### Automation detected
 
-- [`.github/workflows/apply-interactive-readme.yml`](https://github.com/Nischhalsubba/Formcraft/blob/main/.github/workflows/apply-interactive-readme.yml)
-- [`.github/workflows/erp-suite-browser-validation.yml`](https://github.com/Nischhalsubba/Formcraft/blob/main/.github/workflows/erp-suite-browser-validation.yml)
-- [`.github/workflows/interaction-audit.yml`](https://github.com/Nischhalsubba/Formcraft/blob/main/.github/workflows/interaction-audit.yml)
-- [`.github/workflows/record-workspace-validation.yml`](https://github.com/Nischhalsubba/Formcraft/blob/main/.github/workflows/record-workspace-validation.yml)
-- [`.github/workflows/ui-audit.yml`](https://github.com/Nischhalsubba/Formcraft/blob/main/.github/workflows/ui-audit.yml)
-- [`.github/workflows/worldclass-ui-audit.yml`](https://github.com/Nischhalsubba/Formcraft/blob/main/.github/workflows/worldclass-ui-audit.yml)
+- [`.github/workflows/apply-interactive-readme.yml`](https://github.com/Nischhalsubba/Formcraft/blob/agent/hrms-zkteco-complete-additive/.github/workflows/apply-interactive-readme.yml)
+- [`.github/workflows/erp-suite-browser-validation.yml`](https://github.com/Nischhalsubba/Formcraft/blob/agent/hrms-zkteco-complete-additive/.github/workflows/erp-suite-browser-validation.yml)
+- [`.github/workflows/interaction-audit.yml`](https://github.com/Nischhalsubba/Formcraft/blob/agent/hrms-zkteco-complete-additive/.github/workflows/interaction-audit.yml)
+- [`.github/workflows/record-workspace-validation.yml`](https://github.com/Nischhalsubba/Formcraft/blob/agent/hrms-zkteco-complete-additive/.github/workflows/record-workspace-validation.yml)
+- [`.github/workflows/ui-audit.yml`](https://github.com/Nischhalsubba/Formcraft/blob/agent/hrms-zkteco-complete-additive/.github/workflows/ui-audit.yml)
+- [`.github/workflows/worldclass-ui-audit.yml`](https://github.com/Nischhalsubba/Formcraft/blob/agent/hrms-zkteco-complete-additive/.github/workflows/worldclass-ui-audit.yml)
 
 ## Contribution flow
 
@@ -211,7 +213,7 @@ flowchart LR
 | Topic | Source |
 |---|---|
 | Repository | [`Nischhalsubba/Formcraft`](https://github.com/Nischhalsubba/Formcraft) |
-| Branch | [`main`](https://github.com/Nischhalsubba/Formcraft/tree/main) |
+| Branch | [`agent/hrms-zkteco-complete-additive`](https://github.com/Nischhalsubba/Formcraft/tree/agent/hrms-zkteco-complete-additive) |
 | Ownership | No CODEOWNERS file detected |
 | Contributing | Use the contribution flow above |
 | Support | [Open or review issues](https://github.com/Nischhalsubba/Formcraft/issues) |

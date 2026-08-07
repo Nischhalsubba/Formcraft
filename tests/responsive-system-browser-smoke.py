@@ -228,16 +228,32 @@ def run_desktop(browser, base_url):
           const actions = document.querySelector('.fc3-topbar-actions').getBoundingClientRect();
           const sidebar = document.querySelector('.fc4-sidebar').getBoundingClientRect();
           const main = document.querySelector('.fc3-main').getBoundingClientRect();
+          const topbar = document.querySelector('.fc3-topbar').getBoundingClientRect();
+          const overlap = !(
+            search.right <= actions.left + 1 ||
+            actions.right <= search.left + 1 ||
+            search.bottom <= actions.top + 1 ||
+            actions.bottom <= search.top + 1
+          );
           return {
+            searchLeft: search.left,
             searchRight: search.right,
+            searchTop: search.top,
+            searchBottom: search.bottom,
             actionsLeft: actions.left,
+            actionsRight: actions.right,
+            actionsTop: actions.top,
+            actionsBottom: actions.bottom,
+            topbarHeight: topbar.height,
+            overlap,
             sidebarLeft: sidebar.left,
             sidebarRight: sidebar.right,
             mainLeft: main.left
           };
         }
     """)
-    assert geometry['searchRight'] <= geometry['actionsLeft'] + 1, geometry
+    assert not geometry['overlap'], geometry
+    assert geometry['topbarHeight'] >= 70, geometry
     assert abs(geometry['sidebarLeft']) <= 1, geometry
     assert abs(geometry['sidebarRight'] - geometry['mainLeft']) <= 1, geometry
     assert_no_root_overflow(page)

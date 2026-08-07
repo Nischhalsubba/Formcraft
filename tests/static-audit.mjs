@@ -54,8 +54,9 @@ for (const path of cssFiles) assert.ok(html.includes(path), `${path} must load`)
 for (const path of jsFiles) assert.ok(html.includes(path), `${path} must load`);
 assert.match(html, /@supabase\/supabase-js@2/);
 assert.match(html, /gsap@3\.15\.0\/dist\/gsap\.min\.js/);
-assert.match(html, /driver\.js@1\.8\.0\/dist\/driver\.css/);
-assert.match(html, /driver\.js@1\.8\.0\/dist\/driver\.js\.iife\.js/);
+assert.doesNotMatch(html, /driver\.js@1\.8\.0\/dist\/driver\.css/, 'product-tour CSS must not block ordinary startup');
+assert.doesNotMatch(html, /driver\.js@1\.8\.0\/dist\/driver\.js\.iife\.js/, 'product-tour JS must be lazy-loaded only when the tour starts');
+assert.match(html, /family=Inter:wght@400;500;600;700&family=Manrope:wght@600;700/, 'startup fonts must be limited to the final design system families');
 assert.match(html, /__FORMCRAFT_INITIAL_ROUTE__/);
 assert.ok(html.indexOf('assets/js/workspace-enhancements.js') > html.indexOf('assets/js/interaction-fixes.js'), 'workspace enhancements must load after interaction fixes');
 assert.ok(html.indexOf('assets/js/motion.js') > html.indexOf('assets/js/workspace-enhancements.js'), 'motion runtime must wrap the enhanced application');
@@ -90,6 +91,10 @@ assert.match(motionCss, /\.calendar-event,[\s\S]*\.calendar-more[\s\S]*z-index: 
 assert.match(motionCss, /@media \(prefers-reduced-motion: reduce\)/);
 assert.match(motionJs, /window\.gsap/);
 assert.match(motionJs, /prefers-reduced-motion: reduce/);
+assert.match(motionJs, /max-width: 820px/);
+assert.match(motionJs, /navigator\.connection\?\.saveData/);
+assert.match(motionJs, /navigator\.deviceMemory/);
+assert.match(motionJs, /performanceReduced/);
 assert.match(motionJs, /openModalWithMotion/);
 assert.match(motionJs, /animateDrawerIn/);
 assert.match(motionJs, /animateCalendar/);
@@ -111,6 +116,9 @@ assert.match(enhancementJs, /missingMobile/);
 
 assert.match(onboardingJs, /TOUR_VERSION/);
 assert.match(onboardingJs, /window\.driver\?\.js\?\.driver/);
+assert.match(onboardingJs, /ensureDriverAssets/);
+assert.match(onboardingJs, /DRIVER_SCRIPT/);
+assert.match(onboardingJs, /DRIVER_STYLES/);
 assert.match(onboardingJs, /showProgress: true/);
 assert.match(onboardingJs, /skipMissingElement: true/);
 assert.match(onboardingJs, /waitForElement: 1600/);
@@ -120,6 +128,7 @@ assert.match(onboardingJs, /localStorage\.setItem/);
 assert.match(onboardingJs, /FormcraftOnboarding/);
 assert.match(onboardingJs, /data-complete-product-tour/);
 assert.match(onboardingJs, /data-dismiss-product-tour/);
+assert.doesNotMatch(onboardingJs, /observer\.observe\(document\.body, \{ childList: true, subtree: true \}\)/, 'onboarding must not observe every workspace DOM mutation');
 
 assert.match(productRuntime, /persistDynamicWorkspace/);
 assert.match(productRuntime, /FormcraftBackend\?\.flush/);

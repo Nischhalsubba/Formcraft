@@ -1,7 +1,7 @@
 'use strict';
 
 (() => {
-  const TOUR_VERSION = '2026.08.07.5';
+  const TOUR_VERSION = '2026.08.07.6';
   const MOBILE_BREAKPOINT = 820;
   const CARD_GAP = 14;
   const VIEWPORT_PAD = 14;
@@ -221,10 +221,27 @@
     return fallbacks[preferred] || fallbacks.bottom;
   }
 
-  function fitsViewport(position, width, height) {
-    return position.left >= VIEWPORT_PAD
-      && position.top >= VIEWPORT_PAD
-      && position.left + width <= window.innerWidth - VIEWPORT_PAD
+  function constrainCrossAxis(placement, position, width, height) {
+    if (placement === 'right' || placement === 'left') {
+      return {
+        ...position,
+        top: clamp(position.top, VIEWPORT_PAD, window.innerHeight - height - VIEWPORT_PAD)
+      };
+    }
+
+    return {
+      ...position,
+      left: clamp(position.left, VIEWPORT_PAD, window.innerWidth - width - VIEWPORT_PAD)
+    };
+  }
+
+  function primaryAxisFits(placement, position, width, height) {
+    if (placement === 'right' || placement === 'left') {
+      return position.left >= VIEWPORT_PAD
+        && position.left + width <= window.innerWidth - VIEWPORT_PAD;
+    }
+
+    return position.top >= VIEWPORT_PAD
       && position.top + height <= window.innerHeight - VIEWPORT_PAD;
   }
 
@@ -240,11 +257,13 @@
 
     const order = placementOrder(step.placement);
     for (const placement of order) {
-      const position = candidatePosition(placement, targetRect, width, height);
-      if (fitsViewport(position, width, height)) return { placement, ...position };
+      const candidate = candidatePosition(placement, targetRect, width, height);
+      const position = constrainCrossAxis(placement, candidate, width, height);
+      if (primaryAxisFits(placement, position, width, height)) return { placement, ...position };
     }
 
-    const fallback = candidatePosition(order[0], targetRect, width, height);
+    const candidate = candidatePosition(order[0], targetRect, width, height);
+    const fallback = constrainCrossAxis(order[0], candidate, width, height);
     return {
       placement: order[0],
       left: clamp(fallback.left, VIEWPORT_PAD, window.innerWidth - width - VIEWPORT_PAD),

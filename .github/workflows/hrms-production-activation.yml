@@ -52,9 +52,9 @@ jobs:
           fi
 
       - name: Set up Supabase CLI
-        uses: supabase/setup-cli@v1
+        uses: supabase/setup-cli@v2
         with:
-          version: latest
+          version: 2.84.2
 
       - name: Initialize CLI metadata when needed
         shell: bash

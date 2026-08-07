@@ -47,6 +47,15 @@ jobs:
           with tarfile.open(archive, 'r:gz') as bundle:
               bundle.extractall(root, filter='data')
 
+          ui_path = root / 'assets/js/hrms-suite-ui.js'
+          ui_source = ui_path.read_text(encoding='utf-8')
+          malformed = 'function tablive = device.last_seen_at && Date.now() - new Date(device.last_seen_at).getTime() < 300000;'
+          corrected = 'const live = device.last_seen_at && Date.now() - new Date(device.last_seen_at).getTime() < 300000;'
+          occurrence_count = ui_source.count(malformed)
+          if occurrence_count != 1:
+              raise SystemExit(f'Expected exactly one known HRMS UI syntax defect, found {occurrence_count}')
+          ui_path.write_text(ui_source.replace(malformed, corrected, 1), encoding='utf-8')
+
           index_path = root / 'index.html'
           index = index_path.read_text(encoding='utf-8')
           css_line = '  <link rel="stylesheet" href="assets/css/hrms-suite.css">\n'

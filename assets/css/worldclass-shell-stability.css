@@ -1,0 +1,226 @@
+/* Formcraft Worldclass shell stability
+   Final geometry for the desktop control bar and first-paint authentication.
+   Solid-color only. No gradients. */
+
+/* Wide desktop: reserve real space for business context instead of letting the
+   search field consume the row and crush every control on the right. */
+body.fc-worldclass .fc3-topbar.workspace-topbar {
+  grid-template-columns: minmax(170px, 240px) minmax(260px, 1fr) max-content;
+  column-gap: 14px;
+  padding-inline: 18px;
+}
+
+body.fc-worldclass .fc3-topbar-start {
+  min-width: 0;
+}
+
+body.fc-worldclass .fc3-topbar-breadcrumb {
+  max-width: 240px;
+}
+
+body.fc-worldclass .fc3-global-search.workspace-search-trigger {
+  width: min(100%, 560px);
+  max-width: 560px;
+  justify-self: start;
+}
+
+body.fc-worldclass .fc3-topbar-actions.nav-utilities {
+  display: flex;
+  width: max-content;
+  min-width: max-content;
+  max-width: none;
+  flex-wrap: nowrap;
+  align-items: center;
+  justify-self: end;
+  gap: 8px;
+}
+
+body.fc-worldclass .fc3-topbar-actions > :is(.nepal-market-chip, .fc3-sync-state, .utility-button, .fc3-account-button, .fc3-context-switchers) {
+  flex: 0 0 auto;
+}
+
+body.fc-worldclass .fc3-context-switchers {
+  max-width: none;
+  min-width: 0;
+  overflow: visible;
+  gap: 6px;
+  border: 0;
+  background-color: transparent;
+}
+
+body.fc-worldclass .fc3-context-separator {
+  display: none;
+}
+
+body.fc-worldclass .fc3-context-switchers .fc-context-select {
+  width: auto;
+  flex: 0 0 auto;
+}
+
+body.fc-worldclass .fc3-context-switchers .fc-context-select[data-select-kind="company"] .fc-context-select-trigger {
+  width: 164px;
+  min-width: 164px;
+}
+
+body.fc-worldclass .fc3-context-switchers .fc-context-select[data-select-kind="branch"] .fc-context-select-trigger {
+  width: 126px;
+  min-width: 126px;
+}
+
+body.fc-worldclass .fc3-account-button {
+  max-width: 174px;
+}
+
+body.fc-worldclass .fc3-account-name {
+  min-width: 0;
+  max-width: 116px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Normal laptop desktop: keep one row, but remove nonessential account copy
+   before compressing company/branch controls. */
+@media (min-width: 1541px) and (max-width: 1800px) {
+  body.fc-worldclass .fc3-topbar.workspace-topbar {
+    grid-template-columns: minmax(150px, 190px) minmax(240px, 1fr) max-content;
+    gap: 10px;
+    padding-inline: 14px;
+  }
+
+  body.fc-worldclass .fc3-topbar-breadcrumb {
+    max-width: 190px;
+  }
+
+  body.fc-worldclass .fc3-global-search.workspace-search-trigger {
+    width: min(100%, 460px);
+    max-width: 460px;
+  }
+
+  body.fc-worldclass .fc3-account-name,
+  body.fc-worldclass .fc3-account-button > svg {
+    display: none;
+  }
+
+  body.fc-worldclass .fc3-context-switchers .fc-context-select[data-select-kind="company"] .fc-context-select-trigger {
+    width: 148px;
+    min-width: 148px;
+  }
+
+  body.fc-worldclass .fc3-context-switchers .fc-context-select[data-select-kind="branch"] .fc-context-select-trigger {
+    width: 116px;
+    min-width: 116px;
+  }
+}
+
+/* Narrow desktop gets a deliberate two-level control bar. Search receives its
+   own row instead of turning the business-context controls into postage stamps. */
+@media (min-width: 1101px) and (max-width: 1540px) {
+  body.fc-worldclass .fc3-topbar.workspace-topbar {
+    min-height: 104px;
+    grid-template-columns: minmax(160px, 1fr) max-content !important;
+    grid-template-rows: 46px 46px;
+    grid-template-areas:
+      "start actions"
+      "search search";
+    align-items: center;
+    gap: 0 12px;
+    padding: 6px 14px;
+  }
+
+  body.fc-worldclass .fc3-topbar-start {
+    grid-area: start;
+  }
+
+  body.fc-worldclass .fc3-global-search.workspace-search-trigger {
+    grid-area: search;
+    width: 100%;
+    max-width: none;
+    justify-self: stretch;
+  }
+
+  body.fc-worldclass .fc3-topbar-actions.nav-utilities {
+    grid-area: actions;
+    gap: 6px;
+  }
+
+  body.fc-worldclass .fc3-topbar-breadcrumb {
+    max-width: min(38vw, 360px);
+  }
+
+  body.fc-worldclass .fc3-account-name,
+  body.fc-worldclass .fc3-account-button > svg {
+    display: none;
+  }
+
+  body.fc-worldclass .fc3-context-switchers .fc-context-select[data-select-kind="company"] .fc-context-select-trigger {
+    width: 144px;
+    min-width: 144px;
+  }
+
+  body.fc-worldclass .fc3-context-switchers .fc-context-select[data-select-kind="branch"] .fc-context-select-trigger {
+    width: 112px;
+    min-width: 112px;
+  }
+}
+
+@media (min-width: 1101px) and (max-width: 1320px) {
+  body.fc-worldclass .nepal-market-chip {
+    display: none;
+  }
+}
+
+/* Authentication must have one visual identity from the first painted frame.
+   The Worldclass class is present in the static HTML; these rules keep the form
+   card in its final grid position while the optional story/Three.js layers mount. */
+html[data-backend="auth"] body.fc-worldclass .backend-gate {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(420px, 520px);
+}
+
+html[data-backend="auth"] body.fc-worldclass .backend-gate > .fc-auth-story {
+  grid-column: 1;
+  grid-row: 1;
+}
+
+html[data-backend="auth"] body.fc-worldclass .backend-gate > .backend-card {
+  grid-column: 2;
+  grid-row: 1;
+}
+
+html:not([data-backend="auth"]) body.fc-worldclass .fc-auth-story {
+  display: none !important;
+}
+
+html[data-backend="loading"] body.fc-worldclass .backend-gate,
+html[data-backend="error"] body.fc-worldclass .backend-gate,
+html[data-backend="onboarding"] body.fc-worldclass .backend-gate {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  place-items: center;
+}
+
+html[data-backend="loading"] body.fc-worldclass .backend-card,
+html[data-backend="error"] body.fc-worldclass .backend-card,
+html[data-backend="onboarding"] body.fc-worldclass .backend-card {
+  grid-column: 1;
+  grid-row: 1;
+}
+
+@media (max-width: 900px) {
+  html[data-backend="auth"] body.fc-worldclass .backend-gate {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  html[data-backend="auth"] body.fc-worldclass .backend-gate > .backend-card {
+    grid-column: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body.fc-worldclass .fc3-topbar.workspace-topbar,
+  body.fc-worldclass .backend-gate,
+  body.fc-worldclass .backend-card {
+    scroll-behavior: auto;
+  }
+}

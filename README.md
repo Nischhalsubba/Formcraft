@@ -36,6 +36,7 @@
 This branch differs from the default branch in the following detected paths:
 
 - [`.github/TOUR_GEOMETRY_VALIDATION.md`](https://github.com/Nischhalsubba/Formcraft/blob/agent/validate-tour-geometry-main/.github/TOUR_GEOMETRY_VALIDATION.md)
+- [`README.md`](https://github.com/Nischhalsubba/Formcraft/blob/agent/validate-tour-geometry-main/README.md)
 
 ## Quick start
 

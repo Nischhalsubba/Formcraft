@@ -185,26 +185,30 @@
         return;
       }
 
-      if (ownerStateCache === true) {
-        decorateForm(form);
-        return;
-      }
+      /* Keep the sign-in surface stable while installation state is checked.
+         The previous implementation clicked into sign-up before the request
+         completed and then clicked back to sign-in for an existing owner,
+         producing a visible first-load flash. */
+      decorateForm(form);
 
-      if (!clickMode('signup')) {
-        decorateForm(form);
+      if (ownerStateCache === true) return;
+      if (ownerStateCache === false) {
+        clickMode('signup');
         return;
       }
 
       const exists = await ownerAccountExists(true);
-      if (exists === true) {
-        window.setTimeout(() => clickMode('signin'), 20);
-      } else {
+      if (!form.isConnected || form.dataset.mode !== 'signin') return;
+
+      if (exists === false) {
+        clickMode('signup');
         window.setTimeout(() => {
           const status = document.querySelector('[data-backend-status]');
-          if (status) status.textContent = exists === false
-            ? 'No owner account exists yet. Create the first Formcraft account below.'
-            : 'Owner status could not be verified. Create an account or try again.';
+          if (status) status.textContent = 'No owner account exists yet. Create the first Formcraft account below.';
         }, 20);
+      } else if (exists === null) {
+        const status = document.querySelector('[data-backend-status]');
+        if (status && !status.textContent) status.textContent = 'Owner status could not be verified. You can still sign in or create an account.';
       }
       return;
     }

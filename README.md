@@ -33,9 +33,11 @@
 
 ## Branch scope
 
-No branch-specific file differences were detected against the default branch at generation time.
+This branch differs from the default branch in the following detected paths:
 
-
+- [`README.md`](https://github.com/Nischhalsubba/Formcraft/blob/agent/tour-centering-fix/README.md)
+- [`assets/css/workspace-enhancements.css`](https://github.com/Nischhalsubba/Formcraft/blob/agent/tour-centering-fix/assets/css/workspace-enhancements.css)
+- [`tests/alignment-system-audit.mjs`](https://github.com/Nischhalsubba/Formcraft/blob/agent/tour-centering-fix/tests/alignment-system-audit.mjs)
 
 ## Quick start
 

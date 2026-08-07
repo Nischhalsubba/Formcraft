@@ -233,9 +233,20 @@
   border-color: var(--surface-raised);
 }
 
+/* The tour target must read as the only active control, even on the dark sidebar. */
 .driver-active-element {
-  border-radius: 12px;
-  box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary) 26%, transparent) !important;
+  position: relative !important;
+  z-index: 1000000001 !important;
+  border-radius: 12px !important;
+  outline: 3px solid #fff !important;
+  outline-offset: 3px !important;
+  box-shadow: 0 0 0 7px var(--primary), 0 14px 34px rgb(0 0 0 / .34) !important;
+  filter: brightness(1.16) saturate(1.08) !important;
+  isolation: isolate;
+}
+
+.driver-active-element :is(svg, .fc4-nav-icon, .fc4-nav-label, .fc4-nav-count) {
+  opacity: 1 !important;
 }
 
 @media (max-width: 760px) {
@@ -352,6 +363,12 @@
 
   .formcraft-tour-popover .driver-popover-footer {
     padding: 11px 12px 12px 17px;
+  }
+
+  .driver-active-element {
+    outline-width: 2px !important;
+    outline-offset: 2px !important;
+    box-shadow: 0 0 0 6px var(--primary), 0 10px 28px rgb(0 0 0 / .3) !important;
   }
 }
 

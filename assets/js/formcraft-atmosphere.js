@@ -12,6 +12,7 @@ let scheduled = false;
 
 function shouldUseAtmosphere(gate) {
   return gate instanceof HTMLElement
+    && document.documentElement.dataset.backend === 'auth'
     && atmosphereViewportQuery.matches
     && !reduceMotionQuery.matches
     && !lowPower;
@@ -235,6 +236,8 @@ const observer = new MutationObserver(mutations => {
   if (mutations.some(mutation => mutation.addedNodes.length || mutation.removedNodes.length)) schedule();
 });
 observer.observe(root, { childList: true, subtree: true });
+const backendObserver = new MutationObserver(schedule);
+backendObserver.observe(document.documentElement, { attributes: true, attributeFilter: ['data-backend'] });
 window.addEventListener('pagehide', () => cleanupScene?.(), { once: true });
 reduceMotionQuery.addEventListener?.('change', schedule);
 atmosphereViewportQuery.addEventListener?.('change', schedule);

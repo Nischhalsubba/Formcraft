@@ -1,0 +1,45 @@
+name: Worldclass UI Audit
+
+on:
+  pull_request:
+    paths:
+      - 'index.html'
+      - 'assets/css/formcraft-worldclass.css'
+      - 'assets/js/formcraft-worldclass.js'
+      - 'assets/js/formcraft-atmosphere.js'
+      - 'tests/worldclass-design-audit.mjs'
+      - '.github/workflows/worldclass-ui-audit.yml'
+  push:
+    branches:
+      - 'agent/worldclass-redesign'
+    paths:
+      - 'index.html'
+      - 'assets/css/formcraft-worldclass.css'
+      - 'assets/js/formcraft-worldclass.js'
+      - 'assets/js/formcraft-atmosphere.js'
+      - 'tests/worldclass-design-audit.mjs'
+      - '.github/workflows/worldclass-ui-audit.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  worldclass-ui:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Validate presentation JavaScript
+        run: |
+          node --check assets/js/formcraft-worldclass.js
+          node --check assets/js/formcraft-atmosphere.js
+
+      - name: Run focused design audit
+        run: node tests/worldclass-design-audit.mjs

@@ -35,7 +35,7 @@ assert.doesNotMatch(tour, /observe\(document\.body,\s*\{\s*childList:\s*true,\s*
 
 assert.match(
   tourCss,
-  /body\.fc4-simple-shell:has\(\.driver-active-element\[data-formcraft-tour-center\]\)[\s\S]*left:\s*calc\(50vw \+ \(var\(--fc4-sidebar-width\) \/ 2\)\)\s*!important/[\s\S]*top:\s*50vh\s*!important/[\s\S]*transform:\s*translate\(-50%, -50%\)\s*!important/,
+  /body\.fc4-simple-shell:has\(\.driver-active-element\[data-formcraft-tour-center\]\)[\s\S]*left:\s*calc\(50vw \+ \(var\(--fc4-sidebar-width\) \/ 2\)\)\s*!important[\s\S]*top:\s*50vh\s*!important[\s\S]*transform:\s*translate\(-50%, -50%\)\s*!important/,
   'desktop intro/final tour cards must be centered inside the workspace, not the viewport'
 );
 assert.match(

@@ -2,6 +2,7 @@
 
 (() => {
   const VERSION = 'FORMCRAFT-WORLDCLASS-2026.2';
+  const FORM_WORKFLOW_VERSION = 'FORMCRAFT-FORM-WORKFLOW-1.0';
   const reduceMotionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
   const revealSelector = [
     '.fc3-page-surface > .content-shell > *',
@@ -93,8 +94,15 @@
     return select.selectedOptions?.[0]?.textContent?.trim() || 'Select';
   }
 
+  function workflowReadyForSelect(select) {
+    const erpForm = select.closest('form[data-erp-form]');
+    return !erpForm || erpForm.dataset.workflowEnhanced === FORM_WORKFLOW_VERSION;
+  }
+
   function createSelectController(select) {
     if (!(select instanceof HTMLSelectElement) || select.multiple || Number(select.size) > 1 || select.dataset.fcwEnhanced) return null;
+    if (!workflowReadyForSelect(select)) return null;
+
     select.dataset.fcwEnhanced = 'true';
     select.classList.add('fc-native-select-source');
     select.tabIndex = -1;
@@ -282,6 +290,19 @@
     if (mutations.some(mutation => mutation.addedNodes.length || mutation.removedNodes.length)) schedule();
   });
   observer.observe(appRoot, { childList: true, subtree: true });
+
+  const modalRoot = document.querySelector('[data-modal]');
+  const modalObserver = modalRoot ? new MutationObserver(mutations => {
+    const workflowReady = mutations.some(mutation =>
+      mutation.type === 'attributes'
+      && mutation.attributeName === 'data-workflow-enhanced'
+      && mutation.target instanceof HTMLFormElement
+      && mutation.target.dataset.workflowEnhanced === FORM_WORKFLOW_VERSION
+    );
+    const modalOpened = mutations.some(mutation => mutation.type === 'attributes' && mutation.attributeName === 'open');
+    if (workflowReady || modalOpened) requestAnimationFrame(schedule);
+  }) : null;
+  modalObserver?.observe(modalRoot, { childList: true, subtree: true, attributes: true, attributeFilter: ['data-workflow-enhanced', 'open'] });
 
   const themeObserver = new MutationObserver(schedule);
   themeObserver.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme', 'data-backend'] });

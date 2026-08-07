@@ -1,7 +1,7 @@
 'use strict';
 
 (() => {
-  const TOUR_VERSION = '2026.08.07.3';
+  const TOUR_VERSION = '2026.08.07.4';
   const DRIVER_VERSION = '1.8.0';
   const DRIVER_SCRIPT = `https://cdn.jsdelivr.net/npm/driver.js@${DRIVER_VERSION}/dist/driver.js.iife.js`;
   const DRIVER_STYLES = `https://cdn.jsdelivr.net/npm/driver.js@${DRIVER_VERSION}/dist/driver.css`;
@@ -11,6 +11,7 @@
   let fallbackOpen = false;
   let driverAssetsPromise = null;
   let restoreShellAfterTour = null;
+  let tourCenterAnchor = null;
 
   function userIdentity() {
     const user = window.FormcraftBackend?.session?.user;
@@ -51,7 +52,35 @@
     return state?.status === 'completed' || state?.status === 'dismissed';
   }
 
+  function removeTourCenterAnchor() {
+    tourCenterAnchor?.remove();
+    tourCenterAnchor = null;
+  }
+
+  function ensureTourCenterAnchor() {
+    let anchor = tourCenterAnchor && tourCenterAnchor.isConnected
+      ? tourCenterAnchor
+      : document.querySelector('[data-formcraft-tour-center]');
+
+    if (!anchor) {
+      anchor = document.createElement('span');
+      anchor.dataset.formcraftTourCenter = 'true';
+      anchor.setAttribute('aria-hidden', 'true');
+      document.body.append(anchor);
+    }
+
+    const main = document.querySelector('.fc3-main.workspace-main') || document.querySelector('.workspace-main');
+    const rect = main?.getBoundingClientRect();
+    const centerX = rect && rect.width > 0 ? rect.left + (rect.width / 2) : window.innerWidth / 2;
+    const centerY = Math.max(120, Math.min(window.innerHeight - 120, window.innerHeight * 0.5));
+    anchor.style.left = `${Math.round(centerX)}px`;
+    anchor.style.top = `${Math.round(centerY)}px`;
+    tourCenterAnchor = anchor;
+    return anchor;
+  }
+
   function restoreTourShell() {
+    removeTourCenterAnchor();
     const restore = restoreShellAfterTour;
     restoreShellAfterTour = null;
     restore?.();
@@ -108,6 +137,7 @@
   function desktopSteps() {
     return [
       {
+        element: '[data-formcraft-tour-center]',
         popover: {
           title: 'Welcome to Formcraft',
           description: 'Here is a quick tour. It takes less than a minute.',
@@ -179,6 +209,7 @@
         }
       },
       {
+        element: '[data-formcraft-tour-center]',
         popover: {
           title: "You're ready",
           description: 'That is it. Start with Home, then use Search or + whenever you need something.',
@@ -192,6 +223,7 @@
   function mobileSteps() {
     return [
       {
+        element: '[data-formcraft-tour-center]',
         popover: {
           title: 'Welcome to Formcraft',
           description: 'Here is a quick tour of the main mobile controls.',
@@ -236,6 +268,7 @@
         }
       },
       {
+        element: '[data-formcraft-tour-center]',
         popover: {
           title: "You're ready",
           description: 'Use Home, Apps, Create, and More to move around.',
@@ -280,6 +313,7 @@
       body.classList.remove('fc4-sidebar-collapsed', 'fc3-sidebar-collapsed');
       window.FormcraftSimpleShell?.decorate?.();
     }
+    ensureTourCenterAnchor();
 
     restoreShellAfterTour = () => {
       body.classList.toggle('fc4-sidebar-collapsed', stateBefore.fc4Collapsed);
@@ -331,6 +365,7 @@
     prepareTourShell();
 
     window.setTimeout(async () => {
+      ensureTourCenterAnchor();
       let driverFactory = window.driver?.js?.driver;
       if (typeof driverFactory !== 'function') {
         try {
@@ -418,6 +453,10 @@
     if (mutations.some(mutation => mutation.type === 'childList' && mutation.addedNodes.length)) considerAutoStart();
   }) : null;
   appObserver?.observe(appRoot, { childList: true });
+
+  window.addEventListener('resize', () => {
+    if (activeTour || document.querySelector('[data-formcraft-tour-center]')) ensureTourCenterAnchor();
+  }, { passive: true });
 
   document.addEventListener('formcraft:workspace-ready', considerAutoStart);
 

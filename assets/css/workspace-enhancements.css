@@ -380,3 +380,89 @@
     animation: none !important;
   }
 }
+
+/* Tour layout contract: intro and completion cards belong to the workspace,
+   not the viewport. Driver.js may calculate its own position first; these
+   rules are the final geometry source of truth. */
+body.fc4-simple-shell:has(.driver-active-element[data-formcraft-tour-center]) .driver-popover.formcraft-tour-popover {
+  position: fixed !important;
+  inset: auto !important;
+  left: calc(50vw + (var(--fc4-sidebar-width) / 2)) !important;
+  top: 50vh !important;
+  width: min(420px, calc(100vw - var(--fc4-sidebar-width) - 48px)) !important;
+  max-width: 420px !important;
+  margin: 0 !important;
+  transform: translate(-50%, -50%) !important;
+}
+
+body.fc4-simple-shell:has(.driver-active-element[data-formcraft-tour-center]) .formcraft-tour-popover .driver-popover-arrow {
+  display: none !important;
+}
+
+/* The invisible centering anchor is geometry only, never a visual focus target. */
+.driver-active-element[data-formcraft-tour-center] {
+  outline: 0 !important;
+  box-shadow: none !important;
+  filter: none !important;
+  opacity: 0 !important;
+}
+
+/* One internal axis throughout the tour card. */
+.driver-popover.formcraft-tour-popover {
+  box-sizing: border-box;
+}
+
+.formcraft-tour-popover .driver-popover-title {
+  padding: 20px 52px 0 20px;
+}
+
+.formcraft-tour-popover .driver-popover-description {
+  margin: 0;
+  padding: 8px 20px 18px;
+}
+
+.formcraft-tour-popover .driver-popover-footer {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center !important;
+  gap: 16px !important;
+  padding: 14px 20px 16px !important;
+}
+
+.formcraft-tour-popover .driver-popover-navigation-btns {
+  display: flex !important;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px !important;
+}
+
+.formcraft-tour-popover .driver-popover-prev-btn:disabled {
+  display: none !important;
+}
+
+.formcraft-tour-popover .driver-popover-close-btn {
+  top: 10px !important;
+  right: 10px !important;
+}
+
+@media (max-width: 820px) {
+  body.fc4-simple-shell:has(.driver-active-element[data-formcraft-tour-center]) .driver-popover.formcraft-tour-popover {
+    left: 50vw !important;
+    top: 50vh !important;
+    width: min(380px, calc(100vw - 24px)) !important;
+    max-width: calc(100vw - 24px) !important;
+  }
+
+  .formcraft-tour-popover .driver-popover-title {
+    padding: 18px 48px 0 18px;
+  }
+
+  .formcraft-tour-popover .driver-popover-description {
+    padding: 7px 18px 16px;
+  }
+
+  .formcraft-tour-popover .driver-popover-footer {
+    gap: 12px !important;
+    padding: 12px 18px 14px !important;
+  }
+}

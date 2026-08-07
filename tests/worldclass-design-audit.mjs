@@ -16,7 +16,7 @@ assert(index.indexOf('assets/css/formcraft-worldclass.css') > index.indexOf('ass
 assert(index.includes('assets/css/worldclass-shell-stability.css'), 'shell stability stylesheet must be loaded');
 assert(index.indexOf('assets/css/worldclass-shell-stability.css') > index.indexOf('assets/css/formcraft-worldclass.css'), 'shell stability stylesheet must load after the worldclass layer');
 assert(index.includes('assets/js/formcraft-worldclass.js'), 'worldclass runtime must be loaded');
-assert(index.includes('type="module" src="assets/js/formcraft-atmosphere.js"'), 'Three.js atmosphere must load as a module');
+assert(index.includes('type="module" src="assets/js/formcraft-atmosphere.js"'), 'Three.js atmosphere controller must load as a module');
 
 assert(css.includes('@media (prefers-reduced-motion:reduce)'), 'CSS must include a reduced-motion mode');
 assert(css.includes(':focus-visible'), 'visible keyboard focus styling must exist');
@@ -36,15 +36,25 @@ assert(shellStability.includes('width: min(100%, 560px)'), 'desktop search must 
 assert(shellStability.includes('min-width: max-content'), 'topbar business controls must not collapse below their content width');
 assert(shellStability.includes('grid-template-areas:'), 'narrow desktop must use the deliberate two-level topbar layout');
 assert(shellStability.includes('min-width: 164px'), 'company selector must retain a readable desktop width');
+assert(shellStability.includes('@media (max-width: 820px)'), 'the final design layer must own one canonical phone/small-tablet shell');
+assert(shellStability.includes('font-size: 14px'), 'mobile must not inflate the entire application typography to form-control size');
+assert(shellStability.includes('backdrop-filter: none !important'), 'mobile fixed navigation must avoid expensive backdrop blur paint');
+assert(shellStability.includes('min-width: 44px'), 'mobile navigation controls must preserve usable touch targets');
+assert(shellStability.includes('env(safe-area-inset-bottom)'), 'mobile bottom navigation must preserve safe-area spacing');
 assert(shellStability.includes('html[data-backend="auth"] .backend-gate'), 'auth first-paint geometry must not depend on a later runtime body class');
 assert(shellStability.includes('grid-column: 2'), 'auth card must occupy its final column before presentation decoration mounts');
 assert.doesNotMatch(shellStability, /(?:linear|radial|conic)-gradient/i, 'shell stability layer must remain gradient-free');
 
 assert(runtime.includes("matchMedia('(prefers-reduced-motion: reduce)')"), 'GSAP runtime must respect reduced motion');
-assert(runtime.includes("ease: 'power3.out'"), 'page choreography must use the approved easing');
-assert(runtime.includes('duration: 0.42'), 'page choreography must stay within the motion budget');
+assert(runtime.includes('constrainedMotionQuery'), 'presentation motion must adapt to mobile/coarse-pointer devices');
+assert(runtime.includes('navigator.connection?.saveData'), 'presentation motion must respect Save-Data');
+assert(runtime.includes('navigator.deviceMemory'), 'presentation motion must adapt to lower-memory devices');
+assert(runtime.includes("ease: 'power3.out'"), 'desktop page choreography must use the approved easing');
+assert(runtime.includes('duration: 0.42'), 'desktop page choreography must stay within the motion budget');
 assert(runtime.includes('MutationObserver'), 'presentation runtime must survive dynamic shell rendering');
-assert(runtime.includes("document.querySelectorAll('select:not([multiple])')"), 'select controls must receive unified enhancement');
+assert(runtime.includes("select:not([multiple])"), 'select controls must receive unified enhancement');
+assert(runtime.includes('openSelectController'), 'floating select repositioning must track only the open controller');
+assert(runtime.includes('scheduleFloatingReposition'), 'floating select scroll work must be requestAnimationFrame throttled');
 assert(runtime.includes("aria-haspopup', 'listbox'"), 'custom selects must expose listbox semantics');
 assert(runtime.includes("select.dispatchEvent(new Event('change', { bubbles: true }))"), 'custom selects must preserve existing change handlers');
 assert(runtime.includes("event.key === 'ArrowDown'"), 'custom selects must support keyboard navigation');
@@ -65,6 +75,8 @@ assert(floating.includes("event.key !== 'Escape'"), 'floating surfaces must supp
 assert(floating.includes('FormcraftFloatingUI'), 'floating positioning must be exposed as a shared runtime');
 
 assert(atmosphere.includes("aria-hidden', 'true'"), 'decorative canvas must be hidden from assistive technology');
+assert(atmosphere.includes('import(THREE_MODULE_URL)'), 'Three.js must be dynamically imported only when the auth atmosphere is eligible');
+assert(atmosphere.includes('atmosphereViewportQuery'), 'Three.js must be skipped on mobile/coarse-pointer devices');
 assert(atmosphere.includes('Math.min(window.devicePixelRatio'), 'Three.js pixel ratio must be clamped');
 assert(atmosphere.includes('navigator.connection?.saveData'), 'Three.js must adapt for save-data users');
 assert(atmosphere.includes('navigator.deviceMemory'), 'Three.js must adapt for lower-memory devices');
@@ -73,4 +85,4 @@ assert(atmosphere.includes('renderer.dispose()'), 'Three.js renderer must be dis
 assert(atmosphere.includes("document.addEventListener('visibilitychange'"), 'ambient rendering must pause while hidden');
 assert.doesNotMatch(atmosphere, /\.lerp\(/, 'Three.js atmosphere must use discrete palette colors rather than interpolated color fields');
 
-console.log('Worldclass 2026.2 design, shell stability, floating UI, accessibility, motion, and Three.js audit passed.');
+console.log('Worldclass 2026.2 design, shell stability, mobile performance, floating UI, accessibility, motion, and Three.js audit passed.');

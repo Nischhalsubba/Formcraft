@@ -72,8 +72,16 @@ for (const contract of [
   'function audit()',
   'table.dataset.responsiveTable',
   'visualViewport',
-  'window.FormcraftResponsive'
+  'window.FormcraftResponsive',
+  'const pendingRoots = new Set()',
+  'fullRefreshPending',
+  'function decorateRoot',
+  'function flushScheduledWork'
 ]) assert.ok(runtime.includes(contract), `Missing responsive runtime contract: ${contract}`);
+
+assert.ok(!runtime.includes("visualViewport?.addEventListener('scroll'"), 'viewport scroll must not trigger responsive layout writes on every frame');
+assert.ok(runtime.includes('schedule(appRoot, true)'), 'intentional shell and viewport changes must still request a full responsive refresh');
+assert.ok(runtime.includes('roots.forEach(root => schedule(root))'), 'ordinary DOM mutations must use incremental subtree decoration');
 
 for (const contract of [
   'product-project-mobile',
@@ -100,4 +108,4 @@ assert.ok(workflow.includes('assets/css/responsive-system-v2*.css'), 'Responsive
 assert.ok(workflow.includes('assets/js/responsive-system-v2.js'), 'Responsive runtime must trigger CI.');
 
 assert.ok(!`${css}${landscapeCss}${runtime}`.includes('odoo.com'), 'Responsive runtime must not embed Odoo assets or source code.');
-console.log('Responsive system contracts passed for dashboard, tables, boards, records, forms, calendar, invoices, mobile, tablet, landscape, and desktop layouts.');
+console.log('Responsive system contracts passed for incremental runtime work, dashboard, tables, boards, records, forms, calendar, invoices, mobile, tablet, landscape, and desktop layouts.');

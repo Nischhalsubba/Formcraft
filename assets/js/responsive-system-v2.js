@@ -3,7 +3,18 @@
 (() => {
   const VERSION = 'FORMCRAFT-RESPONSIVE-2.0';
   const appRoot = document.querySelector('#app') || document.body;
+  const touchQuery = window.matchMedia('(hover: none), (pointer: coarse)');
+  const TABLE_SELECTOR = '.erp-table, .table-scroll table, .product-project-table table';
+  const SCROLL_SELECTOR = [
+    '.erp-group-tabs', '.erp-record-tabs', '.ops-record-tabs',
+    '.erp-board', '.ops-task-board', '.calendar-grid', '.nepal-calendar-grid',
+    '.erp-table-wrap', '.ops-task-table-wrap', '.ops-linked-table'
+  ].join(',');
   let scheduled = false;
+  let fullRefreshPending = false;
+  let lastViewportKey = '';
+  let lastBottomInset = -1;
+  const pendingRoots = new Set();
 
   const isShortLandscape = (width, height) => width <= 1000 && height <= 560 && width > height;
   const usesMobileShell = (width, height) => width <= 820 || isShortLandscape(width, height);
@@ -18,19 +29,33 @@
     return 'wide';
   };
 
-  function updateViewportState() {
+  function updateViewportState(force = false) {
     const visual = window.visualViewport;
     const width = Math.round(visual?.width || window.innerWidth || document.documentElement.clientWidth || 0);
     const height = Math.round(visual?.height || window.innerHeight || document.documentElement.clientHeight || 0);
     const viewport = viewportName(width, height);
     const mobileShell = usesMobileShell(width, height);
-    document.documentElement.dataset.formcraftViewport = viewport;
-    document.documentElement.dataset.formcraftMobileShell = String(mobileShell);
-    document.documentElement.style.setProperty('--fc-rsp-visual-width', `${width}px`);
-    document.documentElement.style.setProperty('--fc-rsp-visual-height', `${height}px`);
-    document.body?.classList.toggle('fc-rsp-touch', matchMedia('(hover: none), (pointer: coarse)').matches);
-    document.body?.classList.toggle('fc-rsp-short-landscape', isShortLandscape(width, height));
+    const touch = touchQuery.matches;
+    const viewportKey = `${width}:${height}:${viewport}:${mobileShell}:${touch}`;
+
+    if (force || viewportKey !== lastViewportKey) {
+      lastViewportKey = viewportKey;
+      document.documentElement.dataset.formcraftViewport = viewport;
+      document.documentElement.dataset.formcraftMobileShell = String(mobileShell);
+      document.documentElement.style.setProperty('--fc-rsp-visual-width', `${width}px`);
+      document.documentElement.style.setProperty('--fc-rsp-visual-height', `${height}px`);
+      document.body?.classList.toggle('fc-rsp-touch', touch);
+      document.body?.classList.toggle('fc-rsp-short-landscape', isShortLandscape(width, height));
+    }
+
     return { width, height, viewport, mobileShell };
+  }
+
+  function matchingElements(root, selector) {
+    const matches = [];
+    if (root instanceof Element && root.matches(selector)) matches.push(root);
+    root?.querySelectorAll?.(selector).forEach(element => matches.push(element));
+    return matches;
   }
 
   function cleanHeaderLabel(value = '') {
@@ -57,31 +82,29 @@
           cell.dataset.label = '';
           return;
         }
-        if (!cell.dataset.label) cell.dataset.label = headers[index] || '';
+        const label = headers[index] || '';
+        if (cell.dataset.label !== label) cell.dataset.label = label;
       });
     });
   }
 
   function decorateResponsiveTables(root = document) {
-    root.querySelectorAll?.('.erp-table, .table-scroll table, .product-project-table table').forEach(decorateTable);
+    matchingElements(root, TABLE_SELECTOR).forEach(decorateTable);
+  }
+
+  function decorateScrollableRegion(region) {
+    if (!(region instanceof HTMLElement)) return;
+    const horizontallyScrollable = region.scrollWidth > region.clientWidth + 2;
+    region.classList.toggle('fc-rsp-scrollable-x', horizontallyScrollable);
+    if (horizontallyScrollable && !region.hasAttribute('tabindex')) region.tabIndex = 0;
+    if (horizontallyScrollable && !region.hasAttribute('role')) region.setAttribute('role', 'region');
+    if (horizontallyScrollable && !region.hasAttribute('aria-label')) {
+      region.setAttribute('aria-label', 'Scrollable content');
+    }
   }
 
   function decorateScrollableRegions(root = document) {
-    const selectors = [
-      '.erp-group-tabs', '.erp-record-tabs', '.ops-record-tabs',
-      '.erp-board', '.ops-task-board', '.calendar-grid', '.nepal-calendar-grid',
-      '.erp-table-wrap', '.ops-task-table-wrap', '.ops-linked-table'
-    ];
-    root.querySelectorAll?.(selectors.join(',')).forEach(region => {
-      if (!(region instanceof HTMLElement)) return;
-      const horizontallyScrollable = region.scrollWidth > region.clientWidth + 2;
-      region.classList.toggle('fc-rsp-scrollable-x', horizontallyScrollable);
-      if (horizontallyScrollable && !region.hasAttribute('tabindex')) region.tabIndex = 0;
-      if (horizontallyScrollable && !region.hasAttribute('role')) region.setAttribute('role', 'region');
-      if (horizontallyScrollable && !region.hasAttribute('aria-label')) {
-        region.setAttribute('aria-label', 'Scrollable content');
-      }
-    });
+    matchingElements(root, SCROLL_SELECTOR).forEach(decorateScrollableRegion);
   }
 
   function syncBottomInset() {
@@ -90,24 +113,48 @@
       ? Math.ceil(nav.getBoundingClientRect().height)
       : 0;
     const fallback = document.body?.classList.contains('fc-rsp-short-landscape') ? 58 : 72;
-    document.documentElement.style.setProperty('--fc-rsp-mobile-nav', `${Math.max(fallback, height)}px`);
+    const nextInset = Math.max(fallback, height);
+    if (nextInset !== lastBottomInset) {
+      lastBottomInset = nextInset;
+      document.documentElement.style.setProperty('--fc-rsp-mobile-nav', `${nextInset}px`);
+    }
+  }
+
+  function decorateRoot(root = document) {
+    decorateResponsiveTables(root);
+    decorateScrollableRegions(root);
   }
 
   function decorate(root = document) {
     updateViewportState();
-    decorateResponsiveTables(root);
-    decorateScrollableRegions(root);
+    decorateRoot(root);
     syncBottomInset();
     document.documentElement.dataset.responsiveSystem = VERSION;
   }
 
-  function schedule(root = document) {
+  function flushScheduledWork() {
+    scheduled = false;
+    const fullRefresh = fullRefreshPending;
+    fullRefreshPending = false;
+
+    if (fullRefresh) {
+      pendingRoots.clear();
+      decorate(appRoot);
+      return;
+    }
+
+    const roots = [...pendingRoots];
+    pendingRoots.clear();
+    roots.forEach(decorateRoot);
+    document.documentElement.dataset.responsiveSystem = VERSION;
+  }
+
+  function schedule(root = appRoot, fullRefresh = false) {
+    if (fullRefresh) fullRefreshPending = true;
+    if (root instanceof Element || root instanceof Document || root instanceof DocumentFragment) pendingRoots.add(root);
     if (scheduled) return;
     scheduled = true;
-    requestAnimationFrame(() => {
-      scheduled = false;
-      decorate(root);
-    });
+    requestAnimationFrame(flushScheduledWork);
   }
 
   function isVisible(element) {
@@ -180,7 +227,7 @@
 
   function audit() {
     decorate();
-    const viewport = updateViewportState();
+    const viewport = updateViewportState(true);
     const rootOverflow = Math.max(document.documentElement.scrollWidth, document.body.scrollWidth) - viewport.width;
     const clipped = clippedInteractiveElements();
     const missingLabels = missingTableLabels();
@@ -208,24 +255,46 @@
     const previousRenderShell = renderShell;
     renderShell = function renderResponsiveFormcraftShell(...args) {
       const result = previousRenderShell.apply(this, args);
-      schedule(appRoot);
+      schedule(appRoot, true);
       return result;
     };
   }
 
+  function mutationRootFor(element) {
+    if (!(element instanceof Element)) return appRoot;
+    return element.closest(`${SCROLL_SELECTOR}, table, .fc3-mobile-bottom-nav`) || element;
+  }
+
   const observer = new MutationObserver(mutations => {
-    const root = mutations.find(mutation => mutation.addedNodes.length)?.target || appRoot;
-    schedule(root instanceof Element ? root : appRoot);
+    let shellChanged = false;
+    const roots = new Set();
+
+    mutations.forEach(mutation => {
+      if (!mutation.addedNodes.length) return;
+      if (mutation.target === appRoot) shellChanged = true;
+      if (mutation.target instanceof Element) roots.add(mutationRootFor(mutation.target));
+      mutation.addedNodes.forEach(node => {
+        if (!(node instanceof Element)) return;
+        if (node.matches('.workspace-shell') || node.querySelector('.workspace-shell')) shellChanged = true;
+        roots.add(mutationRootFor(node));
+      });
+    });
+
+    if (shellChanged) {
+      schedule(appRoot, true);
+      return;
+    }
+    roots.forEach(root => schedule(root));
   });
   observer.observe(appRoot, { childList: true, subtree: true });
 
-  window.addEventListener('resize', () => schedule(appRoot), { passive: true });
-  window.addEventListener('orientationchange', () => schedule(appRoot), { passive: true });
-  window.visualViewport?.addEventListener('resize', () => schedule(appRoot), { passive: true });
-  window.visualViewport?.addEventListener('scroll', () => updateViewportState(), { passive: true });
-  document.addEventListener('formcraft:workspace-ready', () => schedule(appRoot));
+  window.addEventListener('resize', () => schedule(appRoot, true), { passive: true });
+  window.addEventListener('orientationchange', () => schedule(appRoot, true), { passive: true });
+  window.visualViewport?.addEventListener('resize', () => schedule(appRoot, true), { passive: true });
+  touchQuery.addEventListener?.('change', () => schedule(appRoot, true));
+  document.addEventListener('formcraft:workspace-ready', () => schedule(appRoot, true));
 
-  schedule(appRoot);
+  schedule(appRoot, true);
 
   window.FormcraftResponsive = Object.freeze({
     version: VERSION,

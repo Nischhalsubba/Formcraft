@@ -4,6 +4,9 @@
   const VERSION = 'FORMCRAFT-WORLDCLASS-2026.2';
   const FORM_WORKFLOW_VERSION = 'FORMCRAFT-FORM-WORKFLOW-1.0';
   const reduceMotionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+  const constrainedMotionQuery = window.matchMedia('(max-width: 820px), (pointer: coarse)');
+  const saveData = Boolean(navigator.connection?.saveData);
+  const lowMemory = Number(navigator.deviceMemory || 8) <= 4;
   const revealSelector = [
     '.fc3-page-surface > .content-shell > *',
     '.fc3-page-surface > .product-dashboard > *',
@@ -14,8 +17,15 @@
   ].join(',');
 
   const selectControllers = new Set();
+  let openSelectController = null;
+  let floatingRepositionFrame = 0;
   let scheduled = false;
   let selectId = 0;
+
+  const decorativeMotionAllowed = () => !reduceMotionQuery.matches
+    && !constrainedMotionQuery.matches
+    && !saveData
+    && !lowMemory;
 
   function updateThemeColor() {
     const meta = document.querySelector('meta[name="theme-color"]');
@@ -63,7 +73,7 @@
       node.dataset.fcwReveal = 'true';
     });
 
-    if (reduceMotionQuery.matches || !window.gsap) {
+    if (!decorativeMotionAllowed() || !window.gsap) {
       nodes.forEach(node => node.classList.add('fcw-reveal-complete'));
       return;
     }
@@ -164,11 +174,13 @@
         panel.hidden = false;
         position();
       }
+      openSelectController = controller;
       requestAnimationFrame(() => panel.querySelector('[aria-selected="true"]:not(:disabled), [role="option"]:not(:disabled)')?.focus());
     }
 
     function close({ restoreFocus = false } = {}) {
       if (panel.hidden) return;
+      if (openSelectController === controller) openSelectController = null;
       trigger.setAttribute('aria-expanded', 'false');
       panel.classList.remove('is-open');
       const done = () => { if (restoreFocus) trigger.focus(); };
@@ -244,19 +256,25 @@
   }
 
   function closeAllCustomSelects(exceptHost = null) {
-    selectControllers.forEach(controller => {
-      if (controller.host !== exceptHost && !controller.panel.hidden) controller.close();
-    });
+    if (openSelectController && openSelectController.host !== exceptHost) openSelectController.close();
   }
 
-  function enhanceSelects() {
-    document.querySelectorAll('select:not([multiple])').forEach(createSelectController);
+  function cleanupSelectControllers() {
     selectControllers.forEach(controller => {
       if (!controller.select.isConnected || !controller.host.isConnected) {
+        if (openSelectController === controller) openSelectController = null;
         controller.panel.remove();
         selectControllers.delete(controller);
       }
     });
+  }
+
+  function enhanceSelects(root = document) {
+    const candidates = [];
+    if (root instanceof HTMLSelectElement && !root.multiple) candidates.push(root);
+    root.querySelectorAll?.('select:not([multiple])').forEach(select => candidates.push(select));
+    candidates.forEach(createSelectController);
+    cleanupSelectControllers();
   }
 
   function decorate() {
@@ -275,10 +293,18 @@
     requestAnimationFrame(decorate);
   }
 
-  document.addEventListener('pointerdown', event => {
-    selectControllers.forEach(controller => {
-      if (!controller.host.contains(event.target) && !controller.panel.contains(event.target)) controller.close();
+  function scheduleFloatingReposition() {
+    if (!openSelectController || floatingRepositionFrame) return;
+    floatingRepositionFrame = requestAnimationFrame(() => {
+      floatingRepositionFrame = 0;
+      if (openSelectController && !openSelectController.panel.hidden) openSelectController.position();
     });
+  }
+
+  document.addEventListener('pointerdown', event => {
+    const controller = openSelectController;
+    if (!controller) return;
+    if (!controller.host.contains(event.target) && !controller.panel.contains(event.target)) controller.close();
   });
 
   document.addEventListener('keydown', event => {
@@ -287,7 +313,25 @@
 
   const appRoot = document.querySelector('#app') || document.body;
   const observer = new MutationObserver(mutations => {
-    if (mutations.some(mutation => mutation.addedNodes.length || mutation.removedNodes.length)) schedule();
+    const selectRoots = new Set();
+    let presentationChanged = false;
+    let cleanupNeeded = false;
+
+    mutations.forEach(mutation => {
+      if (mutation.removedNodes.length) cleanupNeeded = true;
+      mutation.addedNodes.forEach(node => {
+        if (!(node instanceof Element)) return;
+        if (node instanceof HTMLSelectElement || node.querySelector('select:not([multiple])')) selectRoots.add(node);
+        if (
+          node.matches('.workspace-shell, .backend-gate, .fc3-page-surface, [data-modal-content]')
+          || node.querySelector('.workspace-shell, .backend-gate, .fc3-page-surface, [data-modal-content]')
+        ) presentationChanged = true;
+      });
+    });
+
+    if (selectRoots.size) requestAnimationFrame(() => selectRoots.forEach(enhanceSelects));
+    if (cleanupNeeded) requestAnimationFrame(cleanupSelectControllers);
+    if (presentationChanged) schedule();
   });
   observer.observe(appRoot, { childList: true, subtree: true });
 
@@ -308,10 +352,11 @@
   themeObserver.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme', 'data-backend'] });
 
   window.addEventListener('hashchange', schedule, { passive: true });
-  window.addEventListener('resize', () => selectControllers.forEach(controller => !controller.panel.hidden && controller.position()), { passive: true });
-  window.addEventListener('scroll', () => selectControllers.forEach(controller => !controller.panel.hidden && controller.position()), true);
+  window.addEventListener('resize', scheduleFloatingReposition, { passive: true });
+  window.addEventListener('scroll', scheduleFloatingReposition, true);
   document.addEventListener('formcraft:workspace-ready', schedule);
   reduceMotionQuery.addEventListener?.('change', schedule);
+  constrainedMotionQuery.addEventListener?.('change', schedule);
 
   schedule();
 
@@ -329,6 +374,7 @@
         enhancedSelects: document.querySelectorAll('.fc-context-select').length,
         openFloatingPanels: document.querySelectorAll('.fc-floating-panel:not([hidden])').length,
         reducedMotion: reduceMotionQuery.matches,
+        performanceReduced: constrainedMotionQuery.matches || saveData || lowMemory,
         gsapAvailable: Boolean(window.gsap)
       };
     }

@@ -42,6 +42,7 @@
   });
 
   const SECTIONS = ['Overview', 'Work', 'Business', 'Operations', 'People', 'Insights', 'Tools'];
+  const SHELL_MUTATION_SELECTOR = '.workspace-shell, .fc3-context-sidebar, .fc3-mobile-drawer, .fc3-topbar-breadcrumb';
   const escape = value => typeof escapeHtml === 'function' ? escapeHtml(value) : String(value || '');
 
   function ensureNavigationSettings() {
@@ -269,7 +270,11 @@
   };
 
   const observer = new MutationObserver(mutations => {
-    if (mutations.some(mutation => mutation.addedNodes.length)) schedule();
+    const shellChanged = mutations.some(mutation => [...mutation.addedNodes].some(node =>
+      node instanceof Element
+      && (node.matches(SHELL_MUTATION_SELECTOR) || node.querySelector(SHELL_MUTATION_SELECTOR))
+    ));
+    if (shellChanged) schedule();
   });
   observer.observe(document.querySelector('#app') || document.body, { childList: true, subtree: true });
   window.addEventListener('hashchange', schedule);

@@ -35,6 +35,7 @@
 
 This branch differs from the default branch in the following detected paths:
 
+- [`README.md`](https://github.com/Nischhalsubba/Formcraft/blob/agent/simplify-product-tour/README.md)
 - [`assets/css/workspace-enhancements.css`](https://github.com/Nischhalsubba/Formcraft/blob/agent/simplify-product-tour/assets/css/workspace-enhancements.css)
 - [`assets/js/onboarding-tour.js`](https://github.com/Nischhalsubba/Formcraft/blob/agent/simplify-product-tour/assets/js/onboarding-tour.js)
 - [`tests/static-audit.mjs`](https://github.com/Nischhalsubba/Formcraft/blob/agent/simplify-product-tour/tests/static-audit.mjs)

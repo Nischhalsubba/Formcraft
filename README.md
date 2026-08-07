@@ -33,9 +33,9 @@
 
 ## Branch scope
 
-No branch-specific file differences were detected against the default branch at generation time.
+This branch differs from the default branch in the following detected paths:
 
-
+- [`README.md`](https://github.com/Nischhalsubba/Formcraft/blob/agent/tour-centering-fix-v2/README.md)
 
 ## Quick start
 
@@ -128,7 +128,7 @@ flowchart LR
     READ --> OUTPUT["UI, API, report, or export"]
 ```
 
-Detected data areas: [`supabase`](https://github.com/Nischhalsubba/Formcraft/tree/agent/tour-centering-fix-v2/supabase), [`supabase/migrations/20260802170000_erp_relational_foundation.sql`](https://github.com/Nischhalsubba/Formcraft/blob/agent/tour-centering-fix-v2/supabase/migrations/20260802170000_erp_relational_foundation.sql), [`supabase/migrations/20260730030000_formcraft_dynamic_backend.sql`](https://github.com/Nischhalsubba/Formcraft/blob/agent/tour-centering-fix-v2/supabase/migrations/20260730030000_formcraft_dynamic_backend.sql), [`supabase/migrations/20260802174000_nepal_invoice_sequence_and_outbox.sql`](https://github.com/Nischhalsubba/Formcraft/blob/agent/tour-centering-fix-v2/supabase/migrations/20260802174000_nepal_invoice_sequence_and_outbox.sql), [`supabase/migrations/20260730043000_installation_owner_state.sql`](https://github.com/Nischhalsubba/Formcraft/blob/agent/tour-centering-fix-v2/supabase/migrations/20260730043000_installation_owner_state.sql), [`supabase/migrations/20260730030100_invitation_activation.sql`](https://github.com/Nischhalsubba/Formcraft/blob/agent/tour-centering-fix-v2/supabase/migrations/20260730030100_invitation_activation.sql), [`supabase/functions/invite-member/deno.json`](https://github.com/Nischhalsubba/Formcraft/blob/agent/tour-centering-fix-v2/supabase/functions/invite-member/deno.json), [`supabase/functions/invite-member/index.ts`](https://github.com/Nischhalsubba/Formcraft/blob/agent/tour-centering-fix-v2/supabase/functions/invite-member/index.ts), [`tests/supabase-browser-mock.js`](https://github.com/Nischhalsubba/Formcraft/blob/agent/tour-centering-fix-v2/tests/supabase-browser-mock.js).
+Detected data areas: [`supabase`](https://github.com/Nischhalsubba/Formcraft/tree/agent/tour-centering-fix-v2/supabase), [`tests/supabase-browser-mock.js`](https://github.com/Nischhalsubba/Formcraft/blob/agent/tour-centering-fix-v2/tests/supabase-browser-mock.js), [`supabase/migrations/20260802174000_nepal_invoice_sequence_and_outbox.sql`](https://github.com/Nischhalsubba/Formcraft/blob/agent/tour-centering-fix-v2/supabase/migrations/20260802174000_nepal_invoice_sequence_and_outbox.sql), [`supabase/migrations/20260730030100_invitation_activation.sql`](https://github.com/Nischhalsubba/Formcraft/blob/agent/tour-centering-fix-v2/supabase/migrations/20260730030100_invitation_activation.sql), [`supabase/migrations/20260730043000_installation_owner_state.sql`](https://github.com/Nischhalsubba/Formcraft/blob/agent/tour-centering-fix-v2/supabase/migrations/20260730043000_installation_owner_state.sql), [`supabase/migrations/20260802170000_erp_relational_foundation.sql`](https://github.com/Nischhalsubba/Formcraft/blob/agent/tour-centering-fix-v2/supabase/migrations/20260802170000_erp_relational_foundation.sql), [`supabase/migrations/20260730030000_formcraft_dynamic_backend.sql`](https://github.com/Nischhalsubba/Formcraft/blob/agent/tour-centering-fix-v2/supabase/migrations/20260730030000_formcraft_dynamic_backend.sql), [`supabase/functions/invite-member/deno.json`](https://github.com/Nischhalsubba/Formcraft/blob/agent/tour-centering-fix-v2/supabase/functions/invite-member/deno.json), [`supabase/functions/invite-member/index.ts`](https://github.com/Nischhalsubba/Formcraft/blob/agent/tour-centering-fix-v2/supabase/functions/invite-member/index.ts).
 
 </details>
 

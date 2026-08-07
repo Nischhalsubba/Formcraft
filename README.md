@@ -69,6 +69,7 @@ flowchart TD
     ROOT --> P10["MASTER.md"]
     ROOT --> P11["netlify.toml"]
     ROOT --> P12["package.json"]
+    ROOT --> P13["tmp-placeholder"]
 ```
 
 | Responsibility | Detected source paths |

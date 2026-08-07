@@ -28,6 +28,10 @@
   box-shadow: 0 0 0 100vmax rgb(7 15 13 / .58);
 }
 
+.fc-tour__stage:not([data-targeted]) {
+  visibility: hidden;
+}
+
 .fc-tour__stage[data-targeted="true"] {
   border: 2px solid #fff;
   outline: 3px solid var(--primary);
@@ -45,6 +49,7 @@
   position: fixed;
   z-index: 2;
   display: grid;
+  visibility: hidden;
   width: min(360px, calc(100vw - 28px));
   max-width: 360px;
   max-height: calc(100dvh - 28px);

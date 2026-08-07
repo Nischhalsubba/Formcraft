@@ -23,6 +23,10 @@ on:
       - 'assets/css/demo-data-system.css'
       - 'assets/js/nepal-attendance-compliance.js'
       - 'assets/css/nepal-attendance-compliance.css'
+      - 'assets/js/hrms-*.js'
+      - 'assets/css/hrms-suite.css'
+      - 'device-bridge/**'
+      - 'supabase/migrations/20260807170000_hrms_zkteco_bridge.sql'
       - 'assets/js/formcraft-bright-dashboard.js'
       - 'tests/erp-suite-*.py'
       - 'tests/erp-suite-*.mjs'
@@ -41,15 +45,19 @@ on:
       - 'tests/demo-data-*.mjs'
       - 'tests/nepal-attendance-compliance-*.py'
       - 'tests/nepal-attendance-compliance-*.mjs'
+      - 'tests/hrms-*.py'
+      - 'tests/hrms-*.mjs'
       - 'docs/PREMIUM_UI_E2E_AUDIT.md'
       - 'docs/RESPONSIVE_SYSTEM_AUDIT.md'
       - 'docs/FORM_MODAL_E2E_AUDIT.md'
       - 'docs/DEMO_DATA_AND_FORM_WORKFLOWS.md'
       - 'docs/NEPAL_ATTENDANCE_COMPLIANCE.md'
+      - 'docs/HRMS_ZKTECO_INTEGRATION.md'
       - 'README.md'
       - 'index.html'
       - 'package.json'
       - '.github/workflows/erp-suite-browser-validation.yml'
+      - '.github/workflows/hrms-production-activation.yml'
   push:
     branches:
       - main
@@ -60,6 +68,7 @@ on:
       - agent/form-modal-responsive-e2e
       - agent/demo-data-form-workflows
       - agent/nepal-attendance-compliance
+      - agent/hrms-production-certification
     paths:
       - 'assets/js/erp-suite-*.js'
       - 'assets/css/erp-suite.css'
@@ -81,6 +90,10 @@ on:
       - 'assets/css/demo-data-system.css'
       - 'assets/js/nepal-attendance-compliance.js'
       - 'assets/css/nepal-attendance-compliance.css'
+      - 'assets/js/hrms-*.js'
+      - 'assets/css/hrms-suite.css'
+      - 'device-bridge/**'
+      - 'supabase/migrations/20260807170000_hrms_zkteco_bridge.sql'
       - 'assets/js/formcraft-bright-dashboard.js'
       - 'tests/erp-suite-*.py'
       - 'tests/erp-suite-*.mjs'
@@ -99,160 +112,31 @@ on:
       - 'tests/demo-data-*.mjs'
       - 'tests/nepal-attendance-compliance-*.py'
       - 'tests/nepal-attendance-compliance-*.mjs'
+      - 'tests/hrms-*.py'
+      - 'tests/hrms-*.mjs'
       - 'docs/PREMIUM_UI_E2E_AUDIT.md'
       - 'docs/RESPONSIVE_SYSTEM_AUDIT.md'
       - 'docs/FORM_MODAL_E2E_AUDIT.md'
       - 'docs/DEMO_DATA_AND_FORM_WORKFLOWS.md'
       - 'docs/NEPAL_ATTENDANCE_COMPLIANCE.md'
+      - 'docs/HRMS_ZKTECO_INTEGRATION.md'
       - 'README.md'
       - 'index.html'
       - 'package.json'
       - '.github/workflows/erp-suite-browser-validation.yml'
+      - '.github/workflows/hrms-production-activation.yml'
 
 permissions:
-  contents: write
+  contents: read
 
 concurrency:
   group: erp-suite-browser-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
-  assemble-hrms:
-    runs-on: ubuntu-24.04
-    timeout-minutes: 10
-    outputs:
-      changed: ${{ steps.assemble.outputs.changed }}
-    steps:
-      - name: Check out feature branch
-        uses: actions/checkout@v4
-        with:
-          ref: ${{ github.head_ref }}
-          fetch-depth: 0
-
-      - name: Assemble staged HRMS payload
-        id: assemble
-        shell: bash
-        run: |
-          if [ ! -f .hrms-payload/ready ]; then
-            echo "changed=false" >> "$GITHUB_OUTPUT"
-            exit 0
-          fi
-          python - <<'PY'
-          from pathlib import Path
-          import base64
-          import json
-          import shutil
-          import tarfile
-
-          root = Path.cwd()
-          payload_dir = root / '.hrms-payload'
-          chunks = sorted(payload_dir.glob('chunk-*'))
-          if not chunks:
-              raise SystemExit('HRMS payload chunks are missing')
-          encoded = ''.join(path.read_text(encoding='ascii').strip() for path in chunks)
-          archive = payload_dir / 'payload.tar.gz'
-          archive.write_bytes(base64.b64decode(encoded, validate=True))
-          with tarfile.open(archive, 'r:gz') as bundle:
-              bundle.extractall(root, filter='data')
-
-          ui_path = root / 'assets/js/hrms-suite-ui.js'
-          ui_source = ui_path.read_text(encoding='utf-8')
-          malformed = 'function tablive = device.last_seen_at && Date.now() - new Date(device.last_seen_at).getTime() < 300000;'
-          corrected = 'const live = device.last_seen_at && Date.now() - new Date(device.last_seen_at).getTime() < 300000;'
-          occurrence_count = ui_source.count(malformed)
-          if occurrence_count != 1:
-              raise SystemExit(f'Expected exactly one known HRMS UI syntax defect, found {occurrence_count}')
-          ui_path.write_text(ui_source.replace(malformed, corrected, 1), encoding='utf-8')
-
-          index_path = root / 'index.html'
-          index = index_path.read_text(encoding='utf-8')
-          css_line = '  <link rel="stylesheet" href="assets/css/hrms-suite.css">\n'
-          if css_line not in index:
-              anchor = '  <link rel="stylesheet" href="assets/css/nepal-attendance-compliance.css">\n'
-              if anchor not in index:
-                  raise SystemExit('Could not locate Nepal compliance CSS anchor')
-              index = index.replace(anchor, anchor + css_line)
-          js_lines = ''.join([
-              '  <script src="assets/js/hrms-xlsx.js" defer></script>\n',
-              '  <script src="assets/js/hrms-suite-core.js" defer></script>\n',
-              '  <script src="assets/js/hrms-suite-ui.js" defer></script>\n',
-          ])
-          if 'assets/js/hrms-suite-core.js' not in index:
-              anchor = '  <script src="assets/js/nepal-attendance-compliance.js" defer></script>\n'
-              if anchor not in index:
-                  raise SystemExit('Could not locate Nepal compliance JS anchor')
-              index = index.replace(anchor, anchor + js_lines)
-          index_path.write_text(index, encoding='utf-8')
-
-          package_path = root / 'package.json'
-          package = json.loads(package_path.read_text(encoding='utf-8'))
-          scripts = package.setdefault('scripts', {})
-          def append_command(name, command):
-              current = scripts.get(name, '')
-              if command not in current:
-                  scripts[name] = f'{current} && {command}' if current else command
-          append_command('test', 'node tests/hrms-additive-audit.mjs')
-          append_command('test:syntax', 'node --check assets/js/hrms-xlsx.js')
-          append_command('test:syntax', 'node --check assets/js/hrms-suite-core.js')
-          append_command('test:syntax', 'node --check assets/js/hrms-suite-ui.js')
-          append_command('test:syntax', 'node --check tests/hrms-additive-audit.mjs')
-          package_path.write_text(json.dumps(package, indent=2) + '\n', encoding='utf-8')
-
-          workflow_path = root / '.github/workflows/erp-suite-browser-validation.yml'
-          workflow = workflow_path.read_text(encoding='utf-8')
-          path_anchor = "      - 'assets/js/nepal-attendance-compliance.js'\n"
-          path_additions = ''.join([
-              "      - 'assets/js/hrms-*.js'\n",
-              "      - 'assets/css/hrms-suite.css'\n",
-              "      - 'device-bridge/**'\n",
-              "      - 'supabase/migrations/20260807170000_hrms_zkteco_bridge.sql'\n",
-              "      - 'tests/hrms-*.py'\n",
-              "      - 'tests/hrms-*.mjs'\n",
-              "      - 'docs/HRMS_ZKTECO_INTEGRATION.md'\n",
-          ])
-          if "assets/js/hrms-*.js" not in workflow:
-              if workflow.count(path_anchor) < 2:
-                  raise SystemExit('Could not locate both ERP workflow path anchors')
-              workflow = workflow.replace(path_anchor, path_anchor + path_additions)
-          step_anchor = '      - name: Run Nepal attendance compliance regression\n'
-          step = "      - name: Run additive HRMS regression\n        run: python tests/hrms-additive-browser-smoke.py\n\n"
-          if 'Run additive HRMS regression' not in workflow:
-              if step_anchor not in workflow:
-                  raise SystemExit('Could not locate ERP browser test step anchor')
-              workflow = workflow.replace(step_anchor, step + step_anchor)
-          workflow_path.write_text(workflow, encoding='utf-8')
-
-          gitignore_path = root / '.gitignore'
-          gitignore = gitignore_path.read_text(encoding='utf-8')
-          guards = ['.venv/', '__pycache__/', '.formcraft-bridge/', 'device-bridge/backups/']
-          missing = [item for item in guards if item not in gitignore]
-          if missing:
-              gitignore += '\n# Local Python and Formcraft device-bridge runtime\n' + ''.join(f'{item}\n' for item in missing)
-              gitignore_path.write_text(gitignore, encoding='utf-8')
-
-          shutil.rmtree(payload_dir)
-          (root / '.github/workflows/hrms-payload-apply.yml').unlink(missing_ok=True)
-          PY
-
-          git config user.name "Formcraft CI"
-          git config user.email "actions@users.noreply.github.com"
-          git add -A
-          git commit -m "Assemble additive HRMS and ZKTeco source"
-          git push origin "HEAD:${GITHUB_HEAD_REF}"
-          echo "changed=true" >> "$GITHUB_OUTPUT"
-
-          node --check assets/js/hrms-xlsx.js
-          node --check assets/js/hrms-suite-core.js
-          node --check assets/js/hrms-suite-ui.js
-          node --check tests/hrms-additive-audit.mjs
-          python -m py_compile device-bridge/formcraft_bridge.py tests/hrms-additive-browser-smoke.py
-          node tests/hrms-additive-audit.mjs
-
   browser-validation:
-    needs: assemble-hrms
-    if: needs.assemble-hrms.outputs.changed != 'true'
     runs-on: ubuntu-24.04
-    timeout-minutes: 34
+    timeout-minutes: 38
     env:
       SUPABASE_URL: https://formcraft-test.supabase.co
       SUPABASE_PUBLISHABLE_KEY: sb_publishable_formcraft_browser_test_key_1234567890
@@ -274,9 +158,10 @@ jobs:
       - name: Build and run static verification
         run: npm run build
 
-      - name: Install Chromium test dependencies
+      - name: Install browser and bridge test dependencies
         run: |
           python -m pip install playwright==1.54.0
+          python -m pip install -r device-bridge/requirements.txt
           python -m playwright install --with-deps chromium
 
       - name: Run ERP authenticated browser regression
@@ -299,6 +184,12 @@ jobs:
 
       - name: Run connected demo data and form workflow regression
         run: python tests/demo-data-form-workflows-browser-smoke.py
+
+      - name: Run additive HRMS Variant A browser regression
+        run: python tests/hrms-additive-browser-smoke.py
+
+      - name: Run ZKTeco bridge packaging regression
+        run: python tests/hrms-device-bridge-smoke.py
 
       - name: Run Nepal attendance compliance regression
         shell: bash

@@ -4,27 +4,27 @@
 
 # Formcraft
 
-**Branch-aware technical guide for [`main`](https://github.com/Nischhalsubba/Formcraft/tree/main)**
+**Branch-aware technical guide for [`agent/simplify-product-tour`](https://github.com/Nischhalsubba/Formcraft/tree/agent/simplify-product-tour)**
 
-<p><img alt="branch: main" src="https://img.shields.io/static/v1?label=&message=branch%3A%20main&color=5965F2&style=flat-square"> <img alt="JavaScript" src="https://img.shields.io/static/v1?label=&message=JavaScript&color=24292F&style=flat-square"> <img alt="CSS" src="https://img.shields.io/static/v1?label=&message=CSS&color=24292F&style=flat-square"> <img alt="Python" src="https://img.shields.io/static/v1?label=&message=Python&color=24292F&style=flat-square"> <img alt="HTML" src="https://img.shields.io/static/v1?label=&message=HTML&color=24292F&style=flat-square"> <img alt="TypeScript" src="https://img.shields.io/static/v1?label=&message=TypeScript&color=24292F&style=flat-square"> <img alt="docs: branch-aware" src="https://img.shields.io/static/v1?label=&message=docs%3A%20branch-aware&color=8250DF&style=flat-square"></p>
+<p><img alt="branch: agent/simplify-product-tour" src="https://img.shields.io/static/v1?label=&message=branch%3A%20agent%2Fsimplify-product-tour&color=5965F2&style=flat-square"> <img alt="JavaScript" src="https://img.shields.io/static/v1?label=&message=JavaScript&color=24292F&style=flat-square"> <img alt="CSS" src="https://img.shields.io/static/v1?label=&message=CSS&color=24292F&style=flat-square"> <img alt="Python" src="https://img.shields.io/static/v1?label=&message=Python&color=24292F&style=flat-square"> <img alt="HTML" src="https://img.shields.io/static/v1?label=&message=HTML&color=24292F&style=flat-square"> <img alt="TypeScript" src="https://img.shields.io/static/v1?label=&message=TypeScript&color=24292F&style=flat-square"> <img alt="docs: branch-aware" src="https://img.shields.io/static/v1?label=&message=docs%3A%20branch-aware&color=8250DF&style=flat-square"></p>
 
 <p>
-  <a href="https://github.com/Nischhalsubba/Formcraft/tree/main"><strong>Browse source</strong></a> ·
+  <a href="https://github.com/Nischhalsubba/Formcraft/tree/agent/simplify-product-tour"><strong>Browse source</strong></a> ·
   <a href="https://github.com/Nischhalsubba/Formcraft/issues"><strong>Issues</strong></a> ·
-  <a href="https://github.com/Nischhalsubba/Formcraft/codespaces/new?ref=main"><strong>Open in Codespaces</strong></a>
+  <a href="https://github.com/Nischhalsubba/Formcraft/codespaces/new?ref=agent%2Fsimplify-product-tour"><strong>Open in Codespaces</strong></a>
 </p>
 
 </div>
 
 > [!IMPORTANT]
-> This guide is generated from the files actually present on `main`. It links to detected source paths, preserves project-authored notes, and avoids claiming components that were not found.
+> This guide is generated from the files actually present on `agent/simplify-product-tour`. It links to detected source paths, preserves project-authored notes, and avoids claiming components that were not found.
 
 ## At a glance
 
 | Item | Detected value |
 |---|---|
 | Purpose | A JavaScript project documented from the current branch structure and manifests. |
-| Branch role | Default branch |
+| Branch role | Compared with `main` |
 | Stack | JavaScript, CSS, Python, HTML, TypeScript |
 | Manifests | package.json |
 | Prerequisites | Node.js |
@@ -33,9 +33,11 @@
 
 ## Branch scope
 
-This is the repository's default branch.
+This branch differs from the default branch in the following detected paths:
 
-
+- [`assets/css/workspace-enhancements.css`](https://github.com/Nischhalsubba/Formcraft/blob/agent/simplify-product-tour/assets/css/workspace-enhancements.css)
+- [`assets/js/onboarding-tour.js`](https://github.com/Nischhalsubba/Formcraft/blob/agent/simplify-product-tour/assets/js/onboarding-tour.js)
+- [`tests/static-audit.mjs`](https://github.com/Nischhalsubba/Formcraft/blob/agent/simplify-product-tour/tests/static-audit.mjs)
 
 ## Quick start
 
@@ -55,7 +57,7 @@ npm run test
 
 ```mermaid
 flowchart TD
-    ROOT["Formcraft / main"]
+    ROOT["Formcraft / agent/simplify-product-tour"]
     ROOT --> P0[".github/"]
     ROOT --> P1["assets/"]
     ROOT --> P2["docs/"]
@@ -73,10 +75,10 @@ flowchart TD
 
 | Responsibility | Detected source paths |
 |---|---|
-| Data | [`supabase`](https://github.com/Nischhalsubba/Formcraft/tree/main/supabase) |
-| Quality | [`tests`](https://github.com/Nischhalsubba/Formcraft/tree/main/tests) |
-| Documentation | [`docs`](https://github.com/Nischhalsubba/Formcraft/tree/main/docs) |
-| Delivery | [`.github`](https://github.com/Nischhalsubba/Formcraft/tree/main/.github), [`scripts`](https://github.com/Nischhalsubba/Formcraft/tree/main/scripts) |
+| Data | [`supabase`](https://github.com/Nischhalsubba/Formcraft/tree/agent/simplify-product-tour/supabase) |
+| Quality | [`tests`](https://github.com/Nischhalsubba/Formcraft/tree/agent/simplify-product-tour/tests) |
+| Documentation | [`docs`](https://github.com/Nischhalsubba/Formcraft/tree/agent/simplify-product-tour/docs) |
+| Delivery | [`.github`](https://github.com/Nischhalsubba/Formcraft/tree/agent/simplify-product-tour/.github), [`scripts`](https://github.com/Nischhalsubba/Formcraft/tree/agent/simplify-product-tour/scripts) |
 
 ## Website or application map
 
@@ -111,7 +113,7 @@ flowchart LR
     VERIFY -->|failure| RECOVER["Error or recovery path"]
 ```
 
-Relevant detected files: [`assets/js/auth-onboarding.js`](https://github.com/Nischhalsubba/Formcraft/blob/main/assets/js/auth-onboarding.js).
+Relevant detected files: [`assets/js/auth-onboarding.js`](https://github.com/Nischhalsubba/Formcraft/blob/agent/simplify-product-tour/assets/js/auth-onboarding.js).
 
 > The diagram expresses the responsibility sequence only. Confirm exact providers, token formats, roles, and recovery behavior in the linked source.
 
@@ -128,7 +130,7 @@ flowchart LR
     READ --> OUTPUT["UI, API, report, or export"]
 ```
 
-Detected data areas: [`supabase`](https://github.com/Nischhalsubba/Formcraft/tree/main/supabase), [`supabase/migrations/20260802170000_erp_relational_foundation.sql`](https://github.com/Nischhalsubba/Formcraft/blob/main/supabase/migrations/20260802170000_erp_relational_foundation.sql), [`supabase/migrations/20260730030000_formcraft_dynamic_backend.sql`](https://github.com/Nischhalsubba/Formcraft/blob/main/supabase/migrations/20260730030000_formcraft_dynamic_backend.sql), [`supabase/migrations/20260802174000_nepal_invoice_sequence_and_outbox.sql`](https://github.com/Nischhalsubba/Formcraft/blob/main/supabase/migrations/20260802174000_nepal_invoice_sequence_and_outbox.sql), [`supabase/migrations/20260730043000_installation_owner_state.sql`](https://github.com/Nischhalsubba/Formcraft/blob/main/supabase/migrations/20260730043000_installation_owner_state.sql), [`supabase/migrations/20260730030100_invitation_activation.sql`](https://github.com/Nischhalsubba/Formcraft/blob/main/supabase/migrations/20260730030100_invitation_activation.sql), [`supabase/functions/invite-member/deno.json`](https://github.com/Nischhalsubba/Formcraft/blob/main/supabase/functions/invite-member/deno.json), [`supabase/functions/invite-member/index.ts`](https://github.com/Nischhalsubba/Formcraft/blob/main/supabase/functions/invite-member/index.ts), [`tests/supabase-browser-mock.js`](https://github.com/Nischhalsubba/Formcraft/blob/main/tests/supabase-browser-mock.js).
+Detected data areas: [`supabase`](https://github.com/Nischhalsubba/Formcraft/tree/agent/simplify-product-tour/supabase), [`tests/supabase-browser-mock.js`](https://github.com/Nischhalsubba/Formcraft/blob/agent/simplify-product-tour/tests/supabase-browser-mock.js), [`supabase/migrations/20260802174000_nepal_invoice_sequence_and_outbox.sql`](https://github.com/Nischhalsubba/Formcraft/blob/agent/simplify-product-tour/supabase/migrations/20260802174000_nepal_invoice_sequence_and_outbox.sql), [`supabase/migrations/20260730030100_invitation_activation.sql`](https://github.com/Nischhalsubba/Formcraft/blob/agent/simplify-product-tour/supabase/migrations/20260730030100_invitation_activation.sql), [`supabase/migrations/20260730043000_installation_owner_state.sql`](https://github.com/Nischhalsubba/Formcraft/blob/agent/simplify-product-tour/supabase/migrations/20260730043000_installation_owner_state.sql), [`supabase/migrations/20260802170000_erp_relational_foundation.sql`](https://github.com/Nischhalsubba/Formcraft/blob/agent/simplify-product-tour/supabase/migrations/20260802170000_erp_relational_foundation.sql), [`supabase/migrations/20260730030000_formcraft_dynamic_backend.sql`](https://github.com/Nischhalsubba/Formcraft/blob/agent/simplify-product-tour/supabase/migrations/20260730030000_formcraft_dynamic_backend.sql), [`supabase/functions/invite-member/deno.json`](https://github.com/Nischhalsubba/Formcraft/blob/agent/simplify-product-tour/supabase/functions/invite-member/deno.json), [`supabase/functions/invite-member/index.ts`](https://github.com/Nischhalsubba/Formcraft/blob/agent/simplify-product-tour/supabase/functions/invite-member/index.ts).
 
 </details>
 
@@ -140,7 +142,7 @@ Detected data areas: [`supabase`](https://github.com/Nischhalsubba/Formcraft/tre
 
 ### Quality
 
-- [`tests`](https://github.com/Nischhalsubba/Formcraft/tree/main/tests)
+- [`tests`](https://github.com/Nischhalsubba/Formcraft/tree/agent/simplify-product-tour/tests)
 
 Detected commands:
 - `npm run build`
@@ -172,7 +174,7 @@ Define useful logs, metrics, traces, alerts, and rollback signals for production
 
 ```mermaid
 flowchart LR
-    CHANGE["Change on main"] --> CHECK["Tests and quality checks"]
+    CHANGE["Change on agent/simplify-product-tour"] --> CHECK["Tests and quality checks"]
     CHECK --> REVIEW["Review architecture and documentation impact"]
     REVIEW --> BUILD["Build or package"]
     BUILD --> DEPLOY["Deploy or release"]
@@ -181,12 +183,12 @@ flowchart LR
 
 ### Automation detected
 
-- [`.github/workflows/apply-interactive-readme.yml`](https://github.com/Nischhalsubba/Formcraft/blob/main/.github/workflows/apply-interactive-readme.yml)
-- [`.github/workflows/erp-suite-browser-validation.yml`](https://github.com/Nischhalsubba/Formcraft/blob/main/.github/workflows/erp-suite-browser-validation.yml)
-- [`.github/workflows/interaction-audit.yml`](https://github.com/Nischhalsubba/Formcraft/blob/main/.github/workflows/interaction-audit.yml)
-- [`.github/workflows/record-workspace-validation.yml`](https://github.com/Nischhalsubba/Formcraft/blob/main/.github/workflows/record-workspace-validation.yml)
-- [`.github/workflows/ui-audit.yml`](https://github.com/Nischhalsubba/Formcraft/blob/main/.github/workflows/ui-audit.yml)
-- [`.github/workflows/worldclass-ui-audit.yml`](https://github.com/Nischhalsubba/Formcraft/blob/main/.github/workflows/worldclass-ui-audit.yml)
+- [`.github/workflows/apply-interactive-readme.yml`](https://github.com/Nischhalsubba/Formcraft/blob/agent/simplify-product-tour/.github/workflows/apply-interactive-readme.yml)
+- [`.github/workflows/erp-suite-browser-validation.yml`](https://github.com/Nischhalsubba/Formcraft/blob/agent/simplify-product-tour/.github/workflows/erp-suite-browser-validation.yml)
+- [`.github/workflows/interaction-audit.yml`](https://github.com/Nischhalsubba/Formcraft/blob/agent/simplify-product-tour/.github/workflows/interaction-audit.yml)
+- [`.github/workflows/record-workspace-validation.yml`](https://github.com/Nischhalsubba/Formcraft/blob/agent/simplify-product-tour/.github/workflows/record-workspace-validation.yml)
+- [`.github/workflows/ui-audit.yml`](https://github.com/Nischhalsubba/Formcraft/blob/agent/simplify-product-tour/.github/workflows/ui-audit.yml)
+- [`.github/workflows/worldclass-ui-audit.yml`](https://github.com/Nischhalsubba/Formcraft/blob/agent/simplify-product-tour/.github/workflows/worldclass-ui-audit.yml)
 
 ## Contribution flow
 
@@ -211,7 +213,7 @@ flowchart LR
 | Topic | Source |
 |---|---|
 | Repository | [`Nischhalsubba/Formcraft`](https://github.com/Nischhalsubba/Formcraft) |
-| Branch | [`main`](https://github.com/Nischhalsubba/Formcraft/tree/main) |
+| Branch | [`agent/simplify-product-tour`](https://github.com/Nischhalsubba/Formcraft/tree/agent/simplify-product-tour) |
 | Ownership | No CODEOWNERS file detected |
 | Contributing | Use the contribution flow above |
 | Support | [Open or review issues](https://github.com/Nischhalsubba/Formcraft/issues) |

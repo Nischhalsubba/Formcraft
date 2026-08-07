@@ -109,4 +109,37 @@ Historical advanced payroll snapshots are not rewritten when later catalogs or r
 5. Add readers and set their Comm Keys from Formcraft.
 6. Test and pull each device, then verify raw punches and materialized Attendance records before enabling schedules.
 
+## Guarded production activation workflow
+
+`.github/workflows/hrms-production-activation.yml` provides a manual production migration path. It never runs automatically on a push or Netlify deploy.
+
+Configure the GitHub `production` environment with these encrypted secrets:
+
+- `SUPABASE_ACCESS_TOKEN`
+- `SUPABASE_DB_PASSWORD`
+- `SUPABASE_PROJECT_ID`
+
+Run the workflow with **preflight** first. It links the Supabase CLI to the configured project, runs `supabase db push --dry-run`, prints the remote/local migration list, and uploads the evidence as an Actions artifact.
+
+Only after reviewing that evidence should an operator run the workflow with **apply** and type the exact confirmation phrase `APPLY_HRMS_ZKTECO_PRODUCTION`. The apply path runs the same preflight first and then executes `supabase db push --yes`, followed by another migration-list verification.
+
+This workflow deploys database migrations only. It does not deploy Netlify, create a bridge credential, store ZKTeco Comm Keys, or claim that a physical reader has passed acceptance testing.
+
+## Production acceptance boundary
+
+The repository CI now certifies the Variant A browser behavior and the installable Python bridge package without contacting a physical reader. Production acceptance still requires a LAN machine that can reach each target ZKTeco device.
+
+For each real reader, verify at minimum:
+
+1. Bridge heartbeat appears online in Attendance > Devices.
+2. **Test** succeeds using the configured protocol, port, timeout, and Comm Key.
+3. A manual **Pull** creates a pull session and raw punches without duplicates.
+4. Device users can be compared with Employees without deleting or replacing Employee records.
+5. **Backup** writes a local backup and does not upload fingerprint templates to Formcraft.
+6. If migration is required, perform it first with a non-critical test user and verify the destination reader before migrating the remainder.
+7. **Sync bridge punches** materializes the expected daily Attendance records and reports.
+8. Payroll attendance review matches the same Attendance source of truth before any live payroll run is approved.
+9. Scheduled pulls are enabled only after manual pulls are stable.
+10. Stop the bridge service and confirm Projects, CRM, Finance, Employees, Time Off, Payroll records, and the rest of hosted Formcraft continue working normally.
+
 Physical-reader behavior must be acceptance-tested against the actual reader models before an organization relies on it for payroll.

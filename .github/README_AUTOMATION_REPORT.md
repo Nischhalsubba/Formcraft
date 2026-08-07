@@ -7,6 +7,7 @@ Generator: `aed303eed8a536f2dda075c8be583693325aac37`
 | Branch | Result | Detail |
 |---|---|---|
 | `agent/global-alignment-system` | updated | Branch-specific README committed |
+| `agent/hrms-zkteco-complete-additive` | updated | Branch-specific README committed |
 | `agent/nepal-erp-suite` | updated | Branch-specific README committed |
 | `agent/onboarding-visual-refresh` | updated | Branch-specific README committed |
 | `agent/performance-mobile-stability` | updated | Branch-specific README committed |
@@ -17,7 +18,7 @@ Generator: `aed303eed8a536f2dda075c8be583693325aac37`
 | `agent/tour-v2-global-geometry` | updated | Branch-specific README committed |
 | `agent/unified-design-system` | updated | Branch-specific README committed |
 | `agent/unify-production-design-state` | updated | Branch-specific README committed |
-| `agent/validate-tour-geometry-main` | failed | Push rejected, commonly due to branch protection |
+| `agent/validate-tour-geometry-main` | updated | Branch-specific README committed |
 | `fix/first-owner-autofill` | updated | Branch-specific README committed |
 | `fix/netlify-config-fallback` | updated | Branch-specific README committed |
 | `fix/owner-setup-state` | updated | Branch-specific README committed |

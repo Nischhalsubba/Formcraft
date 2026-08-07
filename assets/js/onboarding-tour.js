@@ -1,7 +1,7 @@
 'use strict';
 
 (() => {
-  const TOUR_VERSION = '2026.08.07.2';
+  const TOUR_VERSION = '2026.08.07.3';
   const DRIVER_VERSION = '1.8.0';
   const DRIVER_SCRIPT = `https://cdn.jsdelivr.net/npm/driver.js@${DRIVER_VERSION}/dist/driver.js.iife.js`;
   const DRIVER_STYLES = `https://cdn.jsdelivr.net/npm/driver.js@${DRIVER_VERSION}/dist/driver.css`;
@@ -23,7 +23,8 @@
 
   function readState() {
     try {
-      return window.localStorage.getItem(storageKey());
+      const raw = window.localStorage.getItem(storageKey());
+      return raw ? JSON.parse(raw) : null;
     } catch {
       return null;
     }
@@ -33,7 +34,7 @@
     try {
       window.localStorage.setItem(storageKey(), JSON.stringify({ status, at: new Date().toISOString() }));
     } catch {
-      // Storage can be disabled. The tour still remains usable for this session.
+      // Storage can be disabled. The tour still works for this session.
     }
   }
 
@@ -46,7 +47,8 @@
   }
 
   function isSeen() {
-    return Boolean(readState());
+    const state = readState();
+    return state?.status === 'completed' || state?.status === 'dismissed';
   }
 
   function restoreTourShell() {
@@ -108,25 +110,16 @@
       {
         popover: {
           title: 'Welcome to Formcraft',
-          description: 'A quick tour of the controls you will use every day. Each step highlights the real control in place, then Next moves you forward.',
+          description: 'Here is a quick tour. It takes less than a minute.',
           side: 'over',
           align: 'center'
         }
       },
       {
-        element: '.fc4-sidebar .fc4-workspace-brand',
+        element: '.fc4-sidebar [data-route="dashboard"]',
         popover: {
-          title: 'Workspace home',
-          description: 'Your workspace identity lives here. Select it whenever you want to return to the dashboard.',
-          side: 'right',
-          align: 'start'
-        }
-      },
-      {
-        element: '.fc4-sidebar .fc4-stable-nav',
-        popover: {
-          title: 'Main navigation',
-          description: 'Your everyday work, business, operations, people, insights, and tools stay in one consistent navigation area.',
+          title: 'Home',
+          description: 'See your workspace overview and the work that needs attention.',
           side: 'right',
           align: 'center'
         }
@@ -134,35 +127,17 @@
       {
         element: '.fc4-sidebar [data-route="projects"]',
         popover: {
-          title: 'Plan delivery with projects',
-          description: 'Define scope, owner, dates, status, progress, linked tasks, events, and billing.',
+          title: 'Projects',
+          description: 'Keep project work, owners, dates, and progress in one place.',
           side: 'right',
           align: 'center'
         }
       },
       {
-        element: '.fc4-sidebar [data-route="calendar"]',
+        element: '.fc4-sidebar [data-route="tasks"]',
         popover: {
-          title: 'Schedule work',
-          description: 'Use the calendar for meetings, reviews, deadlines, and reminders.',
-          side: 'right',
-          align: 'center'
-        }
-      },
-      {
-        element: '.fc4-sidebar [data-route="reports"]',
-        popover: {
-          title: 'Review performance',
-          description: 'Reports summarize delivery progress, work distribution, and overdue items from live workspace records.',
-          side: 'right',
-          align: 'center'
-        }
-      },
-      {
-        element: '.fc4-sidebar [data-route="files"]',
-        popover: {
-          title: 'Keep working files together',
-          description: 'Open Files for shared documents and project resources without leaving the workspace.',
+          title: 'Tasks',
+          description: 'See what needs to be done, who owns it, and when it is due.',
           side: 'right',
           align: 'center'
         }
@@ -170,8 +145,8 @@
       {
         element: '.fc3-global-search.workspace-search-trigger',
         popover: {
-          title: 'Search the whole workspace',
-          description: 'Find records, apps, and actions from one place. You can also press Ctrl or Command + K.',
+          title: 'Search',
+          description: 'Find records, apps, and actions quickly. Press Ctrl K anytime.',
           side: 'bottom',
           align: 'start'
         }
@@ -179,8 +154,8 @@
       {
         element: '[data-command-menu]',
         popover: {
-          title: 'Create from anywhere',
-          description: 'Open quick create for the records you need without navigating away first.',
+          title: 'Create',
+          description: 'Use + to add a project, task, event, invoice, and more.',
           side: 'bottom',
           align: 'end'
         }
@@ -188,8 +163,8 @@
       {
         element: '[data-toggle-notifications]',
         popover: {
-          title: 'Keep up with changes',
-          description: 'Notifications surface recent workspace activity and important updates.',
+          title: 'Notifications',
+          description: 'Check recent updates and activity here.',
           side: 'bottom',
           align: 'end'
         }
@@ -197,16 +172,16 @@
       {
         element: '[data-toggle-account]',
         popover: {
-          title: 'Account and help',
-          description: 'Use this menu for settings, data export, sign out, and replaying this product tour.',
+          title: 'Your account',
+          description: 'Open settings, export data, sign out, or restart this tour.',
           side: 'bottom',
           align: 'end'
         }
       },
       {
         popover: {
-          title: 'You are ready to work',
-          description: 'Start with the dashboard, create the next record you need, and use search whenever you want to jump directly to something.',
+          title: "You're ready",
+          description: 'That is it. Start with Home, then use Search or + whenever you need something.',
           side: 'over',
           align: 'center'
         }
@@ -219,16 +194,34 @@
       {
         popover: {
           title: 'Welcome to Formcraft',
-          description: 'A short tour of the mobile controls you will use most. Each step highlights the actual control before moving forward.',
+          description: 'Here is a quick tour of the main mobile controls.',
           side: 'over',
           align: 'center'
         }
       },
       {
-        element: '.fc3-mobile-bottom-nav',
+        element: '.fc3-mobile-bottom-nav [data-route="dashboard"]',
         popover: {
-          title: 'Quick navigation',
-          description: 'Home, Apps, the current work area, Create, and More stay one tap away.',
+          title: 'Home',
+          description: 'Tap Home to see your workspace overview.',
+          side: 'top',
+          align: 'center'
+        }
+      },
+      {
+        element: '.fc3-mobile-bottom-nav [data-route="apps"]',
+        popover: {
+          title: 'Apps',
+          description: 'Open Apps to find your business tools.',
+          side: 'top',
+          align: 'center'
+        }
+      },
+      {
+        element: '[data-bright-context-create]',
+        popover: {
+          title: 'Create',
+          description: 'Tap Create to add new work from the page you are on.',
           side: 'top',
           align: 'center'
         }
@@ -236,43 +229,16 @@
       {
         element: '[data-bright-more]',
         popover: {
-          title: 'Open the full menu',
-          description: 'More opens the complete workspace navigation when you need a secondary module or tool.',
+          title: 'More',
+          description: 'Tap More to open the full menu.',
           side: 'top',
           align: 'end'
         }
       },
       {
-        element: '[data-bright-context-create]',
         popover: {
-          title: 'Create in context',
-          description: 'The center action adapts to the page so the most relevant record is always close by.',
-          side: 'top',
-          align: 'center'
-        }
-      },
-      {
-        element: '.fc3-global-search.workspace-search-trigger',
-        popover: {
-          title: 'Search everything',
-          description: 'Search records, apps, and actions without digging through menus.',
-          side: 'bottom',
-          align: 'center'
-        }
-      },
-      {
-        element: '[data-toggle-account]',
-        popover: {
-          title: 'Account and help',
-          description: 'Open your account menu for settings, export, sign out, and this tour.',
-          side: 'bottom',
-          align: 'end'
-        }
-      },
-      {
-        popover: {
-          title: 'You are ready',
-          description: 'Use the bottom navigation for daily work, More for the full workspace, and Search when you already know what you need.',
+          title: "You're ready",
+          description: 'Use Home, Apps, Create, and More to move around.',
           side: 'over',
           align: 'center'
         }
@@ -326,12 +292,12 @@
 
   function fallbackItems() {
     const items = [
-      ['projects', 'Projects and tasks'],
-      ['calendar', 'Calendar and events'],
-      ['reports', 'Reports and activity'],
-      ['mail', 'Email and communication'],
-      ['files', 'Files and invoices'],
-      ['search', 'Search and create menu']
+      ['dashboard', 'Home'],
+      ['projects', 'Projects'],
+      ['tasks', 'Tasks'],
+      ['search', 'Search'],
+      ['plus', 'Create'],
+      ['settings', 'Settings']
     ];
     return items.map(([iconName, label]) => `<div class="product-tour-fallback-item">${icon(iconName, 18)}<span>${escapeHtml(label)}</span></div>`).join('');
   }
@@ -340,9 +306,9 @@
     fallbackOpen = true;
     restoreTourShell();
     openModal(`<div class="modal-card product-tour-fallback">
-      <div class="modal-head"><div><p class="panel-kicker">First-login walkthrough</p><h2 id="modal-title">Welcome to Formcraft</h2><p>Everything required to plan, communicate, deliver, and review work lives in this workspace.</p></div><button class="icon-button" type="button" data-dismiss-product-tour aria-label="Close product tour">${icon('close', 18)}</button></div>
-      <div class="modal-body"><p class="panel-description">Use the sidebar on desktop or More on mobile to access every source module. Search and the create menu remain available across the application.</p><div class="product-tour-fallback-list">${fallbackItems()}</div></div>
-      <div class="modal-actions"><button class="button button-secondary" type="button" data-dismiss-product-tour>Not now</button><button class="button button-primary" type="button" data-complete-product-tour>Start using Formcraft</button></div>
+      <div class="modal-head"><div><p class="panel-kicker">Quick tour</p><h2 id="modal-title">Welcome to Formcraft</h2><p>These are the main places you will use.</p></div><button class="icon-button" type="button" data-dismiss-product-tour aria-label="Close product tour">${icon('close', 18)}</button></div>
+      <div class="modal-body"><p class="panel-description">Use the menu to move around. Use Search to find something fast, and use + to create new work.</p><div class="product-tour-fallback-list">${fallbackItems()}</div></div>
+      <div class="modal-actions"><button class="button button-secondary" type="button" data-dismiss-product-tour>Skip</button><button class="button button-primary" type="button" data-complete-product-tour>Done</button></div>
     </div>`);
   }
 
@@ -398,17 +364,17 @@
         smoothScroll: !reducedMotion.matches,
         allowClose: true,
         showProgress: true,
-        progressText: '{{current}} of {{total}}',
+        progressText: 'Step {{current}} of {{total}}',
         nextBtnText: 'Next',
         prevBtnText: 'Back',
-        doneBtnText: 'Finish',
+        doneBtnText: 'Done',
         popoverClass: 'formcraft-tour-popover',
-        overlayColor: '#111827',
-        overlayOpacity: 0.62,
-        stagePadding: 7,
-        stageRadius: 12,
+        overlayColor: '#0d1715',
+        overlayOpacity: 0.5,
+        stagePadding: 4,
+        stageRadius: 10,
         skipMissingElement: true,
-        waitForElement: 600,
+        waitForElement: 500,
         steps,
         onCloseClick: () => finish('dismissed'),
         onDoneClick: () => finish('completed'),

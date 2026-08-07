@@ -66,8 +66,9 @@ flowchart TD
     ROOT --> P7[".gitignore"]
     ROOT --> P8["AGENTS.md"]
     ROOT --> P9["index.html"]
-    ROOT --> P10["netlify.toml"]
-    ROOT --> P11["package.json"]
+    ROOT --> P10["MASTER.md"]
+    ROOT --> P11["netlify.toml"]
+    ROOT --> P12["package.json"]
 ```
 
 | Responsibility | Detected source paths |
@@ -185,6 +186,7 @@ flowchart LR
 - [`.github/workflows/interaction-audit.yml`](https://github.com/Nischhalsubba/Formcraft/blob/main/.github/workflows/interaction-audit.yml)
 - [`.github/workflows/record-workspace-validation.yml`](https://github.com/Nischhalsubba/Formcraft/blob/main/.github/workflows/record-workspace-validation.yml)
 - [`.github/workflows/ui-audit.yml`](https://github.com/Nischhalsubba/Formcraft/blob/main/.github/workflows/ui-audit.yml)
+- [`.github/workflows/worldclass-ui-audit.yml`](https://github.com/Nischhalsubba/Formcraft/blob/main/.github/workflows/worldclass-ui-audit.yml)
 
 ## Contribution flow
 

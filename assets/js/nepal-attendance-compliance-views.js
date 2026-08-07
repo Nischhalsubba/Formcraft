@@ -94,7 +94,7 @@
     return `<section class="np-compliance-grid">
       <article class="np-panel np-panel-wide"><header><div><span>Audit evidence</span><h2>Who changed what and when</h2></div></header><div class="np-audit-list">${events}</div></article>
       <article class="np-panel np-panel-wide"><header><div><span>Clean-room adaptation</span><h2>Reference repository boundary</h2></div></header>
-      <p class="np-copy np-evidence-note">The ZIP and public ZKTeco project informed NPT normalization, BS dates, deduplication, holiday-aware status, Hajiri reporting, Kaaj classification and audit evidence. This implementation does not copy that project's source code and does not treat it as a legal authority.</p></article>
+      <p class="np-copy np-evidence-note">Clean-room adaptation: the ZIP and public ZKTeco project informed NPT normalization, BS dates, deduplication, holiday-aware status, Hajiri reporting, Kaaj classification and audit evidence. This implementation does not copy that project's source code and does not treat it as a legal authority.</p></article>
     </section>`;
   }
 

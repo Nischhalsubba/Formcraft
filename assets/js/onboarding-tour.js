@@ -283,7 +283,6 @@
       stage.dataset.targeted = 'false';
     }
 
-    card.style.visibility = 'hidden';
     card.style.left = '0px';
     card.style.top = '0px';
     const width = card.offsetWidth;
@@ -292,6 +291,8 @@
     card.dataset.placement = position.placement;
     card.style.left = `${Math.round(position.left)}px`;
     card.style.top = `${Math.round(position.top)}px`;
+    card.dataset.step = String(stepIndex + 1);
+    stage.style.visibility = 'visible';
     card.style.visibility = 'visible';
   }
 
@@ -318,7 +319,10 @@
     const back = tourRoot.querySelector('[data-fc-tour-back]');
     const next = tourRoot.querySelector('[data-fc-tour-next]');
     const card = tourRoot.querySelector('[data-fc-tour-card]');
+    const stage = tourRoot.querySelector('[data-fc-tour-stage]');
 
+    card.style.visibility = 'hidden';
+    stage.style.visibility = 'hidden';
     title.textContent = step.title;
     description.textContent = step.description;
     progressLabel.textContent = `Step ${stepIndex + 1} of ${steps.length}`;
@@ -326,7 +330,6 @@
     back.hidden = stepIndex === 0;
     next.textContent = stepIndex === steps.length - 1 ? 'Done' : 'Next';
     tourRoot.dataset.mode = currentTarget ? 'target' : 'center';
-    card.dataset.step = String(stepIndex + 1);
 
     scheduleLayout();
     window.requestAnimationFrame(() => card.focus({ preventScroll: true }));

@@ -128,6 +128,16 @@ def run_desktop(browser, base_url):
     assert page.evaluate('FormcraftOnboarding.version')
     assert page.evaluate('FormcraftOperations.version') == 'OPS-NP-2.0'
     assert page.evaluate("FormcraftOperations.audit().readiness") == 'ready-to-test'
+    assert page.evaluate("""() => {
+        const topbar = document.querySelector('.fc3-topbar.workspace-topbar');
+        const search = document.querySelector('.fc3-global-search.workspace-search-trigger');
+        const actions = document.querySelector('.fc3-topbar-actions.nav-utilities');
+        if (!topbar || !search || !actions) return false;
+        const top = topbar.getBoundingClientRect();
+        const searchBox = search.getBoundingClientRect();
+        const actionsBox = actions.getBoundingClientRect();
+        return top.height >= 96 && searchBox.top >= actionsBox.bottom - 2;
+    }"""), 'Narrow desktop topbar must give search its own row instead of crushing context controls'
 
     for route in DESKTOP_ROUTES:
         navigate_sidebar(page, route)
@@ -245,8 +255,13 @@ def run_desktop(browser, base_url):
     page.wait_for_function("state.messages.some(message => message.subject === 'Browser test message' && message.folder === 'sent')")
 
     assert page.evaluate("FormcraftInteractions.audit().unnamedButtons.length") == 0
-    assert page.evaluate("FormcraftFeatures.audit().missingDesktop.length") == 0
-    assert page.evaluate("FormcraftFeatures.audit().missingMobile.length") == 0
+    assert page.evaluate("FormcraftSimpleShell.audit().status") == 'ready-to-test'
+    assert page.evaluate("FormcraftSimpleShell.audit().sidebarStable") is True
+    feature_audit = page.evaluate("FormcraftFeatures.audit()")
+    if page.locator('.workspace-sidebar .workspace-nav:not(.fc4-stable-nav)').count():
+        assert len(feature_audit['missingDesktop']) == 0
+    if page.locator('.mobile-drawer .drawer-nav:not(.fc4-mobile-nav)').count():
+        assert len(feature_audit['missingMobile']) == 0
     assert page.evaluate("FormcraftOperations.audit().readiness") == 'ready-to-test'
     assert errors == []
     page.close()

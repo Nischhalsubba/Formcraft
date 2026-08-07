@@ -171,56 +171,56 @@ body.fc-worldclass .fc3-account-name {
 }
 
 /* Authentication must have one visual identity from the first painted frame.
-   The Worldclass class is present in the static HTML; these rules keep the form
-   card in its final grid position while the optional story/Three.js layers mount. */
-html[data-backend="auth"] body.fc-worldclass .backend-gate {
+   These selectors deliberately do not depend on the runtime body class, so the
+   form card occupies its final position before presentation/Three.js decoration. */
+html[data-backend="auth"] .backend-gate {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(420px, 520px);
 }
 
-html[data-backend="auth"] body.fc-worldclass .backend-gate > .fc-auth-story {
+html[data-backend="auth"] .backend-gate > .fc-auth-story {
   grid-column: 1;
   grid-row: 1;
 }
 
-html[data-backend="auth"] body.fc-worldclass .backend-gate > .backend-card {
+html[data-backend="auth"] .backend-gate > .backend-card {
   grid-column: 2;
   grid-row: 1;
 }
 
-html:not([data-backend="auth"]) body.fc-worldclass .fc-auth-story {
+html:not([data-backend="auth"]) .fc-auth-story {
   display: none !important;
 }
 
-html[data-backend="loading"] body.fc-worldclass .backend-gate,
-html[data-backend="error"] body.fc-worldclass .backend-gate,
-html[data-backend="onboarding"] body.fc-worldclass .backend-gate {
+html[data-backend="loading"] .backend-gate,
+html[data-backend="error"] .backend-gate,
+html[data-backend="onboarding"] .backend-gate {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
   place-items: center;
 }
 
-html[data-backend="loading"] body.fc-worldclass .backend-card,
-html[data-backend="error"] body.fc-worldclass .backend-card,
-html[data-backend="onboarding"] body.fc-worldclass .backend-card {
+html[data-backend="loading"] .backend-card,
+html[data-backend="error"] .backend-card,
+html[data-backend="onboarding"] .backend-card {
   grid-column: 1;
   grid-row: 1;
 }
 
 @media (max-width: 900px) {
-  html[data-backend="auth"] body.fc-worldclass .backend-gate {
+  html[data-backend="auth"] .backend-gate {
     grid-template-columns: minmax(0, 1fr);
   }
 
-  html[data-backend="auth"] body.fc-worldclass .backend-gate > .backend-card {
+  html[data-backend="auth"] .backend-gate > .backend-card {
     grid-column: 1;
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
   body.fc-worldclass .fc3-topbar.workspace-topbar,
-  body.fc-worldclass .backend-gate,
-  body.fc-worldclass .backend-card {
+  .backend-gate,
+  .backend-card {
     scroll-behavior: auto;
   }
 }

@@ -35,7 +35,7 @@ body.fc-worldclass :focus-visible { outline:3px solid var(--focus); outline-offs
 body.fc-worldclass :is(h1,h2,h3,.workspace-page-heading h1,.erp-launcher-hero h2,.erp-module-intro h2,.erp-record-heading h1,.product-panel-head h2,.fc3-page-copy h1) { font-family:var(--font-display); letter-spacing:-.035em; }
 
 /* Stable shell */
-body.fc-worldclass.fc4-simple-shell { --fc4-sidebar-width:284px; --fc4-sidebar-compact:82px; --fc4-topbar-height:70px; --fc4-page-width:1540px; --fc4-page-gutter:clamp(16px,2.5vw,36px); }
+body.fc-worldclass.fc4-simple-shell { --fc4-sidebar-width:var(--ui-sidebar-width,252px); --fc4-sidebar-compact:76px; --fc4-topbar-height:70px; --fc4-page-width:1540px; --fc4-page-gutter:clamp(16px,2.5vw,36px); }
 body.fc-worldclass.fc4-simple-shell .fc3-context-sidebar.fc4-sidebar { border-right:1px solid var(--fcw-sidebar-border)!important; background-color:var(--fcw-sidebar)!important; color:var(--fcw-sidebar-text); box-shadow:10px 0 34px rgb(7 16 14 / .08)!important; }
 body.fc-worldclass .fc4-sidebar-header { min-height:80px; padding:15px 14px 14px 16px; border-bottom-color:var(--fcw-sidebar-border); background-color:var(--fcw-sidebar-raised); }
 body.fc-worldclass .fc4-workspace-brand { gap:11px; color:var(--fcw-sidebar-strong); }
@@ -202,7 +202,6 @@ body.fc-worldclass [data-fcw-reveal].fcw-reveal-complete { will-change:auto; }
 
 @media (hover:hover) and (pointer:fine) { body.fc-worldclass :is(.command-button,.erp-app-card,.project-card,.task-card):hover { transform:translateY(-2px); } }
 @media (max-width:1180px) {
-  body.fc-worldclass.fc4-simple-shell { --fc4-sidebar-width:264px; }
   body.fc-worldclass .product-today-grid, body.fc-worldclass .product-dashboard-bottom { grid-template-columns:1fr; }
   body.fc-worldclass .backend-gate { grid-template-columns:minmax(0,1fr) minmax(390px,480px); gap:42px; }
   body.fc-worldclass .fc-context-select-trigger { min-width:118px; }

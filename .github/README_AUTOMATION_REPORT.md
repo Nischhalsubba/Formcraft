@@ -9,7 +9,7 @@ Generator: `aed303eed8a536f2dda075c8be583693325aac37`
 | `agent/nepal-erp-suite` | unchanged | README already matched the standard |
 | `agent/onboarding-visual-refresh` | unchanged | README already matched the standard |
 | `agent/performance-mobile-stability` | unchanged | README already matched the standard |
-| `agent/simplify-product-tour` | updated | Branch-specific README committed |
+| `agent/simplify-product-tour` | unchanged | README already matched the standard |
 | `agent/topbar-auth-stability` | unchanged | README already matched the standard |
 | `agent/unified-design-system` | unchanged | README already matched the standard |
 | `agent/unify-production-design-state` | unchanged | README already matched the standard |

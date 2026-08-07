@@ -3,18 +3,24 @@ name: Worldclass UI Audit
 on:
   pull_request:
     paths:
+      - 'MASTER.md'
       - 'index.html'
+      - 'package.json'
       - 'assets/css/formcraft-worldclass.css'
+      - 'assets/js/header-popover-fixes.js'
       - 'assets/js/formcraft-worldclass.js'
       - 'assets/js/formcraft-atmosphere.js'
       - 'tests/worldclass-design-audit.mjs'
       - '.github/workflows/worldclass-ui-audit.yml'
   push:
     branches:
-      - 'agent/worldclass-redesign'
+      - 'agent/**'
     paths:
+      - 'MASTER.md'
       - 'index.html'
+      - 'package.json'
       - 'assets/css/formcraft-worldclass.css'
+      - 'assets/js/header-popover-fixes.js'
       - 'assets/js/formcraft-worldclass.js'
       - 'assets/js/formcraft-atmosphere.js'
       - 'tests/worldclass-design-audit.mjs'
@@ -36,10 +42,5 @@ jobs:
         with:
           node-version: '22'
 
-      - name: Validate presentation JavaScript
-        run: |
-          node --check assets/js/formcraft-worldclass.js
-          node --check assets/js/formcraft-atmosphere.js
-
-      - name: Run focused design audit
-        run: node tests/worldclass-design-audit.mjs
+      - name: Validate worldclass presentation runtime
+        run: npm run test:worldclass

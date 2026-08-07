@@ -3,7 +3,14 @@
 (() => {
   const motion = window.gsap;
   const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
-  const canAnimate = () => Boolean(motion) && !reducedMotion.matches;
+  const mobileMotion = window.matchMedia('(max-width: 820px), (pointer: coarse)');
+  const saveData = Boolean(navigator.connection?.saveData);
+  const lowMemory = Number(navigator.deviceMemory || 8) <= 4;
+  const canAnimate = () => Boolean(motion)
+    && !reducedMotion.matches
+    && !mobileMotion.matches
+    && !saveData
+    && !lowMemory;
   const durations = { quick: 0.16, base: 0.24, panel: 0.36 };
 
   document.documentElement.classList.add('motion-enhanced');
@@ -34,10 +41,18 @@
     motion.set(target, { clearProps: 'transform,opacity,visibility,scale' });
   }
 
+  function cancelActiveMotion() {
+    motion.globalTimeline.clear();
+    document.querySelectorAll('[style]').forEach(node => {
+      if (node.style.transform || node.style.opacity || node.style.visibility) clearMotion(node);
+    });
+  }
+
   function animateInitialShell() {
     const shell = document.querySelector('.workspace-shell');
-    if (!shell || shellAnimated || !canAnimate()) return;
+    if (!shell || shellAnimated) return;
     shellAnimated = true;
+    if (!canAnimate()) return;
 
     const sidebar = shell.querySelector('.workspace-sidebar');
     const topbar = shell.querySelector('.workspace-topbar');
@@ -364,15 +379,34 @@
     });
   });
 
-  document.querySelectorAll('[data-notifications-popover], [data-account-popover]').forEach(popover => {
-    popoverObserver.observe(popover, { attributes: true, attributeFilter: ['hidden'] });
-  });
-
-  const appObserver = new MutationObserver(() => {
-    document.querySelectorAll('[data-notifications-popover], [data-account-popover]').forEach(popover => {
+  function observePopovers(root = document) {
+    if (root instanceof Element && root.matches('[data-notifications-popover], [data-account-popover]')) {
+      popoverObserver.observe(root, { attributes: true, attributeFilter: ['hidden'] });
+    }
+    root.querySelectorAll?.('[data-notifications-popover], [data-account-popover]').forEach(popover => {
       popoverObserver.observe(popover, { attributes: true, attributeFilter: ['hidden'] });
     });
-    requestAnimationFrame(animateInitialShell);
+  }
+
+  observePopovers();
+
+  const appObserver = new MutationObserver(records => {
+    const added = [];
+    records.forEach(record => record.addedNodes.forEach(node => {
+      if (node instanceof Element) added.push(node);
+    }));
+    if (!added.length) return;
+
+    let relevant = false;
+    added.forEach(node => {
+      const containsPopover = node.matches('[data-notifications-popover], [data-account-popover]')
+        || node.querySelector('[data-notifications-popover], [data-account-popover]');
+      const containsShell = !shellAnimated && (node.matches('.workspace-shell') || node.querySelector('.workspace-shell'));
+      if (containsPopover) observePopovers(node);
+      if (containsPopover || containsShell) relevant = true;
+    });
+
+    if (relevant && !shellAnimated) requestAnimationFrame(animateInitialShell);
   });
   appObserver.observe(app, { childList: true, subtree: true });
 
@@ -410,11 +444,10 @@
   }, true);
 
   reducedMotion.addEventListener?.('change', event => {
-    if (!event.matches) return;
-    motion.globalTimeline.clear();
-    document.querySelectorAll('[style]').forEach(node => {
-      if (node.style.transform || node.style.opacity || node.style.visibility) clearMotion(node);
-    });
+    if (event.matches) cancelActiveMotion();
+  });
+  mobileMotion.addEventListener?.('change', event => {
+    if (event.matches) cancelActiveMotion();
   });
 
   requestAnimationFrame(animateInitialShell);
@@ -422,6 +455,7 @@
   window.FormcraftMotion = {
     available: true,
     reduced: reducedMotion.matches,
+    performanceReduced: mobileMotion.matches || saveData || lowMemory,
     animateRoute: animateRouteEntry,
     animateModal: animateModalIn,
     animateCalendar

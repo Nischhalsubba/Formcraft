@@ -1,7 +1,7 @@
 'use strict';
 
 (() => {
-  const TOUR_VERSION = '2026.08.02.1';
+  const TOUR_VERSION = '2026.08.07.2';
   const DRIVER_VERSION = '1.8.0';
   const DRIVER_SCRIPT = `https://cdn.jsdelivr.net/npm/driver.js@${DRIVER_VERSION}/dist/driver.js.iife.js`;
   const DRIVER_STYLES = `https://cdn.jsdelivr.net/npm/driver.js@${DRIVER_VERSION}/dist/driver.css`;
@@ -10,6 +10,7 @@
   let autoStartTimer = null;
   let fallbackOpen = false;
   let driverAssetsPromise = null;
+  let restoreShellAfterTour = null;
 
   function userIdentity() {
     const user = window.FormcraftBackend?.session?.user;
@@ -48,8 +49,15 @@
     return Boolean(readState());
   }
 
+  function restoreTourShell() {
+    const restore = restoreShellAfterTour;
+    restoreShellAfterTour = null;
+    restore?.();
+  }
+
   function complete(status = 'completed') {
     writeState(status);
+    restoreTourShell();
     document.dispatchEvent(new CustomEvent('formcraft:product-tour-finished', { detail: { status, version: TOUR_VERSION } }));
   }
 
@@ -100,31 +108,31 @@
       {
         popover: {
           title: 'Welcome to Formcraft',
-          description: 'This short walkthrough shows where work lives, how to create records, and how to find anything again.',
+          description: 'A quick tour of the controls you will use every day. Each step highlights the real control in place, then Next moves you forward.',
           side: 'over',
           align: 'center'
         }
       },
       {
-        element: '.workspace-brand',
+        element: '.fc4-sidebar .fc4-workspace-brand',
         popover: {
-          title: 'Your workspace',
-          description: 'The workspace name and dashboard link stay here. Select it whenever you need to return to the overview.',
+          title: 'Workspace home',
+          description: 'Your workspace identity lives here. Select it whenever you want to return to the dashboard.',
           side: 'right',
           align: 'start'
         }
       },
       {
-        element: '.workspace-sidebar .workspace-nav',
+        element: '.fc4-sidebar .fc4-stable-nav',
         popover: {
-          title: 'Every source module is available',
-          description: 'Projects, tasks, calendar, team, reports, email, files, invoices, activity, and settings are all accessible from the sidebar.',
+          title: 'Main navigation',
+          description: 'Your everyday work, business, operations, people, insights, and tools stay in one consistent navigation area.',
           side: 'right',
           align: 'center'
         }
       },
       {
-        element: '.workspace-sidebar [data-route="projects"]',
+        element: '.fc4-sidebar [data-route="projects"]',
         popover: {
           title: 'Plan delivery with projects',
           description: 'Define scope, owner, dates, status, progress, linked tasks, events, and billing.',
@@ -133,46 +141,46 @@
         }
       },
       {
-        element: '.workspace-sidebar [data-route="calendar"]',
+        element: '.fc4-sidebar [data-route="calendar"]',
         popover: {
           title: 'Schedule work',
-          description: 'Use the calendar for meetings, reviews, deadlines, and reminders. Select any empty day cell to create an event.',
+          description: 'Use the calendar for meetings, reviews, deadlines, and reminders.',
           side: 'right',
           align: 'center'
         }
       },
       {
-        element: '.workspace-sidebar [data-route="reports"]',
+        element: '.fc4-sidebar [data-route="reports"]',
         popover: {
           title: 'Review performance',
-          description: 'Reports summarize project completion, task distribution, and overdue work from live workspace records.',
+          description: 'Reports summarize delivery progress, work distribution, and overdue items from live workspace records.',
           side: 'right',
           align: 'center'
         }
       },
       {
-        element: '.workspace-sidebar [data-route="email"]',
+        element: '.fc4-sidebar [data-route="files"]',
         popover: {
-          title: 'Manage workspace messages',
-          description: 'Compose, search, star, archive, and organize messages without leaving the workspace.',
+          title: 'Keep working files together',
+          description: 'Open Files for shared documents and project resources without leaving the workspace.',
           side: 'right',
           align: 'center'
         }
       },
       {
-        element: '.workspace-search-trigger',
+        element: '.fc3-global-search.workspace-search-trigger',
         popover: {
           title: 'Search the whole workspace',
-          description: 'Find projects, tasks, people, events, messages, files, and invoices. You can also press Ctrl or Command + K.',
+          description: 'Find records, apps, and actions from one place. You can also press Ctrl or Command + K.',
           side: 'bottom',
           align: 'start'
         }
       },
       {
-        element: '.workspace-create-button',
+        element: '[data-command-menu]',
         popover: {
           title: 'Create from anywhere',
-          description: 'Open the create menu to add projects, tasks, events, messages, files, invoices, or members.',
+          description: 'Open quick create for the records you need without navigating away first.',
           side: 'bottom',
           align: 'end'
         }
@@ -190,15 +198,15 @@
         element: '[data-toggle-account]',
         popover: {
           title: 'Account and help',
-          description: 'Open this menu for workspace settings, data export, sign out, or to replay this product tour.',
-          side: 'right',
+          description: 'Use this menu for settings, data export, sign out, and replaying this product tour.',
+          side: 'bottom',
           align: 'end'
         }
       },
       {
         popover: {
           title: 'You are ready to work',
-          description: 'Start with a project, connect tasks and events, then use reports, activity, and invoices to keep delivery visible.',
+          description: 'Start with the dashboard, create the next record you need, and use search whenever you want to jump directly to something.',
           side: 'over',
           align: 'center'
         }
@@ -211,16 +219,16 @@
       {
         popover: {
           title: 'Welcome to Formcraft',
-          description: 'This walkthrough introduces the mobile workspace and the quickest ways to move and create.',
+          description: 'A short tour of the mobile controls you will use most. Each step highlights the actual control before moving forward.',
           side: 'over',
           align: 'center'
         }
       },
       {
-        element: '.bright-bottom-nav',
+        element: '.fc3-mobile-bottom-nav',
         popover: {
-          title: 'Primary navigation',
-          description: 'Dashboard, projects, tasks, and calendar stay one tap away.',
+          title: 'Quick navigation',
+          description: 'Home, Apps, the current work area, Create, and More stay one tap away.',
           side: 'top',
           align: 'center'
         }
@@ -228,34 +236,43 @@
       {
         element: '[data-bright-more]',
         popover: {
-          title: 'All workspace modules',
-          description: 'Open More for team, reports, email, files, invoices, activity, and settings.',
+          title: 'Open the full menu',
+          description: 'More opens the complete workspace navigation when you need a secondary module or tool.',
           side: 'top',
           align: 'end'
         }
       },
       {
-        element: '.bright-mobile-create',
+        element: '[data-bright-context-create]',
         popover: {
-          title: 'Context-aware creation',
-          description: 'This action changes with the current page, so creating the right record takes fewer steps.',
+          title: 'Create in context',
+          description: 'The center action adapts to the page so the most relevant record is always close by.',
           side: 'top',
-          align: 'end'
+          align: 'center'
         }
       },
       {
-        element: '.workspace-search-trigger',
+        element: '.fc3-global-search.workspace-search-trigger',
         popover: {
           title: 'Search everything',
-          description: 'Search across projects, tasks, people, events, messages, files, and invoices.',
+          description: 'Search records, apps, and actions without digging through menus.',
           side: 'bottom',
           align: 'center'
         }
       },
       {
+        element: '[data-toggle-account]',
+        popover: {
+          title: 'Account and help',
+          description: 'Open your account menu for settings, export, sign out, and this tour.',
+          side: 'bottom',
+          align: 'end'
+        }
+      },
+      {
         popover: {
           title: 'You are ready',
-          description: 'Use More whenever you need a secondary module, and replay this tour later from Settings.',
+          description: 'Use the bottom navigation for daily work, More for the full workspace, and Search when you already know what you need.',
           side: 'over',
           align: 'center'
         }
@@ -264,7 +281,47 @@
   }
 
   function buildSteps() {
-    return window.matchMedia('(max-width: 760px)').matches ? mobileSteps() : desktopSteps();
+    return window.matchMedia('(max-width: 820px)').matches ? mobileSteps() : desktopSteps();
+  }
+
+  function isVisibleTourTarget(element) {
+    if (!(element instanceof Element) || !element.isConnected || element.getClientRects().length === 0) return false;
+    const style = window.getComputedStyle(element);
+    return style.display !== 'none' && style.visibility !== 'hidden' && Number(style.opacity || 1) > 0;
+  }
+
+  function resolveVisibleSteps(steps) {
+    return steps.flatMap(step => {
+      if (!step.element) return [step];
+      const target = typeof step.element === 'string' ? document.querySelector(step.element) : step.element;
+      if (!isVisibleTourTarget(target)) return [];
+      return [{ ...step, element: target }];
+    });
+  }
+
+  function prepareTourShell() {
+    restoreTourShell();
+    const body = document.body;
+    const stateBefore = {
+      fc4Collapsed: body.classList.contains('fc4-sidebar-collapsed'),
+      fc3Collapsed: body.classList.contains('fc3-sidebar-collapsed'),
+      contextOpen: body.classList.contains('fc3-context-open'),
+      drawerOpen: body.classList.contains('drawer-open')
+    };
+
+    body.classList.remove('drawer-open', 'fc3-context-open');
+    if (!window.matchMedia('(max-width: 820px)').matches) {
+      body.classList.remove('fc4-sidebar-collapsed', 'fc3-sidebar-collapsed');
+      window.FormcraftSimpleShell?.decorate?.();
+    }
+
+    restoreShellAfterTour = () => {
+      body.classList.toggle('fc4-sidebar-collapsed', stateBefore.fc4Collapsed);
+      body.classList.toggle('fc3-sidebar-collapsed', stateBefore.fc3Collapsed);
+      body.classList.toggle('fc3-context-open', stateBefore.contextOpen);
+      body.classList.toggle('drawer-open', stateBefore.drawerOpen);
+      window.FormcraftSimpleShell?.decorate?.();
+    };
   }
 
   function fallbackItems() {
@@ -281,6 +338,7 @@
 
   function showFallbackTour() {
     fallbackOpen = true;
+    restoreTourShell();
     openModal(`<div class="modal-card product-tour-fallback">
       <div class="modal-head"><div><p class="panel-kicker">First-login walkthrough</p><h2 id="modal-title">Welcome to Formcraft</h2><p>Everything required to plan, communicate, deliver, and review work lives in this workspace.</p></div><button class="icon-button" type="button" data-dismiss-product-tour aria-label="Close product tour">${icon('close', 18)}</button></div>
       <div class="modal-body"><p class="panel-description">Use the sidebar on desktop or More on mobile to access every source module. Search and the create menu remain available across the application.</p><div class="product-tour-fallback-list">${fallbackItems()}</div></div>
@@ -291,6 +349,7 @@
   function destroyActiveTour() {
     activeTour?.destroy?.();
     activeTour = null;
+    restoreTourShell();
   }
 
   function start(options = {}) {
@@ -303,6 +362,7 @@
     if (modal.open) closeModal();
     if (ui.route !== 'dashboard') navigate('dashboard');
     window.FormcraftFeatures?.enhance?.();
+    prepareTourShell();
 
     window.setTimeout(async () => {
       let driverFactory = window.driver?.js?.driver;
@@ -316,6 +376,12 @@
       }
 
       if (typeof driverFactory !== 'function') {
+        showFallbackTour();
+        return;
+      }
+
+      const steps = resolveVisibleSteps(buildSteps());
+      if (steps.length < 3) {
         showFallbackTour();
         return;
       }
@@ -337,21 +403,22 @@
         prevBtnText: 'Back',
         doneBtnText: 'Finish',
         popoverClass: 'formcraft-tour-popover',
-        overlayColor: '#0f172a',
-        overlayOpacity: 0.56,
-        stagePadding: 8,
-        stageRadius: 10,
+        overlayColor: '#111827',
+        overlayOpacity: 0.62,
+        stagePadding: 7,
+        stageRadius: 12,
         skipMissingElement: true,
-        waitForElement: 1600,
-        steps: buildSteps(),
+        waitForElement: 600,
+        steps,
         onCloseClick: () => finish('dismissed'),
         onDoneClick: () => finish('completed'),
         onDestroyed: () => {
           activeTour = null;
+          restoreTourShell();
         }
       });
       activeTour.drive();
-    }, ui.route === 'dashboard' ? 60 : 180);
+    }, ui.route === 'dashboard' ? 80 : 200);
   }
 
   function considerAutoStart() {

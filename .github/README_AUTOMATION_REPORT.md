@@ -9,6 +9,7 @@ Generator: `aed303eed8a536f2dda075c8be583693325aac37`
 | `agent/nepal-erp-suite` | updated | Branch-specific README committed |
 | `agent/onboarding-visual-refresh` | updated | Branch-specific README committed |
 | `agent/performance-mobile-stability` | updated | Branch-specific README committed |
+| `agent/simplify-product-tour` | updated | Branch-specific README committed |
 | `agent/topbar-auth-stability` | updated | Branch-specific README committed |
 | `agent/unified-design-system` | updated | Branch-specific README committed |
 | `agent/unify-production-design-state` | updated | Branch-specific README committed |

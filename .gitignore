@@ -37,3 +37,9 @@ Thumbs.db
 *.tmp
 *.swp
 *.swo
+
+# Local Python and Formcraft device-bridge runtime
+.venv/
+__pycache__/
+.formcraft-bridge/
+device-bridge/backups/

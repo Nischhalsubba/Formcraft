@@ -128,13 +128,15 @@ assert.match(tourCss, /@media \(max-width: 390px\)/);
 assert.match(tourCss, /@media \(prefers-reduced-motion: reduce\)/);
 assert.doesNotMatch(tourCss, /linear-gradient|radial-gradient|conic-gradient/i);
 
-assert.match(onboardingJs, /TOUR_VERSION = '2026\.08\.07\.5'/);
+assert.match(onboardingJs, /TOUR_VERSION = '\d{4}\.\d{2}\.\d{2}\.\d+'/);
 assert.match(onboardingJs, /MOBILE_BREAKPOINT = 820/);
 assert.match(onboardingJs, /className = 'fc-tour'/);
 assert.match(onboardingJs, /function workspaceRect\(/);
 assert.match(onboardingJs, /function stageRectForTarget\(/);
 assert.match(onboardingJs, /function cardPosition\(/);
 assert.match(onboardingJs, /function placementOrder\(/);
+assert.match(onboardingJs, /function constrainCrossAxis\(/);
+assert.match(onboardingJs, /function primaryAxisFits\(/);
 assert.match(onboardingJs, /requestAnimationFrame\(layoutStep\)/);
 assert.match(onboardingJs, /\.fc4-sidebar \[data-route="dashboard"\]/);
 assert.match(onboardingJs, /\.fc4-sidebar \[data-route="projects"\]/);

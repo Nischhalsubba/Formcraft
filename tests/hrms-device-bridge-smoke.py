@@ -1,4 +1,5 @@
 import importlib.util
+import sys
 import tempfile
 from pathlib import Path
 
@@ -6,8 +7,9 @@ ROOT = Path(__file__).resolve().parents[1]
 BRIDGE_PATH = ROOT / 'device-bridge' / 'formcraft_bridge.py'
 
 spec = importlib.util.spec_from_file_location('formcraft_bridge', BRIDGE_PATH)
-bridge = importlib.util.module_from_spec(spec)
 assert spec and spec.loader
+bridge = importlib.util.module_from_spec(spec)
+sys.modules[spec.name] = bridge
 spec.loader.exec_module(bridge)
 
 assert bridge.VERSION

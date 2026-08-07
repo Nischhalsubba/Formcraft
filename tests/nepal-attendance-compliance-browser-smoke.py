@@ -235,8 +235,10 @@ def test_desktop(browser, base_url):
     page.wait_for_selector('.np-hajiri-table')
     rows = page.locator('.np-hajiri-table tbody tr')
     assert rows.count() >= 20
-    register_text = page.locator('.np-hajiri-table').inner_text()
-    if fixture['employeeName'] not in register_text:
+    register_names = page.locator('.np-hajiri-table tbody tr th:first-child strong').evaluate_all(
+        "nodes => nodes.map(node => node.textContent.trim())"
+    )
+    if fixture['employeeName'] not in register_names:
         diagnostics = page.evaluate("""
           fixture => ({
             fixture,

@@ -138,6 +138,12 @@
     });
   }
 
+  function positionAccountPopover() {
+    const trigger = $('[data-toggle-account]');
+    const popover = $('[data-account-popover]');
+    if (trigger && popover && !popover.hidden) positionFloatingPanel(trigger, popover, { align: 'end', width: 300, minWidth: 260, maxWidth: 340 });
+  }
+
   function toggleHeaderPopover(type) {
     const entries = currentPopoverEntries();
     const current = entries.find(entry => entry.type === type);
@@ -252,12 +258,14 @@
 
     removeStaleBodyPopovers(account, notifications);
 
-    [notifications, account].forEach(popover => {
-      if (!popover) return;
-      popover.classList.add('fc-floating-panel');
-      if (popover.parentElement !== document.body) document.body.append(popover);
-    });
-    account?.classList.add('sidebar-account-popover');
+    if (notifications) {
+      notifications.classList.add('fc-floating-panel');
+      if (notifications.parentElement !== document.body) document.body.append(notifications);
+    }
+    if (account) {
+      account.classList.add('fc-floating-panel', 'sidebar-account-popover');
+      if (account.parentElement !== document.body) document.body.append(account);
+    }
 
     notificationTrigger?.setAttribute('aria-haspopup', 'dialog');
     accountTrigger?.setAttribute('aria-haspopup', 'menu');
@@ -269,7 +277,6 @@
     mountHeaderPopovers();
   };
 
-  // Existing click handlers resolve this binding at click time, so the unified engine becomes canonical.
   togglePopover = function toggleUnifiedPopover(type) {
     toggleHeaderPopover(type);
   };

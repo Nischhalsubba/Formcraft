@@ -1,17 +1,24 @@
 'use strict';
 
 (() => {
-  const TOUR_VERSION = '2026.08.07.4';
-  const DRIVER_VERSION = '1.8.0';
-  const DRIVER_SCRIPT = `https://cdn.jsdelivr.net/npm/driver.js@${DRIVER_VERSION}/dist/driver.js.iife.js`;
-  const DRIVER_STYLES = `https://cdn.jsdelivr.net/npm/driver.js@${DRIVER_VERSION}/dist/driver.css`;
+  const TOUR_VERSION = '2026.08.07.5';
+  const MOBILE_BREAKPOINT = 820;
+  const CARD_GAP = 14;
+  const VIEWPORT_PAD = 14;
+  const STAGE_PAD = 7;
   const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
-  let activeTour = null;
+
+  let active = false;
   let autoStartTimer = null;
-  let fallbackOpen = false;
-  let driverAssetsPromise = null;
   let restoreShellAfterTour = null;
-  let tourCenterAnchor = null;
+  let root = null;
+  let steps = [];
+  let stepIndex = 0;
+  let currentTarget = null;
+  let previousFocus = null;
+  let layoutRaf = 0;
+
+  const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
 
   function userIdentity() {
     const user = window.FormcraftBackend?.session?.user;
@@ -35,7 +42,7 @@
     try {
       window.localStorage.setItem(storageKey(), JSON.stringify({ status, at: new Date().toISOString() }));
     } catch {
-      // Storage can be disabled. The tour still works for this session.
+      // The tour can still run when storage is unavailable.
     }
   }
 
@@ -52,254 +59,67 @@
     return state?.status === 'completed' || state?.status === 'dismissed';
   }
 
-  function removeTourCenterAnchor() {
-    tourCenterAnchor?.remove();
-    tourCenterAnchor = null;
-  }
-
-  function ensureTourCenterAnchor() {
-    let anchor = tourCenterAnchor && tourCenterAnchor.isConnected
-      ? tourCenterAnchor
-      : document.querySelector('[data-formcraft-tour-center]');
-
-    if (!anchor) {
-      anchor = document.createElement('span');
-      anchor.dataset.formcraftTourCenter = 'true';
-      anchor.setAttribute('aria-hidden', 'true');
-      document.body.append(anchor);
-    }
-
-    const main = document.querySelector('.fc3-main.workspace-main') || document.querySelector('.workspace-main');
-    const rect = main?.getBoundingClientRect();
-    const centerX = rect && rect.width > 0 ? rect.left + (rect.width / 2) : window.innerWidth / 2;
-    const centerY = Math.max(120, Math.min(window.innerHeight - 120, window.innerHeight * 0.5));
-    anchor.style.left = `${Math.round(centerX)}px`;
-    anchor.style.top = `${Math.round(centerY)}px`;
-    tourCenterAnchor = anchor;
-    return anchor;
-  }
-
-  function restoreTourShell() {
-    removeTourCenterAnchor();
-    const restore = restoreShellAfterTour;
-    restoreShellAfterTour = null;
-    restore?.();
-  }
-
-  function complete(status = 'completed') {
-    writeState(status);
-    restoreTourShell();
-    document.dispatchEvent(new CustomEvent('formcraft:product-tour-finished', { detail: { status, version: TOUR_VERSION } }));
-  }
-
-  function ensureDriverAssets() {
-    const existing = window.driver?.js?.driver;
-    if (typeof existing === 'function') return Promise.resolve(existing);
-    if (driverAssetsPromise) return driverAssetsPromise;
-
-    driverAssetsPromise = new Promise((resolve, reject) => {
-      if (!document.querySelector('link[data-formcraft-driver-css]')) {
-        const stylesheet = document.createElement('link');
-        stylesheet.rel = 'stylesheet';
-        stylesheet.href = DRIVER_STYLES;
-        stylesheet.dataset.formcraftDriverCss = 'true';
-        document.head.append(stylesheet);
-      }
-
-      const finish = () => {
-        const factory = window.driver?.js?.driver;
-        if (typeof factory === 'function') resolve(factory);
-        else reject(new Error('Driver.js loaded without a driver factory.'));
-      };
-
-      const existingScript = document.querySelector('script[data-formcraft-driver-js]');
-      if (existingScript) {
-        existingScript.addEventListener('load', finish, { once: true });
-        existingScript.addEventListener('error', () => reject(new Error('Driver.js failed to load.')), { once: true });
-        return;
-      }
-
-      const script = document.createElement('script');
-      script.src = DRIVER_SCRIPT;
-      script.defer = true;
-      script.dataset.formcraftDriverJs = 'true';
-      script.addEventListener('load', finish, { once: true });
-      script.addEventListener('error', () => reject(new Error('Driver.js failed to load.')), { once: true });
-      document.head.append(script);
-    }).catch(error => {
-      driverAssetsPromise = null;
-      throw error;
-    });
-
-    return driverAssetsPromise;
-  }
-
   function desktopSteps() {
     return [
-      {
-        element: '[data-formcraft-tour-center]',
-        popover: {
-          title: 'Welcome to Formcraft',
-          description: 'Here is a quick tour. It takes less than a minute.',
-          side: 'over',
-          align: 'center'
-        }
-      },
-      {
-        element: '.fc4-sidebar [data-route="dashboard"]',
-        popover: {
-          title: 'Home',
-          description: 'See your workspace overview and the work that needs attention.',
-          side: 'right',
-          align: 'center'
-        }
-      },
-      {
-        element: '.fc4-sidebar [data-route="projects"]',
-        popover: {
-          title: 'Projects',
-          description: 'Keep project work, owners, dates, and progress in one place.',
-          side: 'right',
-          align: 'center'
-        }
-      },
-      {
-        element: '.fc4-sidebar [data-route="tasks"]',
-        popover: {
-          title: 'Tasks',
-          description: 'See what needs to be done, who owns it, and when it is due.',
-          side: 'right',
-          align: 'center'
-        }
-      },
-      {
-        element: '.fc3-global-search.workspace-search-trigger',
-        popover: {
-          title: 'Search',
-          description: 'Find records, apps, and actions quickly. Press Ctrl K anytime.',
-          side: 'bottom',
-          align: 'start'
-        }
-      },
-      {
-        element: '[data-command-menu]',
-        popover: {
-          title: 'Create',
-          description: 'Use + to add a project, task, event, invoice, and more.',
-          side: 'bottom',
-          align: 'end'
-        }
-      },
-      {
-        element: '[data-toggle-notifications]',
-        popover: {
-          title: 'Notifications',
-          description: 'Check recent updates and activity here.',
-          side: 'bottom',
-          align: 'end'
-        }
-      },
-      {
-        element: '[data-toggle-account]',
-        popover: {
-          title: 'Your account',
-          description: 'Open settings, export data, sign out, or restart this tour.',
-          side: 'bottom',
-          align: 'end'
-        }
-      },
-      {
-        element: '[data-formcraft-tour-center]',
-        popover: {
-          title: "You're ready",
-          description: 'That is it. Start with Home, then use Search or + whenever you need something.',
-          side: 'over',
-          align: 'center'
-        }
-      }
+      { title: 'Welcome to Formcraft', description: 'Here is a quick tour of the main controls.', placement: 'center' },
+      { selector: '.fc4-sidebar [data-route="dashboard"]', title: 'Home', description: 'See your workspace overview and what needs attention.', placement: 'right' },
+      { selector: '.fc4-sidebar [data-route="projects"]', title: 'Projects', description: 'Keep project work, owners, dates, and progress together.', placement: 'right' },
+      { selector: '.fc4-sidebar [data-route="tasks"]', title: 'Tasks', description: 'See what needs to be done, who owns it, and when it is due.', placement: 'right' },
+      { selector: '.fc3-global-search.workspace-search-trigger', title: 'Search', description: 'Find records, apps, and actions. Press Ctrl K anytime.', placement: 'bottom-start' },
+      { selector: '[data-command-menu]', title: 'Create', description: 'Use + to add a project, task, event, invoice, and more.', placement: 'bottom-end' },
+      { selector: '[data-toggle-notifications]', title: 'Notifications', description: 'Check recent updates and activity here.', placement: 'bottom-end' },
+      { selector: '[data-toggle-account]', title: 'Your account', description: 'Open settings, export data, sign out, or restart this tour.', placement: 'bottom-end' },
+      { title: "You're ready", description: 'Start with Home. Use Search or + whenever you need something.', placement: 'center' }
     ];
   }
 
   function mobileSteps() {
     return [
-      {
-        element: '[data-formcraft-tour-center]',
-        popover: {
-          title: 'Welcome to Formcraft',
-          description: 'Here is a quick tour of the main mobile controls.',
-          side: 'over',
-          align: 'center'
-        }
-      },
-      {
-        element: '.fc3-mobile-bottom-nav [data-route="dashboard"]',
-        popover: {
-          title: 'Home',
-          description: 'Tap Home to see your workspace overview.',
-          side: 'top',
-          align: 'center'
-        }
-      },
-      {
-        element: '.fc3-mobile-bottom-nav [data-route="apps"]',
-        popover: {
-          title: 'Apps',
-          description: 'Open Apps to find your business tools.',
-          side: 'top',
-          align: 'center'
-        }
-      },
-      {
-        element: '[data-bright-context-create]',
-        popover: {
-          title: 'Create',
-          description: 'Tap Create to add new work from the page you are on.',
-          side: 'top',
-          align: 'center'
-        }
-      },
-      {
-        element: '[data-bright-more]',
-        popover: {
-          title: 'More',
-          description: 'Tap More to open the full menu.',
-          side: 'top',
-          align: 'end'
-        }
-      },
-      {
-        element: '[data-formcraft-tour-center]',
-        popover: {
-          title: "You're ready",
-          description: 'Use Home, Apps, Create, and More to move around.',
-          side: 'over',
-          align: 'center'
-        }
-      }
+      { title: 'Welcome to Formcraft', description: 'Here is a quick tour of the main mobile controls.', placement: 'center' },
+      { selector: '.fc3-mobile-bottom-nav [data-route="dashboard"]', title: 'Home', description: 'Tap Home to see your workspace overview.', placement: 'top' },
+      { selector: '.fc3-mobile-bottom-nav [data-route="apps"]', title: 'Apps', description: 'Open Apps to find your business tools.', placement: 'top' },
+      { selector: '[data-bright-context-create]', title: 'Create', description: 'Tap Create to add new work from the page you are on.', placement: 'top' },
+      { selector: '[data-bright-more]', title: 'More', description: 'Tap More to open the full menu.', placement: 'top-end' },
+      { title: "You're ready", description: 'Use Home, Apps, Create, and More to move around.', placement: 'center' }
     ];
   }
 
-  function buildSteps() {
-    return window.matchMedia('(max-width: 820px)').matches ? mobileSteps() : desktopSteps();
-  }
-
-  function isVisibleTourTarget(element) {
+  function isVisibleTarget(element) {
     if (!(element instanceof Element) || !element.isConnected || element.getClientRects().length === 0) return false;
     const style = window.getComputedStyle(element);
     return style.display !== 'none' && style.visibility !== 'hidden' && Number(style.opacity || 1) > 0;
   }
 
-  function resolveVisibleSteps(steps) {
-    return steps.flatMap(step => {
-      if (!step.element) return [step];
-      const target = typeof step.element === 'string' ? document.querySelector(step.element) : step.element;
-      if (!isVisibleTourTarget(target)) return [];
-      return [{ ...step, element: target }];
+  function resolveSteps(definitions) {
+    return definitions.flatMap(step => {
+      if (!step.selector) return [{ ...step, target: null }];
+      const target = document.querySelector(step.selector);
+      return isVisibleTarget(target) ? [{ ...step, target }] : [];
     });
   }
 
+  function workspaceRect() {
+    if (window.matchMedia(`(max-width: ${MOBILE_BREAKPOINT}px)`).matches) {
+      return { left: 0, top: 0, right: window.innerWidth, bottom: window.innerHeight, width: window.innerWidth, height: window.innerHeight };
+    }
+
+    const main = document.querySelector('.fc3-main.workspace-main') || document.querySelector('.workspace-main');
+    const rect = main?.getBoundingClientRect();
+    if (!rect || rect.width < 200) {
+      return { left: 0, top: 0, right: window.innerWidth, bottom: window.innerHeight, width: window.innerWidth, height: window.innerHeight };
+    }
+
+    return {
+      left: clamp(rect.left, 0, window.innerWidth),
+      top: 0,
+      right: clamp(rect.right, 0, window.innerWidth),
+      bottom: window.innerHeight,
+      width: clamp(rect.width, 0, window.innerWidth),
+      height: window.innerHeight
+    };
+  }
+
   function prepareTourShell() {
-    restoreTourShell();
     const body = document.body;
     const stateBefore = {
       fc4Collapsed: body.classList.contains('fc4-sidebar-collapsed'),
@@ -309,11 +129,10 @@
     };
 
     body.classList.remove('drawer-open', 'fc3-context-open');
-    if (!window.matchMedia('(max-width: 820px)').matches) {
+    if (!window.matchMedia(`(max-width: ${MOBILE_BREAKPOINT}px)`).matches) {
       body.classList.remove('fc4-sidebar-collapsed', 'fc3-sidebar-collapsed');
       window.FormcraftSimpleShell?.decorate?.();
     }
-    ensureTourCenterAnchor();
 
     restoreShellAfterTour = () => {
       body.classList.toggle('fc4-sidebar-collapsed', stateBefore.fc4Collapsed);
@@ -324,126 +143,278 @@
     };
   }
 
-  function fallbackItems() {
-    const items = [
-      ['dashboard', 'Home'],
-      ['projects', 'Projects'],
-      ['tasks', 'Tasks'],
-      ['search', 'Search'],
-      ['plus', 'Create'],
-      ['settings', 'Settings']
-    ];
-    return items.map(([iconName, label]) => `<div class="product-tour-fallback-item">${icon(iconName, 18)}<span>${escapeHtml(label)}</span></div>`).join('');
+  function closeIcon() {
+    return '<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M7 7l10 10M17 7L7 17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>';
   }
 
-  function showFallbackTour() {
-    fallbackOpen = true;
-    restoreTourShell();
-    openModal(`<div class="modal-card product-tour-fallback">
-      <div class="modal-head"><div><p class="panel-kicker">Quick tour</p><h2 id="modal-title">Welcome to Formcraft</h2><p>These are the main places you will use.</p></div><button class="icon-button" type="button" data-dismiss-product-tour aria-label="Close product tour">${icon('close', 18)}</button></div>
-      <div class="modal-body"><p class="panel-description">Use the menu to move around. Use Search to find something fast, and use + to create new work.</p><div class="product-tour-fallback-list">${fallbackItems()}</div></div>
-      <div class="modal-actions"><button class="button button-secondary" type="button" data-dismiss-product-tour>Skip</button><button class="button button-primary" type="button" data-complete-product-tour>Done</button></div>
-    </div>`);
+  function ensureRoot() {
+    if (root?.isConnected) return root;
+
+    root = document.createElement('div');
+    root.className = 'fc-tour';
+    root.dataset.fcTourRoot = 'true';
+    root.innerHTML = `
+      <div class="fc-tour__blocker" data-fc-tour-blocker aria-hidden="true"></div>
+      <div class="fc-tour__stage" data-fc-tour-stage aria-hidden="true"></div>
+      <section class="fc-tour__card" data-fc-tour-card role="dialog" aria-modal="true" aria-labelledby="fc-tour-title" aria-describedby="fc-tour-description" tabindex="-1">
+        <div class="fc-tour__body">
+          <div class="fc-tour__heading-row">
+            <h2 class="fc-tour__title" id="fc-tour-title" data-fc-tour-title></h2>
+            <button class="fc-tour__close" type="button" data-fc-tour-close aria-label="Close tour">${closeIcon()}</button>
+          </div>
+          <p class="fc-tour__description" id="fc-tour-description" data-fc-tour-description></p>
+        </div>
+        <footer class="fc-tour__footer">
+          <div class="fc-tour__progress" aria-label="Tour progress">
+            <span class="fc-tour__progress-label" data-fc-tour-progress-label></span>
+            <span class="fc-tour__progress-track" aria-hidden="true"><span data-fc-tour-progress-bar></span></span>
+          </div>
+          <div class="fc-tour__actions">
+            <button class="fc-tour__button fc-tour__button--secondary" type="button" data-fc-tour-back>Back</button>
+            <button class="fc-tour__button fc-tour__button--primary" type="button" data-fc-tour-next>Next</button>
+          </div>
+        </footer>
+      </section>`;
+
+    document.body.append(root);
+    root.querySelector('[data-fc-tour-close]')?.addEventListener('click', () => finish('dismissed'));
+    root.querySelector('[data-fc-tour-back]')?.addEventListener('click', () => showStep(stepIndex - 1));
+    root.querySelector('[data-fc-tour-next]')?.addEventListener('click', () => {
+      if (stepIndex >= steps.length - 1) finish('completed');
+      else showStep(stepIndex + 1);
+    });
+    root.querySelector('[data-fc-tour-blocker]')?.addEventListener('click', () => finish('dismissed'));
+    return root;
   }
 
-  function destroyActiveTour() {
-    activeTour?.destroy?.();
-    activeTour = null;
+  function stageRectForTarget(targetRect) {
+    const left = clamp(targetRect.left - STAGE_PAD, 6, window.innerWidth - 12);
+    const top = clamp(targetRect.top - STAGE_PAD, 6, window.innerHeight - 12);
+    const right = clamp(targetRect.right + STAGE_PAD, 12, window.innerWidth - 6);
+    const bottom = clamp(targetRect.bottom + STAGE_PAD, 12, window.innerHeight - 6);
+    return { left, top, width: Math.max(2, right - left), height: Math.max(2, bottom - top) };
+  }
+
+  function candidatePosition(placement, targetRect, width, height) {
+    switch (placement) {
+      case 'right': return { left: targetRect.right + CARD_GAP, top: targetRect.top + (targetRect.height - height) / 2 };
+      case 'left': return { left: targetRect.left - CARD_GAP - width, top: targetRect.top + (targetRect.height - height) / 2 };
+      case 'top': return { left: targetRect.left + (targetRect.width - width) / 2, top: targetRect.top - CARD_GAP - height };
+      case 'top-end': return { left: targetRect.right - width, top: targetRect.top - CARD_GAP - height };
+      case 'bottom-end': return { left: targetRect.right - width, top: targetRect.bottom + CARD_GAP };
+      case 'bottom-start': return { left: targetRect.left, top: targetRect.bottom + CARD_GAP };
+      case 'bottom':
+      default: return { left: targetRect.left + (targetRect.width - width) / 2, top: targetRect.bottom + CARD_GAP };
+    }
+  }
+
+  function placementOrder(preferred) {
+    const fallbacks = {
+      right: ['right', 'bottom-start', 'top', 'left'],
+      left: ['left', 'bottom-start', 'top', 'right'],
+      top: ['top', 'bottom', 'right', 'left'],
+      'top-end': ['top-end', 'bottom-end', 'left', 'right'],
+      'bottom-end': ['bottom-end', 'top-end', 'left', 'right'],
+      'bottom-start': ['bottom-start', 'top', 'right', 'left'],
+      bottom: ['bottom', 'top', 'right', 'left']
+    };
+    return fallbacks[preferred] || fallbacks.bottom;
+  }
+
+  function fitsViewport(position, width, height) {
+    return position.left >= VIEWPORT_PAD
+      && position.top >= VIEWPORT_PAD
+      && position.left + width <= window.innerWidth - VIEWPORT_PAD
+      && position.top + height <= window.innerHeight - VIEWPORT_PAD;
+  }
+
+  function cardPosition(step, targetRect, width, height) {
+    if (!targetRect || step.placement === 'center') {
+      const workspace = workspaceRect();
+      return {
+        placement: 'center',
+        left: clamp(workspace.left + (workspace.width - width) / 2, VIEWPORT_PAD, window.innerWidth - width - VIEWPORT_PAD),
+        top: clamp((window.innerHeight - height) / 2, VIEWPORT_PAD, window.innerHeight - height - VIEWPORT_PAD)
+      };
+    }
+
+    const order = placementOrder(step.placement);
+    for (const placement of order) {
+      const position = candidatePosition(placement, targetRect, width, height);
+      if (fitsViewport(position, width, height)) return { placement, ...position };
+    }
+
+    const fallback = candidatePosition(order[0], targetRect, width, height);
+    return {
+      placement: order[0],
+      left: clamp(fallback.left, VIEWPORT_PAD, window.innerWidth - width - VIEWPORT_PAD),
+      top: clamp(fallback.top, VIEWPORT_PAD, window.innerHeight - height - VIEWPORT_PAD)
+    };
+  }
+
+  function layoutStep() {
+    layoutRaf = 0;
+    if (!active || !root?.isConnected) return;
+
+    const card = root.querySelector('[data-fc-tour-card]');
+    const stage = root.querySelector('[data-fc-tour-stage]');
+    const step = steps[stepIndex];
+    if (!card || !stage || !step) return;
+
+    let targetRect = null;
+    if (currentTarget && isVisibleTarget(currentTarget)) {
+      targetRect = currentTarget.getBoundingClientRect();
+      const stageRect = stageRectForTarget(targetRect);
+      Object.assign(stage.style, {
+        left: `${Math.round(stageRect.left)}px`,
+        top: `${Math.round(stageRect.top)}px`,
+        width: `${Math.round(stageRect.width)}px`,
+        height: `${Math.round(stageRect.height)}px`
+      });
+      stage.dataset.targeted = 'true';
+    } else {
+      const workspace = workspaceRect();
+      Object.assign(stage.style, {
+        left: `${Math.round(workspace.left + workspace.width / 2)}px`,
+        top: `${Math.round(window.innerHeight / 2)}px`,
+        width: '2px',
+        height: '2px'
+      });
+      stage.dataset.targeted = 'false';
+    }
+
+    card.style.visibility = 'hidden';
+    card.style.left = '0px';
+    card.style.top = '0px';
+    const width = card.offsetWidth;
+    const height = card.offsetHeight;
+    const position = cardPosition(step, targetRect, width, height);
+    card.dataset.placement = position.placement;
+    card.style.left = `${Math.round(position.left)}px`;
+    card.style.top = `${Math.round(position.top)}px`;
+    card.style.visibility = 'visible';
+  }
+
+  function scheduleLayout() {
+    if (layoutRaf) return;
+    layoutRaf = window.requestAnimationFrame(layoutStep);
+  }
+
+  function showStep(nextIndex) {
+    if (!active || !steps.length) return;
+    stepIndex = clamp(nextIndex, 0, steps.length - 1);
+    const step = steps[stepIndex];
+    currentTarget = step.target || null;
+
+    if (currentTarget && isVisibleTarget(currentTarget)) {
+      currentTarget.scrollIntoView({ block: 'nearest', inline: 'nearest', behavior: 'auto' });
+    }
+
+    const tourRoot = ensureRoot();
+    const title = tourRoot.querySelector('[data-fc-tour-title]');
+    const description = tourRoot.querySelector('[data-fc-tour-description]');
+    const progressLabel = tourRoot.querySelector('[data-fc-tour-progress-label]');
+    const progressBar = tourRoot.querySelector('[data-fc-tour-progress-bar]');
+    const back = tourRoot.querySelector('[data-fc-tour-back]');
+    const next = tourRoot.querySelector('[data-fc-tour-next]');
+    const card = tourRoot.querySelector('[data-fc-tour-card]');
+
+    title.textContent = step.title;
+    description.textContent = step.description;
+    progressLabel.textContent = `Step ${stepIndex + 1} of ${steps.length}`;
+    progressBar.style.width = `${((stepIndex + 1) / steps.length) * 100}%`;
+    back.hidden = stepIndex === 0;
+    next.textContent = stepIndex === steps.length - 1 ? 'Done' : 'Next';
+    tourRoot.dataset.mode = currentTarget ? 'target' : 'center';
+    card.dataset.step = String(stepIndex + 1);
+
+    scheduleLayout();
+    window.requestAnimationFrame(() => card.focus({ preventScroll: true }));
+  }
+
+  function cleanupRoot() {
+    if (layoutRaf) window.cancelAnimationFrame(layoutRaf);
+    layoutRaf = 0;
+    root?.remove();
+    root = null;
+    currentTarget = null;
+  }
+
+  function restoreTourShell() {
+    const restore = restoreShellAfterTour;
+    restoreShellAfterTour = null;
+    restore?.();
+  }
+
+  function finish(status = 'completed') {
+    if (!active) return;
+    writeState(status);
+    active = false;
+    cleanupRoot();
     restoreTourShell();
+    window.removeEventListener('resize', scheduleLayout);
+    window.removeEventListener('scroll', scheduleLayout, true);
+    document.removeEventListener('keydown', handleKeydown, true);
+    previousFocus?.focus?.({ preventScroll: true });
+    previousFocus = null;
+    document.dispatchEvent(new CustomEvent('formcraft:product-tour-finished', { detail: { status, version: TOUR_VERSION } }));
+  }
+
+  function handleKeydown(event) {
+    if (!active) return;
+    if (event.key === 'Escape') {
+      event.preventDefault();
+      finish('dismissed');
+      return;
+    }
+    if (event.key === 'ArrowRight' && stepIndex < steps.length - 1) {
+      event.preventDefault();
+      showStep(stepIndex + 1);
+      return;
+    }
+    if (event.key === 'ArrowLeft' && stepIndex > 0) {
+      event.preventDefault();
+      showStep(stepIndex - 1);
+    }
   }
 
   function start(options = {}) {
     const force = Boolean(options.force);
-    if (activeTour || fallbackOpen) return;
+    if (active) return;
     if (!force && isSeen()) return;
     if (document.documentElement.dataset.backend !== 'ready' || !document.querySelector('.workspace-shell')) return;
 
     writeState('started');
-    if (modal.open) closeModal();
-    if (ui.route !== 'dashboard') navigate('dashboard');
+    if (typeof modal !== 'undefined' && modal?.open && typeof closeModal === 'function') closeModal();
+    if (typeof ui !== 'undefined' && ui?.route !== 'dashboard' && typeof navigate === 'function') navigate('dashboard');
     window.FormcraftFeatures?.enhance?.();
     prepareTourShell();
 
-    window.setTimeout(async () => {
-      ensureTourCenterAnchor();
-      let driverFactory = window.driver?.js?.driver;
-      if (typeof driverFactory !== 'function') {
-        try {
-          driverFactory = await ensureDriverAssets();
-        } catch {
-          showFallbackTour();
-          return;
-        }
-      }
-
-      if (typeof driverFactory !== 'function') {
-        showFallbackTour();
-        return;
-      }
-
-      const steps = resolveVisibleSteps(buildSteps());
+    window.setTimeout(() => {
+      const definitions = window.matchMedia(`(max-width: ${MOBILE_BREAKPOINT}px)`).matches ? mobileSteps() : desktopSteps();
+      steps = resolveSteps(definitions);
       if (steps.length < 3) {
-        showFallbackTour();
+        restoreTourShell();
         return;
       }
 
-      const finish = status => {
-        complete(status);
-        const tour = activeTour;
-        activeTour = null;
-        tour?.destroy?.();
-      };
-
-      activeTour = driverFactory({
-        animate: !reducedMotion.matches,
-        smoothScroll: !reducedMotion.matches,
-        allowClose: true,
-        showProgress: true,
-        progressText: 'Step {{current}} of {{total}}',
-        nextBtnText: 'Next',
-        prevBtnText: 'Back',
-        doneBtnText: 'Done',
-        popoverClass: 'formcraft-tour-popover',
-        overlayColor: '#0d1715',
-        overlayOpacity: 0.5,
-        stagePadding: 4,
-        stageRadius: 10,
-        skipMissingElement: true,
-        waitForElement: 500,
-        steps,
-        onCloseClick: () => finish('dismissed'),
-        onDoneClick: () => finish('completed'),
-        onDestroyed: () => {
-          activeTour = null;
-          restoreTourShell();
-        }
-      });
-      activeTour.drive();
-    }, ui.route === 'dashboard' ? 80 : 200);
+      active = true;
+      stepIndex = 0;
+      previousFocus = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+      ensureRoot();
+      window.addEventListener('resize', scheduleLayout, { passive: true });
+      window.addEventListener('scroll', scheduleLayout, true);
+      document.addEventListener('keydown', handleKeydown, true);
+      showStep(0);
+    }, typeof ui !== 'undefined' && ui?.route === 'dashboard' ? 80 : 180);
   }
 
   function considerAutoStart() {
-    if (navigator.webdriver || isSeen() || activeTour || fallbackOpen) return;
+    if (navigator.webdriver || isSeen() || active) return;
     if (document.documentElement.dataset.backend !== 'ready' || !document.querySelector('.workspace-shell')) return;
     window.clearTimeout(autoStartTimer);
     autoStartTimer = window.setTimeout(() => start(), 550);
   }
-
-  document.addEventListener('click', event => {
-    if (event.target.closest('[data-complete-product-tour]')) {
-      event.preventDefault();
-      complete('completed');
-      fallbackOpen = false;
-      closeModal();
-      return;
-    }
-    if (event.target.closest('[data-dismiss-product-tour]')) {
-      event.preventDefault();
-      complete('dismissed');
-      fallbackOpen = false;
-      closeModal();
-    }
-  }, true);
 
   const backendObserver = new MutationObserver(considerAutoStart);
   backendObserver.observe(document.documentElement, { attributes: true, attributeFilter: ['data-backend'] });
@@ -454,19 +425,13 @@
   }) : null;
   appObserver?.observe(appRoot, { childList: true });
 
-  window.addEventListener('resize', () => {
-    if (activeTour || document.querySelector('[data-formcraft-tour-center]')) ensureTourCenterAnchor();
-  }, { passive: true });
-
   document.addEventListener('formcraft:workspace-ready', considerAutoStart);
 
   window.FormcraftOnboarding = Object.freeze({
     version: TOUR_VERSION,
     start,
     reset() {
-      destroyActiveTour();
-      fallbackOpen = false;
-      if (modal.open) closeModal();
+      if (active) finish('dismissed');
       clearState();
       window.setTimeout(() => start({ force: true }), 80);
     },

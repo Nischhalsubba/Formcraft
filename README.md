@@ -6,7 +6,7 @@
 
 **Branch-aware technical guide for [`fix/first-owner-autofill`](https://github.com/Nischhalsubba/Formcraft/tree/fix/first-owner-autofill)**
 
-<p><img alt="branch: fix/first-owner-autofill" src="https://img.shields.io/static/v1?label=&message=branch%3A%20fix%2Ffirst-owner-autofill&color=5965F2&style=flat-square"> <img alt="JavaScript" src="https://img.shields.io/static/v1?label=&message=JavaScript&color=24292F&style=flat-square"> <img alt="CSS" src="https://img.shields.io/static/v1?label=&message=CSS&color=24292F&style=flat-square"> <img alt="HTML" src="https://img.shields.io/static/v1?label=&message=HTML&color=24292F&style=flat-square"> <img alt="Python" src="https://img.shields.io/static/v1?label=&message=Python&color=24292F&style=flat-square"> <img alt="TypeScript" src="https://img.shields.io/static/v1?label=&message=TypeScript&color=24292F&style=flat-square"> <img alt="docs: branch-aware" src="https://img.shields.io/static/v1?label=&message=docs%3A%20branch-aware&color=8250DF&style=flat-square"></p>
+<p><img alt="branch: fix/first-owner-autofill" src="https://img.shields.io/static/v1?label=&message=branch%3A%20fix%2Ffirst-owner-autofill&color=5965F2&style=flat-square"> <img alt="JavaScript" src="https://img.shields.io/static/v1?label=&message=JavaScript&color=24292F&style=flat-square"> <img alt="CSS" src="https://img.shields.io/static/v1?label=&message=CSS&color=24292F&style=flat-square"> <img alt="HTML" src="https://img.shields.io/static/v1?label=&message=HTML&color=24292F&style=flat-square"> <img alt="TypeScript" src="https://img.shields.io/static/v1?label=&message=TypeScript&color=24292F&style=flat-square"> <img alt="Python" src="https://img.shields.io/static/v1?label=&message=Python&color=24292F&style=flat-square"> <img alt="docs: branch-aware" src="https://img.shields.io/static/v1?label=&message=docs%3A%20branch-aware&color=8250DF&style=flat-square"></p>
 
 <p>
   <a href="https://github.com/Nischhalsubba/Formcraft/tree/fix/first-owner-autofill"><strong>Browse source</strong></a> ·
@@ -25,7 +25,7 @@
 |---|---|
 | Purpose | A JavaScript project documented from the current branch structure and manifests. |
 | Branch role | Compared with `main` |
-| Stack | JavaScript, CSS, HTML, Python, TypeScript |
+| Stack | JavaScript, CSS, HTML, TypeScript, Python |
 | Manifests | package.json |
 | Prerequisites | Node.js |
 | Delivery | netlify.toml, GitHub Actions |
@@ -129,7 +129,7 @@ flowchart LR
     READ --> OUTPUT["UI, API, report, or export"]
 ```
 
-Detected data areas: [`supabase`](https://github.com/Nischhalsubba/Formcraft/tree/fix/first-owner-autofill/supabase), [`tests/supabase-browser-mock.js`](https://github.com/Nischhalsubba/Formcraft/blob/fix/first-owner-autofill/tests/supabase-browser-mock.js), [`supabase/migrations/20260730030100_invitation_activation.sql`](https://github.com/Nischhalsubba/Formcraft/blob/fix/first-owner-autofill/supabase/migrations/20260730030100_invitation_activation.sql), [`supabase/migrations/20260730030000_formcraft_dynamic_backend.sql`](https://github.com/Nischhalsubba/Formcraft/blob/fix/first-owner-autofill/supabase/migrations/20260730030000_formcraft_dynamic_backend.sql), [`supabase/functions/invite-member/deno.json`](https://github.com/Nischhalsubba/Formcraft/blob/fix/first-owner-autofill/supabase/functions/invite-member/deno.json), [`supabase/functions/invite-member/index.ts`](https://github.com/Nischhalsubba/Formcraft/blob/fix/first-owner-autofill/supabase/functions/invite-member/index.ts).
+Detected data areas: [`supabase`](https://github.com/Nischhalsubba/Formcraft/tree/fix/first-owner-autofill/supabase), [`supabase/migrations/20260730030000_formcraft_dynamic_backend.sql`](https://github.com/Nischhalsubba/Formcraft/blob/fix/first-owner-autofill/supabase/migrations/20260730030000_formcraft_dynamic_backend.sql), [`supabase/migrations/20260730030100_invitation_activation.sql`](https://github.com/Nischhalsubba/Formcraft/blob/fix/first-owner-autofill/supabase/migrations/20260730030100_invitation_activation.sql), [`supabase/functions/invite-member/deno.json`](https://github.com/Nischhalsubba/Formcraft/blob/fix/first-owner-autofill/supabase/functions/invite-member/deno.json), [`supabase/functions/invite-member/index.ts`](https://github.com/Nischhalsubba/Formcraft/blob/fix/first-owner-autofill/supabase/functions/invite-member/index.ts), [`tests/supabase-browser-mock.js`](https://github.com/Nischhalsubba/Formcraft/blob/fix/first-owner-autofill/tests/supabase-browser-mock.js).
 
 </details>
 

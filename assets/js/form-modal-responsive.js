@@ -105,6 +105,9 @@
       return;
     }
 
+    // The form-modal subsystem owns form geometry. Assert the surface contract here
+    // instead of relying on every feature caller to set it before observers run.
+    modal.dataset.surface = 'form';
     form.dataset.formModalVersion = VERSION;
     modal.dataset.formModalReady = VERSION;
     normalizeERPHeading(form);

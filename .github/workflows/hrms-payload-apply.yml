@@ -6,6 +6,7 @@ on:
       - agent/hrms-zkteco-complete-additive
     paths:
       - '.hrms-payload/ready'
+      - '.github/workflows/hrms-payload-apply.yml'
 
 permissions:
   contents: write

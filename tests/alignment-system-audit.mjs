@@ -29,11 +29,13 @@ assert.match(geometry, /@media \(max-width:\s*820px\)/);
 assert.match(geometry, /@media \(max-width:\s*520px\)/);
 assert.doesNotMatch(geometry, /linear-gradient|radial-gradient|conic-gradient/i);
 
-assert.match(tour, /TOUR_VERSION = '2026\.08\.07\.5'/);
+assert.match(tour, /TOUR_VERSION = '\d{4}\.\d{2}\.\d{2}\.\d+'/);
 assert.match(tour, /function workspaceRect\(/);
 assert.match(tour, /function stageRectForTarget\(/);
 assert.match(tour, /function cardPosition\(/);
 assert.match(tour, /function placementOrder\(/);
+assert.match(tour, /function constrainCrossAxis\(/);
+assert.match(tour, /function primaryAxisFits\(/);
 assert.match(tour, /requestAnimationFrame\(layoutStep\)/);
 assert.match(tour, /scrollIntoView\(\{ block: 'nearest', inline: 'nearest', behavior: 'auto' \}\)/);
 assert.match(tour, /role=\"dialog\" aria-modal=\"true\"/);

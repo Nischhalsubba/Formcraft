@@ -15,7 +15,6 @@ assert(index.includes('assets/css/formcraft-worldclass.css'), 'worldclass styles
 assert(index.indexOf('assets/css/formcraft-worldclass.css') > index.indexOf('assets/css/nepal-attendance-compliance.css'), 'worldclass stylesheet must load after feature styles');
 assert(index.includes('assets/css/worldclass-shell-stability.css'), 'shell stability stylesheet must be loaded');
 assert(index.indexOf('assets/css/worldclass-shell-stability.css') > index.indexOf('assets/css/formcraft-worldclass.css'), 'shell stability stylesheet must load after the worldclass layer');
-assert(index.includes('<body class="fc-worldclass">'), 'worldclass styling must be present from the first painted frame');
 assert(index.includes('assets/js/formcraft-worldclass.js'), 'worldclass runtime must be loaded');
 assert(index.includes('type="module" src="assets/js/formcraft-atmosphere.js"'), 'Three.js atmosphere must load as a module');
 
@@ -37,7 +36,7 @@ assert(shellStability.includes('width: min(100%, 560px)'), 'desktop search must 
 assert(shellStability.includes('min-width: max-content'), 'topbar business controls must not collapse below their content width');
 assert(shellStability.includes('grid-template-areas:'), 'narrow desktop must use the deliberate two-level topbar layout');
 assert(shellStability.includes('min-width: 164px'), 'company selector must retain a readable desktop width');
-assert(shellStability.includes('html[data-backend="auth"]'), 'auth layout must be scoped to the actual auth state');
+assert(shellStability.includes('html[data-backend="auth"] .backend-gate'), 'auth first-paint geometry must not depend on a later runtime body class');
 assert(shellStability.includes('grid-column: 2'), 'auth card must occupy its final column before presentation decoration mounts');
 assert.doesNotMatch(shellStability, /(?:linear|radial|conic)-gradient/i, 'shell stability layer must remain gradient-free');
 

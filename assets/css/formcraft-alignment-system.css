@@ -305,14 +305,12 @@ body.fc-worldclass .modal-actions {
   justify-content: flex-end;
 }
 
-/* Free-standing tour steps (Welcome / You're ready) are centered by the
-   alignment runtime inside the actual workspace content, not the whole screen. */
-.driver-popover.formcraft-tour-popover[data-fc-align-centered="true"] {
-  margin: 0 !important;
-}
-
-/* Never apply the control focus halo to the invisible positioning anchor. */
+/* The invisible anchor makes Welcome / You're ready center on workspace content
+   rather than on the full viewport including the desktop sidebar. */
 .driver-active-element[data-formcraft-tour-center] {
+  position: fixed !important;
+  z-index: -1 !important;
+  border-radius: 0 !important;
   outline: 0 !important;
   box-shadow: none !important;
   filter: none !important;
@@ -449,7 +447,7 @@ body.fc-worldclass .modal-actions {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .driver-popover.formcraft-tour-popover[data-fc-align-centered="true"] {
+  .driver-active-element[data-formcraft-tour-center] {
     transition: none !important;
   }
 }

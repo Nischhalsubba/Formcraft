@@ -156,9 +156,10 @@ jobs:
       - name: Build and run static verification
         run: npm run build
 
-      - name: Install Chromium test dependencies
+      - name: Install browser and bridge test dependencies
         run: |
           python -m pip install playwright==1.54.0
+          python -m pip install -r device-bridge/requirements.txt
           python -m playwright install --with-deps chromium
 
       - name: Run ERP authenticated browser regression
@@ -184,6 +185,9 @@ jobs:
 
       - name: Run additive HRMS Variant A browser regression
         run: python tests/hrms-additive-browser-smoke.py
+
+      - name: Run ZKTeco bridge packaging regression
+        run: python tests/hrms-device-bridge-smoke.py
 
       - name: Run Nepal attendance compliance regression
         shell: bash

@@ -67,7 +67,7 @@ const criticalContracts = [
   ['invoice actions', /data-view-invoice/, /openInvoiceDetail/],
   ['settings actions', /data-settings-form/, /bindSettings/],
   ['onboarding trigger', /data-start-product-tour/, /FormcraftOnboarding/],
-  ['onboarding completion', /data-complete-product-tour/, /complete\('completed'\)/],
+  ['onboarding completion', /data-fc-tour-next/, /finish\('completed'\)/],
   ['modal close', /data-close-modal/, /closeModal/],
   ['authenticated sign out', /data-dynamic-sign-out/, /signOut/]
 ];
@@ -94,8 +94,12 @@ assert.match(featureEnhancement, /missingDesktop/, 'Desktop navigation completen
 assert.match(featureEnhancement, /missingMobile/, 'Mobile navigation completeness must be auditable');
 
 const onboarding = fs.readFileSync(path.join(jsDirectory, 'onboarding-tour.js'), 'utf8');
-assert.match(onboarding, /window\.driver\?\.js\?\.driver/, 'The product tour must use Driver.js when it is available');
+assert.match(onboarding, /className = 'fc-tour'/, 'The product tour must render the Formcraft-native tour surface');
+assert.match(onboarding, /function workspaceRect\(/, 'The tour must derive the actual workspace bounds');
+assert.match(onboarding, /function cardPosition\(/, 'The tour must own popover positioning');
+assert.match(onboarding, /function stageRectForTarget\(/, 'The tour must own focus-stage geometry');
 assert.match(onboarding, /navigator\.webdriver/, 'Automated browser checks must not be blocked by automatic onboarding');
 assert.match(onboarding, /prefers-reduced-motion: reduce/, 'The product tour must respect reduced-motion preferences');
+assert.doesNotMatch(onboarding, /Driver\.js|DRIVER_VERSION|window\.driver/, 'The product tour must not depend on Driver.js geometry');
 
 console.log(`Interaction audit passed for ${actionAttributes.size} interactive data attributes.`);

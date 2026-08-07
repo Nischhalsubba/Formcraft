@@ -78,6 +78,64 @@ def assert_no_overflow(page):
     assert page.evaluate('document.documentElement.scrollWidth <= window.innerWidth + 2')
 
 
+def assert_native_tour_geometry(page):
+    page.wait_for_selector('[data-fc-tour-card]')
+    intro = page.evaluate("""() => {
+        const card = document.querySelector('[data-fc-tour-card]').getBoundingClientRect();
+        const stage = document.querySelector('[data-fc-tour-stage]');
+        const main = document.querySelector('.fc3-main.workspace-main').getBoundingClientRect();
+        return {
+            card: { left: card.left, right: card.right, top: card.top, bottom: card.bottom, width: card.width, center: card.left + card.width / 2 },
+            workspaceCenter: main.left + main.width / 2,
+            targeted: stage.dataset.targeted,
+            progress: document.querySelector('[data-fc-tour-progress-label]').textContent.trim()
+        };
+    }""")
+    assert intro['progress'] == 'Step 1 of 9'
+    assert intro['targeted'] == 'false'
+    assert intro['card']['width'] <= 362
+    assert abs(intro['card']['center'] - intro['workspaceCenter']) <= 3, 'Welcome card must center inside the workspace, not the browser viewport'
+    assert intro['card']['left'] >= 14 and intro['card']['right'] <= 1440 - 14
+    assert intro['card']['top'] >= 14 and intro['card']['bottom'] <= 1000 - 14
+
+    visible(page, '[data-fc-tour-next]').click()
+    page.wait_for_function("document.querySelector('[data-fc-tour-card]')?.dataset.step === '2'")
+    home = page.evaluate("""() => {
+        const card = document.querySelector('[data-fc-tour-card]').getBoundingClientRect();
+        const stage = document.querySelector('[data-fc-tour-stage]').getBoundingClientRect();
+        const target = document.querySelector('.fc4-sidebar [data-route="dashboard"]').getBoundingClientRect();
+        return {
+            card: { left: card.left, right: card.right, top: card.top, bottom: card.bottom, width: card.width },
+            stage: { left: stage.left, right: stage.right, top: stage.top, bottom: stage.bottom, width: stage.width, height: stage.height },
+            target: { left: target.left, right: target.right, top: target.top, bottom: target.bottom, width: target.width, height: target.height },
+            targeted: document.querySelector('[data-fc-tour-stage]').dataset.targeted,
+            placement: document.querySelector('[data-fc-tour-card]').dataset.placement,
+            progress: document.querySelector('[data-fc-tour-progress-label]').textContent.trim()
+        };
+    }""")
+    assert home['progress'] == 'Step 2 of 9'
+    assert home['targeted'] == 'true'
+    assert home['placement'] == 'right'
+    assert home['stage']['left'] <= home['target']['left'] and home['stage']['right'] >= home['target']['right']
+    assert home['stage']['top'] <= home['target']['top'] and home['stage']['bottom'] >= home['target']['bottom']
+    assert home['card']['left'] >= home['stage']['right'] + 5, 'Home tour card must not overlap its focused navigation target'
+    assert home['card']['right'] <= 1440 - 14
+    assert home['card']['top'] >= 14 and home['card']['bottom'] <= 1000 - 14
+
+    for expected_step in range(3, 10):
+        visible(page, '[data-fc-tour-next]').click()
+        page.wait_for_function(
+            "expected => document.querySelector('[data-fc-tour-card]')?.dataset.step === String(expected)",
+            arg=expected_step
+        )
+        assert visible(page, '[data-fc-tour-card]').is_visible()
+        assert_no_overflow(page)
+
+    assert visible(page, '[data-fc-tour-next]').inner_text() == 'Done'
+    visible(page, '[data-fc-tour-next]').click()
+    page.wait_for_function("!document.querySelector('[data-fc-tour-root]')")
+
+
 def run_owner_setup(browser, base_url):
     page, errors = prepare_page(browser, 1280, 900, owner_setup=True)
     page.goto(f'{base_url}/?owner-setup-test=1', wait_until='domcontentloaded')
@@ -150,9 +208,7 @@ def run_desktop(browser, base_url):
     for selector in ['[data-start-product-tour]', '[data-account-settings]', '[data-export-data]', '[data-dynamic-sign-out]']:
         assert account.locator(selector).count() == 1
     account.locator('[data-start-product-tour]').click()
-    page.wait_for_selector('dialog[open] .product-tour-fallback')
-    visible(page, '[data-complete-product-tour]').click()
-    assert page.locator('dialog[open]').count() == 0
+    assert_native_tour_geometry(page)
 
     visible(page, '[data-search-focus]').click()
     page.locator('[data-workspace-search]').fill('Test project')
@@ -309,4 +365,4 @@ finally:
     server.shutdown()
     server.server_close()
 
-print('Browser checks passed for authentication, route-based project/task records, protected forms, Jira-style workflow, time, comments, checklist, billing links, reports, calendar, email, and mobile navigation.')
+print('Browser checks passed for native tour geometry, authentication, route-based project/task records, protected forms, Jira-style workflow, time, comments, checklist, billing links, reports, calendar, email, and mobile navigation.')

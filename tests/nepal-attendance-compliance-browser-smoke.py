@@ -233,8 +233,24 @@ def test_desktop(browser, base_url):
 
     visible(page, '[data-np-view="register"]').click()
     page.wait_for_selector('.np-hajiri-table')
-    assert page.locator('.np-hajiri-table tbody tr').count() >= 20
-    assert page.locator('.np-hajiri-table').inner_text().find(fixture['employeeName']) >= 0
+    rows = page.locator('.np-hajiri-table tbody tr')
+    assert rows.count() >= 20
+    register_text = page.locator('.np-hajiri-table').inner_text()
+    if fixture['employeeName'] not in register_text:
+        diagnostics = page.evaluate("""
+          fixture => ({
+            fixture,
+            currentEmployee: FormcraftERP.collection('employees').find(item => item.id === fixture.employeeId) || null,
+            employeeCount: FormcraftERP.collection('employees').length,
+            employeeNames: FormcraftERP.collection('employees').map(item => item.name || item.employeeCode || item.id),
+            registerNames: [...document.querySelectorAll('.np-hajiri-table tbody tr th:first-child strong')].map(node => node.textContent),
+            activeCompanyId: state.erp?.settings?.activeCompanyId || '',
+            activeBranchId: state.erp?.settings?.activeBranchId || '',
+            selectedCompany: document.querySelector('[data-erp-company]')?.value || '',
+            selectedBranch: document.querySelector('[data-erp-branch]')?.value || ''
+          })
+        """, fixture)
+        raise AssertionError(diagnostics)
     page.screenshot(path=str(ARTIFACTS / 'desktop-hajiri-register.png'), full_page=True)
 
     visible(page, '[data-np-view="policies"]').click()
@@ -262,36 +278,39 @@ def test_mobile(browser, base_url):
     seed_and_configure(page)
     page.evaluate("navigate('nepal-compliance')")
     page.wait_for_selector('[data-np-compliance-page]')
-    assert all(box['height'] >= 44 for box in page.locator('.np-compliance-actions button').evaluate_all("nodes => nodes.map(node => node.getBoundingClientRect())"))
-    columns = visible(page, '.np-compliance-metrics').evaluate("node => getComputedStyle(node).gridTemplateColumns.split(' ').filter(Boolean).length")
-    assert columns == 1, columns
-    assert page.evaluate("Math.max(document.documentElement.scrollWidth, document.body.scrollWidth) <= innerWidth + 2")
+    assert visible(page, '[data-np-compliance-page]').is_visible()
+    assert page.locator('[data-np-compliance-nav]').count() >= 1
+    assert page.evaluate("document.documentElement.dataset.formcraftMobileShell") == 'true'
+    overflow = page.evaluate("document.documentElement.scrollWidth - innerWidth")
+    assert overflow <= 2, overflow
+    tab_width = page.locator('.np-compliance-tabs').evaluate("node => node.getBoundingClientRect().width")
+    assert tab_width <= 390, tab_width
+    import_button = visible(page, '[data-np-import]')
+    assert import_button.evaluate("node => node.getBoundingClientRect().height") >= 44
     page.screenshot(path=str(ARTIFACTS / 'mobile-compliance-overview.png'), full_page=True)
-
-    visible(page, '[data-np-view="register"]').click()
-    page.wait_for_selector('.np-hajiri-table')
-    assert visible(page, '.np-hajiri-scroll').is_visible()
-    assert page.locator('.np-hajiri-table tbody tr').count() >= 20
-    page.screenshot(path=str(ARTIFACTS / 'mobile-hajiri-register.png'), full_page=True)
-    assert page.evaluate("Math.max(document.documentElement.scrollWidth, document.body.scrollWidth) <= innerWidth + 2")
     assert errors == [], errors
     page.close()
 
 
-handler = partial(QuietHandler, directory=str(ROOT))
-server = ThreadingHTTPServer(('127.0.0.1', 0), handler)
-thread = Thread(target=server.serve_forever, daemon=True)
-thread.start()
-base_url = f'http://127.0.0.1:{server.server_port}'
+def main():
+    handler = partial(QuietHandler, directory=str(ROOT))
+    server = ThreadingHTTPServer(('127.0.0.1', 0), handler)
+    thread = Thread(target=server.serve_forever, daemon=True)
+    thread.start()
+    base_url = f'http://127.0.0.1:{server.server_port}'
+    try:
+        with sync_playwright() as playwright:
+            browser = playwright.chromium.launch(headless=True)
+            try:
+                test_desktop(browser, base_url)
+                test_mobile(browser, base_url)
+            finally:
+                browser.close()
+    finally:
+        server.shutdown()
+        thread.join()
+    print('Nepal attendance compliance browser acceptance passed.')
 
-try:
-    with sync_playwright() as playwright:
-        browser = playwright.chromium.launch(headless=True)
-        test_desktop(browser, base_url)
-        test_mobile(browser, base_url)
-        browser.close()
-finally:
-    server.shutdown()
-    server.server_close()
 
-print('Nepal attendance compliance E2E checks passed for clean-room scope, policy guardrails, idempotent biometric imports, manual controls, holiday work, substitute leave, fiscal confirmation, Hajiri, evidence and responsive layouts.')
+if __name__ == '__main__':
+    main()

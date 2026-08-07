@@ -1,14 +1,33 @@
-import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.185.1/build/three.module.min.js';
-
+const THREE_MODULE_URL = 'https://cdn.jsdelivr.net/npm/three@0.185.1/build/three.module.min.js';
 const reduceMotionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+const atmosphereViewportQuery = window.matchMedia('(min-width: 901px) and (hover: hover) and (pointer: fine)');
 const saveData = Boolean(navigator.connection?.saveData);
 const lowMemory = Number(navigator.deviceMemory || 8) <= 4;
 const lowPower = saveData || lowMemory;
 
 let cleanupScene = null;
+let sceneGate = null;
+let threePromise = null;
 let scheduled = false;
 
-function createAtmosphere(gate) {
+function shouldUseAtmosphere(gate) {
+  return gate instanceof HTMLElement
+    && atmosphereViewportQuery.matches
+    && !reduceMotionQuery.matches
+    && !lowPower;
+}
+
+function loadThree() {
+  if (!threePromise) {
+    threePromise = import(THREE_MODULE_URL).catch(error => {
+      threePromise = null;
+      throw error;
+    });
+  }
+  return threePromise;
+}
+
+function createAtmosphere(gate, THREE) {
   if (!(gate instanceof HTMLElement) || gate.querySelector('.fc-auth-atmosphere')) return () => {};
 
   const canvas = document.createElement('canvas');
@@ -109,14 +128,6 @@ function createAtmosphere(gate) {
     camera.updateProjectionMatrix();
   }
 
-  function renderStatic() {
-    currentX = pointerX;
-    currentY = pointerY;
-    group.rotation.y = currentX * 0.08;
-    group.rotation.x = currentY * 0.05;
-    renderer.render(scene, camera);
-  }
-
   function tick(now) {
     frame = 0;
     if (paused || !gate.isConnected) return;
@@ -140,10 +151,6 @@ function createAtmosphere(gate) {
   }
 
   function start() {
-    if (reduceMotionQuery.matches) {
-      renderStatic();
-      return;
-    }
     if (!frame && !paused) {
       lastTime = performance.now();
       frame = requestAnimationFrame(tick);
@@ -156,7 +163,6 @@ function createAtmosphere(gate) {
   }
 
   function onPointerMove(event) {
-    if (reduceMotionQuery.matches) return;
     const rect = gate.getBoundingClientRect();
     pointerX = ((event.clientX - rect.left) / Math.max(rect.width, 1) - 0.5) * 2;
     pointerY = ((event.clientY - rect.top) / Math.max(rect.height, 1) - 0.5) * 2;
@@ -168,17 +174,10 @@ function createAtmosphere(gate) {
     else start();
   }
 
-  function onMotionChange() {
-    stop();
-    if (reduceMotionQuery.matches) renderStatic();
-    else start();
-  }
-
   const resizeObserver = new ResizeObserver(resize);
   resizeObserver.observe(gate);
   gate.addEventListener('pointermove', onPointerMove, { passive: true });
   document.addEventListener('visibilitychange', onVisibility);
-  reduceMotionQuery.addEventListener?.('change', onMotionChange);
 
   resize();
   start();
@@ -188,7 +187,6 @@ function createAtmosphere(gate) {
     resizeObserver.disconnect();
     gate.removeEventListener('pointermove', onPointerMove);
     document.removeEventListener('visibilitychange', onVisibility);
-    reduceMotionQuery.removeEventListener?.('change', onMotionChange);
     pointGeometry.dispose();
     pointMaterial.dispose();
     formGeometry.dispose();
@@ -198,18 +196,31 @@ function createAtmosphere(gate) {
   };
 }
 
-function sync() {
+async function sync() {
   scheduled = false;
   const gate = document.querySelector('.backend-gate');
 
-  if (gate && !cleanupScene) {
-    cleanupScene = createAtmosphere(gate);
+  if (!shouldUseAtmosphere(gate)) {
+    if (cleanupScene) cleanupScene();
+    cleanupScene = null;
+    sceneGate = null;
     return;
   }
 
-  if (!gate && cleanupScene) {
+  if (cleanupScene && sceneGate === gate) return;
+  if (cleanupScene) {
     cleanupScene();
     cleanupScene = null;
+    sceneGate = null;
+  }
+
+  try {
+    const THREE = await loadThree();
+    if (!shouldUseAtmosphere(gate) || cleanupScene) return;
+    cleanupScene = createAtmosphere(gate, THREE);
+    sceneGate = gate;
+  } catch {
+    // The decorative atmosphere is optional. Authentication remains fully usable.
   }
 }
 
@@ -220,7 +231,11 @@ function schedule() {
 }
 
 const root = document.querySelector('#app') || document.body;
-const observer = new MutationObserver(schedule);
+const observer = new MutationObserver(mutations => {
+  if (mutations.some(mutation => mutation.addedNodes.length || mutation.removedNodes.length)) schedule();
+});
 observer.observe(root, { childList: true, subtree: true });
 window.addEventListener('pagehide', () => cleanupScene?.(), { once: true });
+reduceMotionQuery.addEventListener?.('change', schedule);
+atmosphereViewportQuery.addEventListener?.('change', schedule);
 schedule();

@@ -113,11 +113,10 @@ Historical advanced payroll snapshots are not rewritten when later catalogs or r
 
 `.github/workflows/hrms-production-activation.yml` provides a manual production migration path. It never runs automatically on a push or Netlify deploy.
 
-Configure the GitHub `production` environment with these encrypted secrets:
+The production project ref is pinned to the same Supabase project already configured for Formcraft's production Netlify site. Configure the GitHub `production` environment with these encrypted secrets:
 
 - `SUPABASE_ACCESS_TOKEN`
 - `SUPABASE_DB_PASSWORD`
-- `SUPABASE_PROJECT_ID`
 
 Run the workflow with **preflight** first. It links the Supabase CLI to the configured project, runs `supabase db push --dry-run`, prints the remote/local migration list, and uploads the evidence as an Actions artifact.
 

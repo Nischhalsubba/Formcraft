@@ -1,0 +1,20 @@
+/* Formcraft Design DNA 2026 compatibility and accessibility guards.
+   These rules intentionally load after the visual layer. */
+
+.workspace-search-trigger {
+  min-height: 44px;
+}
+
+@media (max-width: 600px) {
+  .hrms-tabs button,
+  .hrms-head-actions .button,
+  .hrms-time-chips button,
+  .hrms-device-card footer .button,
+  .hrms-device-card footer .action-button {
+    min-height: 44px;
+  }
+
+  .hrms-tabs button {
+    padding-inline: 14px;
+  }
+}

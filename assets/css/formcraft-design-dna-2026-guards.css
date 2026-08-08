@@ -5,85 +5,89 @@
   min-height: 44px;
 }
 
-/* The stable v4 shell is the live desktop navigation surface. Keep it in the
-   same slate/indigo visual language as the rest of Design DNA. */
-body.fc4-simple-shell .fc3-context-sidebar.fc4-sidebar {
+/* The stable v4 shell is the live desktop navigation surface. The previous
+   Worldclass layer uses deliberately high-specificity shell selectors, so the
+   Design DNA compatibility layer meets that specificity rather than weakening
+   the older safety rules globally. */
+body.fc-worldclass.fc4-simple-shell .fc3-context-sidebar.fc4-sidebar {
   border-right: 1px solid var(--fc-sidebar-border) !important;
-  background: var(--fc-sidebar) !important;
+  background-color: var(--fc-sidebar) !important;
   color: var(--fc-sidebar-text);
   box-shadow: 12px 0 36px rgb(9 17 31 / .08) !important;
 }
 
-.fc4-sidebar .fc4-sidebar-header {
+body.fc-worldclass .fc4-sidebar .fc4-sidebar-header {
   border-bottom-color: var(--fc-sidebar-border);
+  background-color: var(--fc-sidebar-soft);
 }
 
-.fc4-sidebar .fc4-workspace-brand,
-.fc4-sidebar .fc4-workspace-brand strong,
-.fc4-sidebar .fc4-sidebar-footer strong {
+body.fc-worldclass .fc4-sidebar .fc4-workspace-brand,
+body.fc-worldclass .fc4-sidebar .fc4-workspace-brand strong,
+body.fc-worldclass .fc4-sidebar .fc4-sidebar-footer strong {
   color: #ffffff;
 }
 
-.fc4-sidebar .fc4-workspace-brand small,
-.fc4-sidebar .fc4-sidebar-footer small {
+body.fc-worldclass .fc4-sidebar .fc4-workspace-brand small,
+body.fc-worldclass .fc4-sidebar .fc4-sidebar-footer small {
   color: var(--fc-sidebar-muted);
 }
 
-.fc4-sidebar .fc4-collapse-button {
+body.fc-worldclass .fc4-sidebar .fc4-collapse-button {
   color: var(--fc-sidebar-muted) !important;
 }
 
-.fc4-sidebar .fc4-collapse-button:hover {
-  background: var(--fc-sidebar-hover) !important;
+body.fc-worldclass .fc4-sidebar .fc4-collapse-button:hover {
+  background-color: var(--fc-sidebar-hover) !important;
   color: #ffffff !important;
 }
 
-.fc4-sidebar .fc4-nav-section h2 {
+body.fc-worldclass .fc4-sidebar .fc4-nav-section h2 {
   color: #64748b;
 }
 
-.fc4-sidebar .fc4-nav-item {
+body.fc-worldclass .fc4-sidebar .fc4-nav-item {
   min-height: 44px;
   border-radius: 11px;
   color: var(--fc-sidebar-muted);
 }
 
-.fc4-sidebar .fc4-nav-item:hover {
+body.fc-worldclass .fc4-sidebar .fc4-nav-item:hover {
   border-color: rgb(255 255 255 / .05);
-  background: var(--fc-sidebar-hover);
+  background-color: var(--fc-sidebar-hover);
   color: #eef3fb;
 }
 
-.fc4-sidebar .fc4-nav-item.is-active {
+body.fc-worldclass .fc4-sidebar .fc4-nav-item.is-active {
   border-color: rgb(139 141 248 / .22);
-  background: rgb(79 70 229 / .20);
+  background-color: rgb(79 70 229 / .20);
   color: #ffffff;
 }
 
-.fc4-sidebar .fc4-nav-item.is-active::before {
-  background: #8b8df8;
+body.fc-worldclass .fc4-sidebar .fc4-nav-item.is-active::before {
+  background-color: #8b8df8;
   box-shadow: 0 0 0 3px rgb(139 141 248 / .08);
 }
 
-.fc4-sidebar .fc4-nav-item.is-parent-active {
-  background: rgb(79 70 229 / .10);
+body.fc-worldclass .fc4-sidebar .fc4-nav-item.is-parent-active {
+  border-color: rgb(139 141 248 / .12);
+  background-color: rgb(79 70 229 / .10);
   color: #e5e7ff;
 }
 
-.fc4-sidebar .fc4-nav-item.is-active .fc4-nav-icon {
-  background: rgb(139 141 248 / .12);
+body.fc-worldclass .fc4-sidebar .fc4-nav-item.is-active .fc4-nav-icon {
+  background-color: rgb(139 141 248 / .12);
   color: #c7d2fe;
 }
 
-.fc4-sidebar .fc4-nav-count {
+body.fc-worldclass .fc4-sidebar .fc4-nav-count {
   border-color: rgb(255 255 255 / .08);
-  background: rgb(255 255 255 / .06);
+  background-color: rgb(255 255 255 / .06);
   color: #9cabc0;
 }
 
-.fc4-sidebar .fc4-sidebar-footer {
+body.fc-worldclass .fc4-sidebar .fc4-sidebar-footer {
   border-top-color: var(--fc-sidebar-border);
-  background: color-mix(in srgb, var(--fc-sidebar) 92%, #ffffff 8%);
+  background-color: color-mix(in srgb, var(--fc-sidebar) 92%, #ffffff 8%);
 }
 
 @media (max-width: 600px) {

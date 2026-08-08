@@ -1,0 +1,145 @@
+name: Apply Design DNA theme migration
+
+on:
+  push:
+    branches:
+      - agent/design-dna-ui-redesign
+    paths:
+      - '.github/workflows/design-dna-theme-migration.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  migrate-theme-studio:
+    if: github.ref == 'refs/heads/agent/design-dna-ui-redesign'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 8
+    steps:
+      - name: Check out redesign branch
+        uses: actions/checkout@v4
+        with:
+          ref: agent/design-dna-ui-redesign
+          fetch-depth: 0
+
+      - name: Migrate untouched legacy theme defaults
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          from pathlib import Path
+
+          path = Path('assets/js/ui-theme-studio.js')
+          source = path.read_text(encoding='utf-8')
+
+          replacements = [
+              (
+                  "const VERSION = 'FORMCRAFT-THEME-STUDIO-1.0';",
+                  "const VERSION = 'FORMCRAFT-THEME-STUDIO-2.0';"
+              ),
+              (
+                  "    Inter: '\"Inter\", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif',\n    Manrope:",
+                  "    Inter: '\"Inter\", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif',\n    'Plus Jakarta Sans': '\"Plus Jakarta Sans\", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif',\n    Manrope:"
+              ),
+              (
+          """  const DEFAULT_DESIGN = Object.freeze({
+              version: 1,
+              appearance: { theme: 'system' },
+              colors: {
+                primary: '#0f766e', success: '#238f45', warning: '#a86412', danger: '#b92f2f',
+                lightCanvas: '#f5f7f8', lightSurface: '#ffffff', lightText: '#182025', lightMuted: '#657078', lightBorder: '#e1e7ea',
+                darkCanvas: '#101516', darkSurface: '#182022', darkText: '#f3f7f7', darkMuted: '#a8b3b5', darkBorder: '#2d383b'
+              },
+              typography: {
+                uiFont: 'Inter', displayFont: 'Manrope', baseSize: 14, scale: 1, lineHeight: 1.5
+              },
+              layout: {
+                density: 'comfortable', spacing: 1, sectionGap: 22, cardPadding: 18,
+                controlHeight: 42, sidebarWidth: 252, contentMax: 1480, radius: 12,
+                iconSize: 18, shadow: 'subtle', motion: 'standard'
+              }
+            });""",
+          """  const LEGACY_DEFAULT_DESIGN = Object.freeze({
+              version: 1,
+              appearance: { theme: 'system' },
+              colors: {
+                primary: '#0f766e', success: '#238f45', warning: '#a86412', danger: '#b92f2f',
+                lightCanvas: '#f5f7f8', lightSurface: '#ffffff', lightText: '#182025', lightMuted: '#657078', lightBorder: '#e1e7ea',
+                darkCanvas: '#101516', darkSurface: '#182022', darkText: '#f3f7f7', darkMuted: '#a8b3b5', darkBorder: '#2d383b'
+              },
+              typography: {
+                uiFont: 'Inter', displayFont: 'Manrope', baseSize: 14, scale: 1, lineHeight: 1.5
+              },
+              layout: {
+                density: 'comfortable', spacing: 1, sectionGap: 22, cardPadding: 18,
+                controlHeight: 42, sidebarWidth: 252, contentMax: 1480, radius: 12,
+                iconSize: 18, shadow: 'subtle', motion: 'standard'
+              }
+            });
+
+            const DEFAULT_DESIGN = Object.freeze({
+              version: 2,
+              appearance: { theme: 'system' },
+              colors: {
+                primary: '#4f46e5', success: '#087f5b', warning: '#b45309', danger: '#b42318',
+                lightCanvas: '#f5f7fb', lightSurface: '#ffffff', lightText: '#101828', lightMuted: '#667085', lightBorder: '#dde3ec',
+                darkCanvas: '#080e19', darkSurface: '#101827', darkText: '#f7f9fc', darkMuted: '#a8b3c5', darkBorder: '#26354b'
+              },
+              typography: {
+                uiFont: 'Plus Jakarta Sans', displayFont: 'Plus Jakarta Sans', baseSize: 14, scale: 1, lineHeight: 1.5
+              },
+              layout: {
+                density: 'comfortable', spacing: 1, sectionGap: 20, cardPadding: 18,
+                controlHeight: 44, sidebarWidth: 264, contentMax: 1560, radius: 14,
+                iconSize: 18, shadow: 'subtle', motion: 'standard'
+              }
+            });"""
+              ),
+              (
+                  "      version: 1,\n      appearance:",
+                  "      version: 2,\n      appearance:"
+              ),
+              (
+          """  function ensureDesignSettings() {
+              state.settings ||= {};
+              state.settings.uiDesign = mergeDesign(state.settings.uiDesign);
+              if (!state.settings.theme) state.settings.theme = state.settings.uiDesign.appearance.theme;
+              return state.settings.uiDesign;
+            }""",
+          """  function matchesTemplate(value, template) {
+              if (!value || typeof value !== 'object') return false;
+              return Object.entries(template).every(([key, expected]) => {
+                if (expected && typeof expected === 'object') return matchesTemplate(value[key], expected);
+                return value[key] === expected;
+              });
+            }
+
+            function ensureDesignSettings() {
+              state.settings ||= {};
+              const current = state.settings.uiDesign;
+              const shouldMigrateLegacyDefault = matchesTemplate(current, LEGACY_DEFAULT_DESIGN);
+              state.settings.uiDesign = mergeDesign(shouldMigrateLegacyDefault ? DEFAULT_DESIGN : current);
+              if (shouldMigrateLegacyDefault) state.settings.uiDesignMigratedFrom = 'FORMCRAFT-THEME-STUDIO-1.0';
+              if (!state.settings.theme) state.settings.theme = state.settings.uiDesign.appearance.theme;
+              return state.settings.uiDesign;
+            }"""
+              )
+          ]
+
+          for old, new in replacements:
+              count = source.count(old)
+              if count != 1:
+                  raise SystemExit(f'Expected exactly one theme-studio patch target, found {count}: {old[:70]!r}')
+              source = source.replace(old, new, 1)
+
+          path.write_text(source, encoding='utf-8')
+          PY
+
+          node --check assets/js/ui-theme-studio.js
+          rm .github/workflows/design-dna-theme-migration.yml
+
+          git config user.name "Formcraft Design CI"
+          git config user.email "actions@users.noreply.github.com"
+          git add -A
+          git commit -m "Migrate Formcraft default theme to Design DNA 2026"
+          git push origin HEAD:agent/design-dna-ui-redesign

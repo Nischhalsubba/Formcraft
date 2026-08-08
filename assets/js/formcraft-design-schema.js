@@ -1,9 +1,10 @@
 'use strict';
 
 (() => {
-  const WORLDCLASS_SCHEMA = 2;
+  const WORLDCLASS_SCHEMA = 3;
   const VALID_THEMES = new Set(['system', 'light', 'dark']);
-  const WORLDCLASS_DESIGN = Object.freeze({
+
+  const PREVIOUS_WORLDCLASS_DESIGN = Object.freeze({
     version: 1,
     appearance: { theme: 'system' },
     colors: {
@@ -44,18 +45,59 @@
     }
   });
 
+  const WORLDCLASS_DESIGN = Object.freeze({
+    version: 2,
+    appearance: { theme: 'system' },
+    colors: {
+      primary: '#4f46e5',
+      success: '#087f5b',
+      warning: '#b45309',
+      danger: '#b42318',
+      lightCanvas: '#f5f7fb',
+      lightSurface: '#ffffff',
+      lightText: '#101828',
+      lightMuted: '#667085',
+      lightBorder: '#dde3ec',
+      darkCanvas: '#080e19',
+      darkSurface: '#101827',
+      darkText: '#f7f9fc',
+      darkMuted: '#a8b3c5',
+      darkBorder: '#26354b'
+    },
+    typography: {
+      uiFont: 'Plus Jakarta Sans',
+      displayFont: 'Plus Jakarta Sans',
+      baseSize: 14,
+      scale: 1,
+      lineHeight: 1.5
+    },
+    layout: {
+      density: 'comfortable',
+      spacing: 1,
+      sectionGap: 20,
+      cardPadding: 18,
+      controlHeight: 44,
+      sidebarWidth: 264,
+      contentMax: 1560,
+      radius: 14,
+      iconSize: 18,
+      shadow: 'subtle',
+      motion: 'standard'
+    }
+  });
+
   const LIGHT_TOKENS = Object.freeze({
-    '--canvas': '#f2f4f1', '--surface': '#fcfdfb', '--surface-soft': '#f6f8f5', '--surface-raised': '#ffffff', '--surface-strong': '#edf1ee',
-    '--ink': '#0d1715', '--muted': '#58635f', '--muted-2': '#7a8681', '--border': '#dce3df', '--border-strong': '#c7d1cc',
-    '--primary': '#0f6b5f', '--primary-hover': '#0b5a50', '--primary-soft': '#e7f3ef', '--primary-contrast': '#ffffff', '--focus': 'rgb(15 107 95 / .30)',
-    '--success': '#187a55', '--warning': '#966112', '--danger': '#b43b45', '--info': '#315fa8'
+    '--canvas': '#f5f7fb', '--surface': '#ffffff', '--surface-soft': '#eef2f8', '--surface-raised': '#ffffff', '--surface-strong': '#e7ecf4',
+    '--ink': '#101828', '--muted': '#667085', '--muted-2': '#8a94a6', '--border': '#dde3ec', '--border-strong': '#c5cfdd',
+    '--primary': '#4f46e5', '--primary-hover': '#4338ca', '--primary-soft': '#eef2ff', '--primary-contrast': '#ffffff', '--focus': 'rgb(79 70 229 / .32)',
+    '--success': '#087f5b', '--warning': '#b45309', '--danger': '#b42318', '--info': '#2563eb'
   });
 
   const DARK_TOKENS = Object.freeze({
-    '--canvas': '#0b100f', '--surface': '#111917', '--surface-soft': '#16201d', '--surface-raised': '#1a2421', '--surface-strong': '#202d29',
-    '--ink': '#f1f5f2', '--muted': '#a6b1ac', '--muted-2': '#7f8c87', '--border': '#27332f', '--border-strong': '#364740',
-    '--primary': '#72d4bf', '--primary-hover': '#96e3d2', '--primary-soft': '#173a33', '--primary-contrast': '#07100e', '--focus': 'rgb(114 212 191 / .34)',
-    '--success': '#72d8a6', '--warning': '#e5b565', '--danger': '#ef8a91', '--info': '#8bb5f1'
+    '--canvas': '#080e19', '--surface': '#101827', '--surface-soft': '#162133', '--surface-raised': '#142033', '--surface-strong': '#1b2940',
+    '--ink': '#f7f9fc', '--muted': '#a8b3c5', '--muted-2': '#8190a7', '--border': '#26354b', '--border-strong': '#344761',
+    '--primary': '#8b8df8', '--primary-hover': '#a7a8ff', '--primary-soft': '#202654', '--primary-contrast': '#080e19', '--focus': 'rgb(139 141 248 / .34)',
+    '--success': '#67d6b1', '--warning': '#f7bf67', '--danger': '#ff8277', '--info': '#8bb4ff'
   });
 
   const clone = value => JSON.parse(JSON.stringify(value));
@@ -67,16 +109,28 @@
     return VALID_THEMES.has(stored) ? stored : VALID_THEMES.has(designTheme) ? designTheme : 'system';
   };
 
-  function canonicalDesign() {
-    const design = clone(WORLDCLASS_DESIGN);
+  function designForTheme(template) {
+    const design = clone(template);
     design.appearance.theme = currentTheme();
     return design;
   }
 
-  function isCanonicalBaseline(design = state?.settings?.uiDesign) {
+  function canonicalDesign() {
+    return designForTheme(WORLDCLASS_DESIGN);
+  }
+
+  function isTemplateBaseline(design, template) {
     if (!design) return false;
-    const baseline = canonicalDesign();
-    return JSON.stringify({ ...design, version: 1, appearance: { theme: baseline.appearance.theme } }) === JSON.stringify(baseline);
+    const baseline = designForTheme(template);
+    return JSON.stringify({ ...design, version: baseline.version, appearance: { theme: baseline.appearance.theme } }) === JSON.stringify(baseline);
+  }
+
+  function isCanonicalBaseline(design = state?.settings?.uiDesign) {
+    return isTemplateBaseline(design, WORLDCLASS_DESIGN);
+  }
+
+  function isPreviousCanonicalBaseline(design = state?.settings?.uiDesign) {
+    return isTemplateBaseline(design, PREVIOUS_WORLDCLASS_DESIGN);
   }
 
   function applyCanonicalTokens() {
@@ -96,16 +150,24 @@
     if (!hasWorkspaceState()) return false;
     state.settings ||= {};
     const currentSchema = Number(state.settings.uiDesignSchemaVersion) || 0;
+    const currentDesign = state.settings.uiDesign;
+
     if (currentSchema >= WORLDCLASS_SCHEMA) {
       applyCanonicalTokens();
       return false;
     }
 
-    const design = canonicalDesign();
-    state.settings.uiDesign = design;
+    const migrateCanonicalBaseline = !currentDesign || isPreviousCanonicalBaseline(currentDesign);
+    if (migrateCanonicalBaseline) {
+      state.settings.uiDesign = canonicalDesign();
+      state.settings.theme = state.settings.uiDesign.appearance.theme;
+      state.settings.uiDesignMigratedFrom ||= currentDesign ? 'FORMCRAFT-WORLDCLASS-SCHEMA-2' : 'none';
+      window.FormcraftThemeStudio?.apply?.(state.settings.uiDesign);
+    }
+
+    // Custom Theme Studio designs are intentionally preserved. Advancing the
+    // schema marker prevents later app boots from treating them as old defaults.
     state.settings.uiDesignSchemaVersion = WORLDCLASS_SCHEMA;
-    state.settings.theme = design.appearance.theme;
-    window.FormcraftThemeStudio?.apply?.(design);
     applyCanonicalTokens();
     if (persist) persistMigrationSoon();
     return true;

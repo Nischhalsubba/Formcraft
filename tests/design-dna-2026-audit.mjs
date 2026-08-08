@@ -34,9 +34,9 @@ assert(css.includes('@media (prefers-reduced-motion: reduce)'), 'CSS reduced-mot
 assert(css.includes('min-height: 44px'), '44px interaction target rule missing');
 assert(guards.includes('.hrms-tabs button'), 'HRMS mobile touch-target guard missing');
 assert(guards.includes('min-height: 44px'), 'Responsive touch targets must stay at least 44px');
-assert(guards.includes('body.fc4-simple-shell .fc3-context-sidebar.fc4-sidebar'), 'Stable sidebar must use the Design DNA navigation spine');
+assert(guards.includes('body.fc-worldclass.fc4-simple-shell .fc3-context-sidebar.fc4-sidebar'), 'Stable sidebar must override the previous canonical shell with the Design DNA navigation spine');
 assert(guards.includes('.fc4-sidebar .fc4-nav-item.is-active'), 'Stable sidebar active navigation styling missing');
-assert(guards.includes('background: rgb(79 70 229 / .20)'), 'Stable sidebar active state must use the indigo interaction system');
+assert(guards.includes('background-color: rgb(79 70 229 / .20)'), 'Stable sidebar active state must use the indigo interaction system');
 
 assert(themeStudio.includes("FORMCRAFT-THEME-STUDIO-2.0"), 'Theme Studio Design DNA schema missing');
 assert(themeStudio.includes("'Plus Jakarta Sans'"), 'Plus Jakarta Sans must remain selectable in Theme Studio');

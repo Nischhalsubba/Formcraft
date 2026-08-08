@@ -68,7 +68,7 @@ def run_desktop_launcher(browser, base_url):
         mainLeft: main.left
       };
     }""")
-    assert abs(geometry['sidebarVariable'] - 252) < 0.5, geometry
+    assert abs(geometry['sidebarVariable'] - 264) < 0.5, geometry
     assert abs(geometry['sidebarLeft']) < 0.5, geometry
     assert abs(geometry['sidebarWidth'] - geometry['sidebarVariable']) < 0.5, geometry
     assert abs(geometry['sidebarRight'] - geometry['mainLeft']) < 0.5, geometry
@@ -102,7 +102,7 @@ def run_desktop_launcher(browser, base_url):
     assert len(set(shape_signatures)) == 61, 'Every launcher app must have a visually unique SVG path signature.'
 
     heading_font = visible(page, '.erp-launcher-hero h2').evaluate('node => getComputedStyle(node).fontFamily')
-    assert 'Manrope' in heading_font, heading_font
+    assert 'Plus Jakarta Sans' in heading_font, heading_font
     title_size = visible(page, '.erp-app-copy strong').evaluate('node => parseFloat(getComputedStyle(node).fontSize)')
     assert title_size >= 14, title_size
     icon_background = visible(page, '.erp-app-card[data-app-key="accounting"] .erp-app-icon').evaluate(
@@ -201,4 +201,4 @@ finally:
     server.shutdown()
     server.server_close()
 
-print('Premium interface E2E checks passed for single-sidebar geometry, unique SVG shapes, iconography, typography, semantic group tones, navigation states, launcher, and mobile flow.')
+print('Premium interface E2E checks passed for Design DNA sidebar geometry, unique SVG shapes, iconography, typography, semantic group tones, navigation states, launcher, and mobile flow.')

@@ -4,11 +4,14 @@ import assert from 'node:assert/strict';
 const read = path => fs.readFileSync(path, 'utf8');
 const index = read('index.html');
 const css = read('assets/css/formcraft-design-dna-2026.css');
+const guards = read('assets/css/formcraft-design-dna-2026-guards.css');
 const motion = read('assets/js/formcraft-motion-orchestra.js');
 const atmosphere = read('assets/js/formcraft-workspace-atmosphere.js');
+const themeStudio = read('assets/js/ui-theme-studio.js');
 
 assert(index.includes('Plus+Jakarta+Sans'), 'Plus Jakarta Sans must be loaded');
 assert(index.includes('assets/css/formcraft-design-dna-2026.css'), 'Design DNA stylesheet must be wired');
+assert(index.includes('assets/css/formcraft-design-dna-2026-guards.css'), 'Design DNA responsive guards must be wired');
 assert(index.includes('assets/js/formcraft-motion-orchestra.js'), 'GSAP motion orchestration must be wired');
 assert(index.includes('assets/js/formcraft-workspace-atmosphere.js'), 'Three.js workspace atmosphere must be wired');
 
@@ -29,6 +32,15 @@ assert(css.includes('font-family: var(--fc-font-sans)'), 'New typography system 
 assert(css.includes('.hrms-tabs button.is-active'), 'Variant A HRMS tab styling missing');
 assert(css.includes('@media (prefers-reduced-motion: reduce)'), 'CSS reduced-motion fallback missing');
 assert(css.includes('min-height: 44px'), '44px interaction target rule missing');
+assert(guards.includes('.hrms-tabs button'), 'HRMS mobile touch-target guard missing');
+assert(guards.includes('min-height: 44px'), 'Responsive touch targets must stay at least 44px');
+
+assert(themeStudio.includes("FORMCRAFT-THEME-STUDIO-2.0"), 'Theme Studio Design DNA schema missing');
+assert(themeStudio.includes("'Plus Jakarta Sans'"), 'Plus Jakarta Sans must remain selectable in Theme Studio');
+assert(themeStudio.includes("primary: '#4f46e5'"), 'Theme Studio must use the Design DNA primary by default');
+assert(themeStudio.includes("uiFont: 'Plus Jakarta Sans', displayFont: 'Plus Jakarta Sans'"), 'Theme Studio must use Design DNA typography by default');
+assert(themeStudio.includes('LEGACY_DEFAULT_DESIGN'), 'Legacy default migration guard missing');
+assert(themeStudio.includes('matchesTemplate(current, LEGACY_DEFAULT_DESIGN)'), 'Only untouched legacy themes may auto-migrate');
 
 assert(motion.includes('window.gsap'), 'GSAP orchestration must use existing GSAP runtime');
 assert(motion.includes('prefers-reduced-motion: reduce'), 'GSAP reduced-motion guard missing');

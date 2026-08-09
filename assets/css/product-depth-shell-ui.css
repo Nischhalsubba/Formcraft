@@ -136,3 +136,11 @@
   opacity: 1;
   transform: translateY(0);
 }
+
+/* At tablet widths navigation owns the scarce topbar space. The palette remains
+   available through Ctrl/Cmd+K while the extra desktop trigger steps out. */
+@media (max-width: 1180px) {
+  .pd-command-trigger {
+    display: none !important;
+  }
+}

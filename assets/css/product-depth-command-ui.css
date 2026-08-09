@@ -1,0 +1,275 @@
+/* Global work inbox */
+.pd-work-inbox {
+  grid-column: 1 / -1;
+}
+
+.pd-work-inbox .product-panel-head {
+  align-items: start;
+}
+
+.pd-inbox-count {
+  display: grid;
+  min-width: 32px;
+  height: 32px;
+  place-items: center;
+  padding-inline: 8px;
+  border: 1px solid color-mix(in srgb, var(--primary) 24%, var(--border));
+  border-radius: 999px;
+  background: var(--primary-soft);
+  color: var(--primary);
+  font-size: 12px;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+
+.pd-inbox-list {
+  display: grid;
+  gap: 7px;
+}
+
+.pd-inbox-list > button {
+  display: grid;
+  min-height: 52px;
+  grid-template-columns: 92px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 12px;
+  padding: 9px 10px;
+  border: 1px solid transparent;
+  border-radius: 11px;
+  background: transparent;
+  color: var(--ink);
+  text-align: left;
+  cursor: pointer;
+  transition: border-color var(--fc-motion-micro) var(--fc-ease), background-color var(--fc-motion-micro) var(--fc-ease), transform var(--fc-motion-micro) var(--fc-ease);
+}
+
+.pd-inbox-list > button:hover {
+  border-color: var(--border);
+  background: var(--surface-soft);
+  transform: translateY(-1px);
+}
+
+.pd-inbox-kind {
+  width: max-content;
+  max-width: 92px;
+  padding: 4px 7px;
+  border-radius: 999px;
+  background: var(--surface-soft);
+  color: var(--muted);
+  font-size: 10px;
+  font-weight: 780;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+}
+
+.pd-inbox-list > button[data-priority="high"] .pd-inbox-kind,
+.pd-inbox-list > button[data-priority="critical"] .pd-inbox-kind {
+  background: var(--danger-soft);
+  color: var(--danger);
+}
+
+.pd-inbox-copy {
+  display: grid;
+  min-width: 0;
+  gap: 2px;
+}
+
+.pd-inbox-copy strong {
+  overflow: hidden;
+  font-size: 13px;
+  font-weight: 700;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.pd-inbox-copy small,
+.pd-inbox-list time {
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.pd-inbox-empty {
+  display: grid;
+  gap: 4px;
+  padding: 18px;
+  border: 1px dashed var(--border-strong);
+  border-radius: 12px;
+  color: var(--muted);
+}
+
+.pd-inbox-empty strong {
+  color: var(--ink);
+}
+
+/* Universal command palette */
+body.pd-palette-open {
+  overflow: hidden;
+}
+
+.pd-command-overlay {
+  position: fixed;
+  z-index: 950;
+  inset: 0;
+  display: grid;
+  place-items: start center;
+  padding: max(72px, 10vh) 16px 24px;
+}
+
+.pd-command-overlay[hidden] {
+  display: none;
+}
+
+.pd-command-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgb(5 9 20 / .54);
+}
+
+.pd-command-card {
+  position: relative;
+  display: grid;
+  width: min(650px, 100%);
+  max-height: min(680px, calc(100dvh - 100px));
+  overflow: hidden;
+  border: 1px solid var(--border-strong);
+  border-radius: 18px;
+  background: var(--surface-raised);
+  box-shadow: 0 28px 90px rgb(5 9 20 / .30);
+}
+
+.pd-command-card > header,
+.pd-command-card > footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 14px;
+}
+
+.pd-command-card > header {
+  border-bottom: 1px solid var(--border);
+}
+
+.pd-command-card > header > div {
+  display: grid;
+  gap: 2px;
+}
+
+.pd-command-card > header span {
+  font-size: 13px;
+  font-weight: 760;
+}
+
+.pd-command-card > header small,
+.pd-command-card > footer {
+  color: var(--muted);
+  font-size: 10px;
+}
+
+.pd-command-card kbd {
+  display: inline-grid;
+  min-width: 24px;
+  min-height: 22px;
+  place-items: center;
+  padding-inline: 5px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--surface-soft);
+  color: var(--muted);
+  font-family: var(--fc-font-data, monospace);
+  font-size: 9px;
+  box-shadow: inset 0 -1px 0 var(--border);
+}
+
+.pd-command-search {
+  display: grid;
+  min-height: 58px;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: 10px;
+  padding-inline: 16px;
+  border-bottom: 1px solid var(--border);
+  color: var(--muted);
+}
+
+.pd-command-search input {
+  width: 100%;
+  min-width: 0;
+  height: 56px;
+  padding: 0;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: var(--ink);
+  font: inherit;
+  font-size: 16px;
+}
+
+.pd-command-results {
+  display: grid;
+  min-height: 80px;
+  max-height: 480px;
+  gap: 4px;
+  padding: 8px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.pd-command-results > button {
+  display: grid;
+  min-height: 52px;
+  grid-template-columns: 36px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 10px;
+  padding: 7px 10px;
+  border: 1px solid transparent;
+  border-radius: 11px;
+  background: transparent;
+  color: var(--ink);
+  text-align: left;
+  cursor: pointer;
+}
+
+.pd-command-results > button:hover,
+.pd-command-results > button[aria-selected="true"] {
+  border-color: color-mix(in srgb, var(--primary) 22%, var(--border));
+  background: var(--primary-soft);
+}
+
+.pd-palette-icon {
+  display: grid;
+  width: 34px;
+  height: 34px;
+  place-items: center;
+  border-radius: 9px;
+  background: var(--surface-soft);
+  color: var(--primary);
+}
+
+.pd-command-results > button > span:nth-child(2) {
+  display: grid;
+  min-width: 0;
+  gap: 2px;
+}
+
+.pd-command-results strong {
+  overflow: hidden;
+  font-size: 13px;
+  font-weight: 700;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.pd-command-results small {
+  overflow: hidden;
+  color: var(--muted);
+  font-size: 11px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.pd-palette-empty {
+  padding: 28px 16px;
+  color: var(--muted);
+  text-align: center;
+}

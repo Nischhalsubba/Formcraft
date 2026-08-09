@@ -161,11 +161,29 @@
     });
   }
 
+  function dedupeComplianceHeadings(root) {
+    if (!root) return;
+    const expected = 'attendance & compliance center';
+    const headings = [...document.querySelectorAll('h1')]
+      .filter(node => node.textContent.trim().toLowerCase() === expected);
+    const canonical = root.querySelector('h1[data-route-heading]')
+      || headings.find(node => root.contains(node))
+      || headings[0]
+      || null;
+    headings.forEach(node => {
+      node.classList.toggle('pd-duplicate-page-heading', Boolean(canonical && node !== canonical));
+    });
+    canonical?.classList.remove('pd-duplicate-page-heading');
+  }
+
   function enhanceCompliancePage(root) {
-    if (!root || enhanced.has(root)) return;
+    if (!root) return;
+    dedupeComplianceHeadings(root);
+    if (enhanced.has(root)) {
+      enhanceHajiri(root);
+      return;
+    }
     enhanced.add(root);
-    const headings = [...document.querySelectorAll('h1')].filter(node => node.textContent.trim().toLowerCase() === 'attendance & compliance center');
-    headings.filter(node => !root.contains(node)).forEach(node => node.closest('.workspace-page-header, .fc3-page-header')?.classList.add('pd-duplicate-page-heading'));
 
     const readiness = [...root.querySelectorAll('.np-compliance-metrics article')].find(article => article.querySelector('span')?.textContent.trim() === 'Readiness');
     if (readiness) {

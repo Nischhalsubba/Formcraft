@@ -1,0 +1,64 @@
+name: Product depth browser validation
+
+on:
+  pull_request:
+    paths:
+      - 'assets/js/product-depth-*.js'
+      - 'assets/css/product-depth-*.css'
+      - 'tests/product-depth-*.py'
+      - 'tests/product-depth-*.mjs'
+      - 'index.html'
+      - 'package.json'
+      - '.github/workflows/product-depth-browser-validation.yml'
+  push:
+    branches:
+      - agent/customer-e2e-product-depth
+      - main
+    paths:
+      - 'assets/js/product-depth-*.js'
+      - 'assets/css/product-depth-*.css'
+      - 'tests/product-depth-*.py'
+      - 'tests/product-depth-*.mjs'
+      - 'index.html'
+      - 'package.json'
+      - '.github/workflows/product-depth-browser-validation.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: product-depth-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  customer-e2e:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 18
+    env:
+      SUPABASE_URL: https://formcraft-test.supabase.co
+      SUPABASE_PUBLISHABLE_KEY: sb_publishable_formcraft_browser_test_key_1234567890
+      PYTHONUNBUFFERED: '1'
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Build and run static verification
+        run: npm run build
+
+      - name: Install Chromium
+        run: |
+          python -m pip install playwright==1.54.0
+          python -m playwright install --with-deps chromium
+
+      - name: Run customer product-depth regression
+        run: python tests/product-depth-browser-smoke.py

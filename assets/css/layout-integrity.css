@@ -95,6 +95,120 @@
   word-break: normal;
 }
 
+/* Dialog geometry integrity.
+   A physical dialog border steals one pixel from each side of the client box while
+   legacy children still fill the declared dialog width. Use an inset outline for
+   the same visual edge without changing the layout box, then make the dialog the
+   single owner of all horizontal geometry. */
+dialog.modal,
+[data-modal].modal {
+  max-width: calc(100vw - 32px);
+  overflow-x: hidden;
+  border: 0;
+  outline: 1px solid var(--border);
+  outline-offset: -1px;
+}
+
+dialog.modal > [data-modal-content],
+[data-modal].modal > [data-modal-content] {
+  width: auto;
+  max-width: 100%;
+  min-width: 0;
+  margin: 0;
+}
+
+dialog.modal[data-surface="form"] > [data-modal-content] > :where(form, .modal-card, .form-modal),
+[data-modal].modal[data-surface="form"] > [data-modal-content] > :where(form, .modal-card, .form-modal) {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  margin-inline: 0;
+}
+
+dialog.modal :where(
+  .modal-head,
+  .modal-body,
+  .modal-actions,
+  .modal-actions-leading,
+  .modal-actions-trailing,
+  .field,
+  .erp-field,
+  .field-grid,
+  .erp-form-grid
+),
+[data-modal].modal :where(
+  .modal-head,
+  .modal-body,
+  .modal-actions,
+  .modal-actions-leading,
+  .modal-actions-trailing,
+  .field,
+  .erp-field,
+  .field-grid,
+  .erp-form-grid
+) {
+  max-width: 100%;
+  min-width: 0;
+}
+
+dialog.modal :where(input, select, textarea),
+[data-modal].modal :where(input, select, textarea) {
+  max-width: 100%;
+  min-width: 0;
+}
+
+.modal-actions-trailing {
+  flex-wrap: wrap;
+}
+
+/* Quick ERP actions such as Add update and Schedule activity are form surfaces,
+   but they are not .form-modal forms. Give them the same single-owner geometry
+   on desktop so the footer cannot be clipped and the dialog never scrolls sideways. */
+@media (min-width: 761px) {
+  dialog.modal[data-surface="form"]:has(.erp-quick-form),
+  [data-modal].modal[data-surface="form"]:has(.erp-quick-form) {
+    width: min(680px, calc(100vw - 40px));
+    max-width: min(680px, calc(100vw - 40px));
+    max-height: calc(100dvh - 40px);
+    overflow-x: hidden;
+  }
+
+  .erp-quick-form.modal-card {
+    display: grid;
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    grid-template-rows: auto minmax(0, 1fr) auto;
+    padding: 0;
+    overflow: hidden;
+  }
+
+  .erp-quick-form .modal-head {
+    margin: 0;
+    padding: 24px 28px 18px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .erp-quick-form .modal-body {
+    min-width: 0;
+    padding: 22px 28px 26px;
+    overflow-x: hidden;
+    overflow-y: auto;
+  }
+
+  .erp-quick-form .modal-actions {
+    width: 100%;
+    min-width: 0;
+    margin: 0;
+    padding: 14px 28px;
+    border-top: 1px solid var(--border);
+  }
+
+  .erp-quick-form .modal-actions > .button {
+    max-width: 100%;
+  }
+}
+
 /* Very narrow screens should stack crowded record-card headers rather than damage
    the control label or force horizontal page scrolling. */
 @media (max-width: 340px) {

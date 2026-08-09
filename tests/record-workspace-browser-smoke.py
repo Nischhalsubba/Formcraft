@@ -47,6 +47,57 @@ def assert_single_line_buttons(page, surface):
     assert violations == [], f'{surface} contains wrapped standard action buttons: {violations}'
 
 
+def assert_modal_layout(page, surface):
+    metrics = visible(page, 'dialog[open]').evaluate("""
+      dialog => {
+        const content = dialog.querySelector('[data-modal-content]');
+        const child = content?.firstElementChild;
+        const dialogRect = dialog.getBoundingClientRect();
+        const actionRows = [...dialog.querySelectorAll('.modal-actions')].map(node => ({
+          clientWidth: node.clientWidth,
+          scrollWidth: node.scrollWidth
+        }));
+        const buttons = [...dialog.querySelectorAll('.modal-actions .button')]
+          .filter(node => {
+            const style = getComputedStyle(node);
+            return style.display !== 'none' && style.visibility !== 'hidden';
+          })
+          .map(node => {
+            const rect = node.getBoundingClientRect();
+            return {
+              text: (node.textContent || '').trim().replace(/\s+/g, ' '),
+              left: rect.left,
+              right: rect.right,
+              top: rect.top,
+              bottom: rect.bottom
+            };
+          });
+        return {
+          dialogClientWidth: dialog.clientWidth,
+          dialogScrollWidth: dialog.scrollWidth,
+          dialogOverflowX: getComputedStyle(dialog).overflowX,
+          contentClientWidth: content?.clientWidth || 0,
+          contentScrollWidth: content?.scrollWidth || 0,
+          childClientWidth: child?.clientWidth || 0,
+          childScrollWidth: child?.scrollWidth || 0,
+          dialogLeft: dialogRect.left,
+          dialogRight: dialogRect.right,
+          actionRows,
+          buttons
+        };
+      }
+    """)
+    assert metrics['dialogScrollWidth'] <= metrics['dialogClientWidth'] + 1, f'{surface} dialog scrolls horizontally: {metrics}'
+    assert metrics['contentScrollWidth'] <= metrics['contentClientWidth'] + 1, f'{surface} modal content overflows horizontally: {metrics}'
+    assert metrics['childScrollWidth'] <= metrics['childClientWidth'] + 1, f'{surface} modal child overflows horizontally: {metrics}'
+    assert metrics['dialogOverflowX'] not in ('auto', 'scroll'), f'{surface} exposes a horizontal dialog scrollbar: {metrics}'
+    for action in metrics['actionRows']:
+        assert action['scrollWidth'] <= action['clientWidth'] + 1, f'{surface} action row overflows horizontally: {metrics}'
+    for button in metrics['buttons']:
+        assert button['left'] >= metrics['dialogLeft'] - 1, f'{surface} action starts outside the dialog: {button} / {metrics}'
+        assert button['right'] <= metrics['dialogRight'] + 1, f'{surface} action is clipped outside the dialog: {button} / {metrics}'
+
+
 def prepare_page(browser, width, height):
     page = browser.new_page(viewport={'width': width, 'height': height})
     errors = []
@@ -141,6 +192,15 @@ def test_desktop(browser, base_url):
     assert_single_line_buttons(page, 'desktop record view')
     page.screenshot(path=str(ARTIFACTS / 'desktop-record-view.png'), full_page=True)
 
+    visible(page, '[data-erp-add-note]').click()
+    page.wait_for_selector('dialog[open] [data-erp-note-form]')
+    assert visible(page, 'dialog[open]').get_attribute('data-surface') == 'form'
+    assert_modal_layout(page, 'desktop Add update popup')
+    assert_single_line_buttons(page, 'desktop Add update popup')
+    page.screenshot(path=str(ARTIFACTS / 'desktop-add-update-popup.png'), full_page=True)
+    visible(page, 'dialog[open] [data-close-modal]').click()
+    page.wait_for_function("!document.querySelector('dialog[open]')")
+
     visible(page, '[data-rw-edit]').click()
     page.wait_for_selector('[data-record-workspace-editor]')
     assert page.locator('dialog[open]').count() == 0
@@ -177,6 +237,7 @@ def test_desktop(browser, base_url):
     visible(page, '[data-erp-new-record="inventory"]').click()
     page.wait_for_selector('dialog[open] form[data-erp-module="inventory"]')
     modal_form = visible(page, 'dialog[open] form[data-erp-module="inventory"]')
+    assert_modal_layout(page, 'desktop full record form popup')
     assert_single_line_buttons(page, 'desktop inventory modal')
     modal_draft_name = 'Recovered modal inventory item'
     modal_form.locator('input[name="name"]').fill(modal_draft_name)
@@ -189,12 +250,36 @@ def test_desktop(browser, base_url):
     page.wait_for_selector('dialog[open] form[data-erp-module="inventory"]')
     page.wait_for_function("name => document.querySelector('dialog[open] form[data-erp-module=\"inventory\"] input[name=\"name\"]')?.value === name", arg=modal_draft_name)
     assert 'Recovered an unsaved draft' in visible(page, 'dialog[open] form[data-erp-module="inventory"]').inner_text()
+    assert_modal_layout(page, 'desktop recovered record form popup')
 
     audit = page.evaluate("FormcraftRecordWorkspace.audit()")
     assert audit['status'] == 'ready-to-test', audit
     assert audit['redundantDesktopMenuRemoved'] is True
     assert audit['pageEditorAvailable'] is True
     assert audit['modalDraftAutosaveAvailable'] is True
+    assert errors == [], errors
+    page.close()
+
+
+def test_web_modal_integrity(browser, base_url):
+    page, errors = prepare_page(browser, 1024, 768)
+    page.goto(f'{base_url}/#dashboard', wait_until='domcontentloaded')
+    wait_ready(page, errors)
+    seed(page)
+    page.evaluate("""
+      () => {
+        const module = FormcraftERP.modulesByKey.get('inventory');
+        const record = FormcraftERP.collection(module)[0];
+        FormcraftRecordWorkspace.openRecord(module.key, record.id, { replace: true });
+      }
+    """)
+    page.wait_for_selector('[data-record-workspace][data-record-mode="view"]')
+    assert page.evaluate("innerWidth === 1024")
+    visible(page, '[data-erp-add-note]').click()
+    page.wait_for_selector('dialog[open] [data-erp-note-form]')
+    assert_modal_layout(page, '1024px web Add update popup')
+    assert_single_line_buttons(page, '1024px web Add update popup')
+    page.screenshot(path=str(ARTIFACTS / 'web-1024-add-update-popup.png'), full_page=True)
     assert errors == [], errors
     page.close()
 
@@ -266,6 +351,7 @@ try:
     with sync_playwright() as playwright:
         browser = playwright.chromium.launch()
         test_desktop(browser, base_url)
+        test_web_modal_integrity(browser, base_url)
         test_mobile(browser, base_url)
         test_narrow_action_integrity(browser, base_url)
         browser.close()
@@ -273,4 +359,4 @@ finally:
     server.shutdown()
     server.server_close()
 
-print('Record workspace E2E checks passed for full-page viewing/editing, resumable drafts, modal recovery, responsive layouts, and single-line standard actions down to 320px.')
+print('Record workspace E2E checks passed for full-page viewing/editing, resumable drafts, web modal geometry, responsive layouts, and single-line standard actions down to 320px.')

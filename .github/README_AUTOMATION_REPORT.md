@@ -7,7 +7,7 @@ Generator: `aed303eed8a536f2dda075c8be583693325aac37`
 | Branch | Result | Detail |
 |---|---|---|
 | `agent/global-alignment-system` | unchanged | README already matched the standard |
-| `agent/hrms-zkteco-complete-additive` | updated | Branch-specific README committed |
+| `agent/hrms-zkteco-complete-additive` | unchanged | README already matched the standard |
 | `agent/nepal-erp-suite` | unchanged | README already matched the standard |
 | `agent/onboarding-visual-refresh` | unchanged | README already matched the standard |
 | `agent/performance-mobile-stability` | unchanged | README already matched the standard |
@@ -18,8 +18,8 @@ Generator: `aed303eed8a536f2dda075c8be583693325aac37`
 | `agent/tour-v2-global-geometry` | unchanged | README already matched the standard |
 | `agent/unified-design-system` | unchanged | README already matched the standard |
 | `agent/unify-production-design-state` | unchanged | README already matched the standard |
-| `agent/validate-tour-geometry-main` | updated | Branch-specific README committed |
+| `agent/validate-tour-geometry-main` | unchanged | README already matched the standard |
 | `fix/first-owner-autofill` | unchanged | README already matched the standard |
 | `fix/netlify-config-fallback` | unchanged | README already matched the standard |
 | `fix/owner-setup-state` | unchanged | README already matched the standard |
-| `main` | updated | Branch-specific README committed |
+| `main` | unchanged | README already matched the standard |

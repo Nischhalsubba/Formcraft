@@ -4,6 +4,17 @@
   const VERSION = 'FORMCRAFT-PRODUCT-DEPTH-RECORD-ACTIONS-1.0';
   const mobileQuery = matchMedia('(max-width: 820px)');
 
+  function hideInternalFields(root) {
+    if (!root) return;
+    root.querySelectorAll('.rw-detail-grid > div').forEach(item => {
+      const label = item.querySelector('dt')?.textContent?.trim().toLowerCase();
+      if (label === 'line items data') {
+        item.hidden = true;
+        item.dataset.pdInternalField = 'line-items';
+      }
+    });
+  }
+
   function compact(root) {
     if (!mobileQuery.matches || !root || root.dataset.pdActionsCompact) return;
     const actions = root.querySelector('.rw-hero-actions');
@@ -28,7 +39,10 @@
   }
 
   function enhance() {
-    document.querySelectorAll('[data-record-workspace][data-record-mode="view"]').forEach(compact);
+    document.querySelectorAll('[data-record-workspace]').forEach(root => {
+      hideInternalFields(root);
+      if (root.dataset.recordMode === 'view') compact(root);
+    });
     document.documentElement.dataset.formcraftProductDepthRecordActions = VERSION;
   }
 

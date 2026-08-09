@@ -1,4 +1,14 @@
 /* Multi-line sales and purchase transactions */
+/* Existing single-line controls remain usable as quick entry. Only the internal
+   JSON transport field stays hidden; the modal observer keeps the first line in sync. */
+.pd-legacy-transaction-field {
+  display: grid !important;
+}
+
+.pd-legacy-transaction-field:has([name="lineItemsJson"]) {
+  display: none !important;
+}
+
 .pd-line-editor {
   grid-column: 1 / -1;
   display: grid;

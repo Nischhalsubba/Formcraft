@@ -43,7 +43,7 @@ for (const asset of [
   'assets/css/product-depth-record-actions.css',
   'assets/css/product-depth-compliance-ui.css'
 ]) assert(index.includes(asset), `Missing index wiring: ${asset}`);
-assert(index.includes('meta name="theme-color" content="#F5F7FB"'), 'Theme color must match the current Design DNA canvas');
+assert(index.includes('meta name="theme-color" content="#F2F4F1"'), 'Startup browser chrome must match the current runtime theme-color contract');
 assert(scripts.includes('data-pd-line-editor'), 'Multi-line transaction editor missing');
 assert(scripts.includes('hydrateInvoice'), 'Line-aware invoice compatibility missing');
 assert(scripts.includes('createAdditionalStockMove'), 'Multi-line stock move compatibility missing');

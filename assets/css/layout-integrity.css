@@ -96,13 +96,17 @@
 }
 
 /* Dialog geometry integrity.
-   Several legacy popup types predate the form-modal layout and size their inner
-   cards independently. The dialog owns the viewport constraint; children must
-   never create a second horizontal scroll region inside it. */
+   A physical dialog border steals one pixel from each side of the client box while
+   legacy children still fill the declared dialog width. Use an inset outline for
+   the same visual edge without changing the layout box, then make the dialog the
+   single owner of all horizontal geometry. */
 dialog.modal,
 [data-modal].modal {
   max-width: calc(100vw - 32px);
   overflow-x: hidden;
+  border: 0;
+  outline: 1px solid var(--border);
+  outline-offset: -1px;
 }
 
 dialog.modal > [data-modal-content],

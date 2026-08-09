@@ -36,7 +36,7 @@ def prepare(browser, width=1440, height=1000):
 
 def wait_ready(page, errors):
     page.wait_for_function("document.documentElement.dataset.backend === 'ready'", timeout=15000)
-    page.wait_for_function("Boolean(window.FormcraftERP && window.FormcraftERPUI && window.FormcraftDemoData && window.FormcraftProductDepth && window.FormcraftProductDepthTransactionsUI && window.FormcraftProductDepthCommandUI && window.FormcraftProductDepthMobileUI && window.FormcraftProductDepthWorkflowBridge && window.FormcraftProductDepthRecordActions)", timeout=15000)
+    page.wait_for_function("Boolean(window.FormcraftERP && window.FormcraftERPUI && window.FormcraftDemoData && window.FormcraftProductDepth && window.FormcraftProductDepthTransactionsUI && window.FormcraftProductDepthCommandUI && window.FormcraftProductDepthMobileUI && window.FormcraftProductDepthWorkflowBridge && window.FormcraftProductDepthRecordActions && window.FormcraftProductDepthComplianceHeading)", timeout=15000)
     page.wait_for_timeout(250)
     assert errors == [], errors
 
@@ -204,8 +204,25 @@ def test_mobile(browser, base_url):
 
     page.evaluate("navigate('nepal-compliance')")
     page.wait_for_selector('[data-np-compliance-page]')
+    page.evaluate('FormcraftProductDepthComplianceHeading.refresh()')
     page.wait_for_timeout(120)
-    assert page.locator('h1').evaluate_all("nodes => nodes.filter(node => node.offsetParent !== null && node.textContent.trim().toLowerCase() === 'attendance & compliance center').length") == 1
+    heading_metrics = page.evaluate("""
+      () => {
+        const root = document.querySelector('[data-np-compliance-page]');
+        return [...document.querySelectorAll('h1')]
+          .filter(node => node.textContent.trim().toLowerCase() === 'attendance & compliance center')
+          .map(node => ({
+            visible: node.offsetParent !== null,
+            className: node.className,
+            insideRoot: Boolean(root && root.contains(node)),
+            routeHeading: node.hasAttribute('data-route-heading'),
+            parentClass: node.parentElement?.className || '',
+            display: getComputedStyle(node).display,
+            visibility: getComputedStyle(node).visibility
+          }));
+      }
+    """)
+    assert sum(1 for item in heading_metrics if item['visible']) == 1, heading_metrics
     setup = page.locator('.np-compliance-metrics article').filter(has_text='Operational setup').first
     assert setup.is_visible()
     setup.click()

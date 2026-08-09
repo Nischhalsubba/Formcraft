@@ -1,0 +1,131 @@
+/* Multi-line sales and purchase transactions */
+.pd-line-editor {
+  grid-column: 1 / -1;
+  display: grid;
+  gap: 12px;
+  margin-top: 8px;
+  padding: 16px;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: var(--surface-quiet, var(--surface-soft));
+}
+
+.pd-line-editor > header {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  gap: 14px;
+}
+
+.pd-line-editor > header > div {
+  display: grid;
+  gap: 3px;
+}
+
+.pd-line-editor > header span {
+  color: var(--primary);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+
+.pd-line-editor > header h3 {
+  margin: 0;
+  color: var(--ink);
+  font-size: 15px;
+  font-weight: 740;
+}
+
+.pd-line-editor > header p {
+  max-width: 68ch;
+  margin: 0;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.pd-line-list {
+  display: grid;
+  gap: 8px;
+}
+
+.pd-line-row {
+  display: grid;
+  min-width: 0;
+  grid-template-columns: minmax(150px, 1.3fr) minmax(150px, 1.45fr) 76px 76px 104px 94px 86px 112px 40px;
+  align-items: end;
+  gap: 8px;
+  padding: 10px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--surface-raised);
+}
+
+.pd-line-row label,
+.pd-line-total {
+  display: grid;
+  min-width: 0;
+  gap: 5px;
+}
+
+.pd-line-row label > span,
+.pd-line-total > span {
+  color: var(--muted);
+  font-size: 10px;
+  font-weight: 680;
+}
+
+.pd-line-row :is(input, select) {
+  width: 100%;
+  min-width: 0;
+  min-height: 40px;
+  padding-inline: 9px;
+  border: 1px solid var(--border-strong);
+  border-radius: 9px;
+  background: var(--surface);
+  color: var(--ink);
+  font: inherit;
+  font-size: 12px;
+}
+
+.pd-line-total {
+  min-height: 40px;
+  align-content: center;
+  padding-inline: 8px;
+  border-radius: 9px;
+  background: var(--surface-soft);
+}
+
+.pd-line-total strong {
+  overflow: hidden;
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.pd-line-remove {
+  width: 40px;
+  height: 40px;
+  min-width: 40px;
+  min-height: 40px;
+}
+
+.pd-line-editor > footer {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.pd-transaction-summary {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px 16px;
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.pd-transaction-summary span:last-child {
+  color: var(--ink);
+  font-weight: 800;
+}

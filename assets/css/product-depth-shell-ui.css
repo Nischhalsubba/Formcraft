@@ -1,0 +1,138 @@
+/* Formcraft customer E2E product-depth fixes.
+   Loaded after Design DNA so the daily-work compression rules win cleanly. */
+
+.pd-context-source,
+.pd-legacy-transaction-field,
+.pd-duplicate-page-heading {
+  display: none !important;
+}
+
+/* Top bar context consolidation */
+.pd-workspace-context {
+  position: relative;
+  min-width: 0;
+}
+
+.pd-context-trigger {
+  display: grid;
+  min-width: 188px;
+  min-height: 44px;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 1px 10px;
+  padding: 6px 10px 6px 12px;
+  border: 1px solid var(--border);
+  border-radius: 11px;
+  background: var(--surface-raised);
+  color: var(--ink);
+  text-align: left;
+  cursor: pointer;
+  transition: border-color var(--fc-motion-micro) var(--fc-ease), background-color var(--fc-motion-micro) var(--fc-ease), transform var(--fc-motion-micro) var(--fc-ease);
+}
+
+.pd-context-trigger:hover {
+  border-color: color-mix(in srgb, var(--primary) 28%, var(--border));
+  background: var(--primary-soft);
+}
+
+.pd-context-trigger:active {
+  transform: scale(.985);
+}
+
+.pd-context-trigger > span,
+.pd-context-trigger > small {
+  grid-column: 1;
+  color: var(--muted);
+  font-size: 10px;
+  line-height: 1.2;
+}
+
+.pd-context-trigger > span {
+  font-weight: 720;
+  letter-spacing: .03em;
+  text-transform: uppercase;
+}
+
+.pd-context-trigger > strong {
+  grid-column: 1;
+  overflow: hidden;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.25;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.pd-context-trigger > svg {
+  grid-column: 2;
+  grid-row: 1 / 4;
+  color: var(--muted);
+  transition: transform var(--fc-motion-micro) var(--fc-ease);
+}
+
+.pd-context-trigger[aria-expanded="true"] > svg {
+  transform: rotate(180deg);
+}
+
+.pd-context-panel {
+  position: absolute;
+  z-index: 460;
+  top: calc(100% + 8px);
+  right: 0;
+  display: grid;
+  width: min(340px, calc(100vw - 24px));
+  gap: 12px;
+  padding: 14px;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: var(--surface-raised);
+  box-shadow: var(--shadow-md);
+}
+
+.pd-context-panel[hidden] {
+  display: none;
+}
+
+.pd-context-panel label,
+.pd-context-fiscal {
+  display: grid;
+  gap: 6px;
+}
+
+.pd-context-panel label > span,
+.pd-context-fiscal > span {
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.pd-context-panel select {
+  width: 100%;
+  min-height: 44px;
+  padding-inline: 11px;
+  border: 1px solid var(--border-strong);
+  border-radius: 10px;
+  background: var(--surface);
+  color: var(--ink);
+  font: inherit;
+}
+
+.pd-context-fiscal {
+  padding: 11px 12px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--surface-soft);
+}
+
+.sync-state.pd-sync-idle:not(.pd-sync-visible) {
+  display: none !important;
+}
+
+.sync-state {
+  transition: opacity var(--fc-motion-micro) var(--fc-ease), transform var(--fc-motion-micro) var(--fc-ease);
+}
+
+.sync-state.pd-sync-visible {
+  opacity: 1;
+  transform: translateY(0);
+}

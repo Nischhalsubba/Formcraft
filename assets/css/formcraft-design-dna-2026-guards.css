@@ -1,0 +1,105 @@
+/* Formcraft Design DNA 2026 compatibility and accessibility guards.
+   These rules intentionally load after the visual layer. */
+
+.workspace-search-trigger {
+  min-height: 44px;
+}
+
+/* The stable v4 shell is the live desktop navigation surface. The previous
+   Worldclass layer uses deliberately high-specificity shell selectors, so the
+   Design DNA compatibility layer meets that specificity rather than weakening
+   the older safety rules globally. */
+body.fc-worldclass.fc4-simple-shell .fc3-context-sidebar.fc4-sidebar {
+  border-right: 1px solid var(--fc-sidebar-border) !important;
+  background-color: var(--fc-sidebar) !important;
+  color: var(--fc-sidebar-text);
+  box-shadow: 12px 0 36px rgb(9 17 31 / .08) !important;
+}
+
+body.fc-worldclass .fc4-sidebar .fc4-sidebar-header {
+  border-bottom-color: var(--fc-sidebar-border);
+  background-color: var(--fc-sidebar-soft);
+}
+
+body.fc-worldclass .fc4-sidebar .fc4-workspace-brand,
+body.fc-worldclass .fc4-sidebar .fc4-workspace-brand strong,
+body.fc-worldclass .fc4-sidebar .fc4-sidebar-footer strong {
+  color: #ffffff;
+}
+
+body.fc-worldclass .fc4-sidebar .fc4-workspace-brand small,
+body.fc-worldclass .fc4-sidebar .fc4-sidebar-footer small {
+  color: var(--fc-sidebar-muted);
+}
+
+body.fc-worldclass .fc4-sidebar .fc4-collapse-button {
+  color: var(--fc-sidebar-muted) !important;
+}
+
+body.fc-worldclass .fc4-sidebar .fc4-collapse-button:hover {
+  background-color: var(--fc-sidebar-hover) !important;
+  color: #ffffff !important;
+}
+
+body.fc-worldclass .fc4-sidebar .fc4-nav-section h2 {
+  color: #64748b;
+}
+
+body.fc-worldclass .fc4-sidebar .fc4-nav-item {
+  min-height: 44px;
+  border-radius: 11px;
+  color: var(--fc-sidebar-muted);
+}
+
+body.fc-worldclass .fc4-sidebar .fc4-nav-item:hover {
+  border-color: rgb(255 255 255 / .05);
+  background-color: var(--fc-sidebar-hover);
+  color: #eef3fb;
+}
+
+body.fc-worldclass .fc4-sidebar .fc4-nav-item.is-active {
+  border-color: rgb(139 141 248 / .22);
+  background-color: rgb(79 70 229 / .20);
+  color: #ffffff;
+}
+
+body.fc-worldclass .fc4-sidebar .fc4-nav-item.is-active::before {
+  background-color: #8b8df8;
+  box-shadow: 0 0 0 3px rgb(139 141 248 / .08);
+}
+
+body.fc-worldclass .fc4-sidebar .fc4-nav-item.is-parent-active {
+  border-color: rgb(139 141 248 / .12);
+  background-color: rgb(79 70 229 / .10);
+  color: #e5e7ff;
+}
+
+body.fc-worldclass .fc4-sidebar .fc4-nav-item.is-active .fc4-nav-icon {
+  background-color: rgb(139 141 248 / .12);
+  color: #c7d2fe;
+}
+
+body.fc-worldclass .fc4-sidebar .fc4-nav-count {
+  border-color: rgb(255 255 255 / .08);
+  background-color: rgb(255 255 255 / .06);
+  color: #9cabc0;
+}
+
+body.fc-worldclass .fc4-sidebar .fc4-sidebar-footer {
+  border-top-color: var(--fc-sidebar-border);
+  background-color: color-mix(in srgb, var(--fc-sidebar) 92%, #ffffff 8%);
+}
+
+@media (max-width: 600px) {
+  .hrms-tabs button,
+  .hrms-head-actions .button,
+  .hrms-time-chips button,
+  .hrms-device-card footer .button,
+  .hrms-device-card footer .action-button {
+    min-height: 44px;
+  }
+
+  .hrms-tabs button {
+    padding-inline: 14px;
+  }
+}

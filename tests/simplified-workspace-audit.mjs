@@ -76,10 +76,16 @@ for (const contract of [
 ]) assert.ok(shellCss.includes(contract), `Missing simplified shell CSS contract: ${contract}`);
 
 for (const contract of [
-  "const VERSION = 'FORMCRAFT-THEME-STUDIO-1.0'",
+  "const VERSION = 'FORMCRAFT-THEME-STUDIO-2.0'",
+  'const LEGACY_DEFAULT_DESIGN',
   'const DEFAULT_DESIGN',
   'const FONT_STACKS',
+  "'Plus Jakarta Sans'",
+  "primary: '#4f46e5'",
+  "uiFont: 'Plus Jakarta Sans', displayFont: 'Plus Jakarta Sans'",
+  'function matchesTemplate',
   'function ensureDesignSettings',
+  'matchesTemplate(current, LEGACY_DEFAULT_DESIGN)',
   'function applyDesign',
   'function interfacePanel',
   'function navigationPanel',
@@ -98,7 +104,7 @@ for (const token of [
   assert.ok(studioCss.includes(token), `Missing customizable design token: ${token}`);
 }
 
-for (const font of ['DM Sans', 'IBM Plex Sans', 'Source Sans 3', 'Inter', 'Manrope']) {
+for (const font of ['Plus Jakarta Sans', 'DM Sans', 'IBM Plex Sans', 'Source Sans 3', 'Inter', 'Manrope']) {
   assert.ok(html.includes(font.replaceAll(' ', '+')) || html.includes(font), `Missing selectable font asset: ${font}`);
 }
 
@@ -123,4 +129,4 @@ assert.ok(workflow.includes('assets/js/simplified-workspace-*.js'), 'Stable shel
 assert.ok(workflow.includes('assets/js/ui-theme-studio.js'), 'Theme studio changes must trigger CI.');
 
 assert.ok(!`${shellJs}${shellActions}${shellCss}${studioJs}${studioCss}`.includes('odoo.com'), 'The simplified UI must not embed Odoo assets or source code.');
-console.log('Simplified navigation, stable mobile create actions, admin theme studio, design tokens, and architecture README contracts passed.');
+console.log('Simplified navigation, stable mobile create actions, Design DNA theme studio, design tokens, and architecture README contracts passed.');

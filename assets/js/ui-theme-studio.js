@@ -1,9 +1,10 @@
 'use strict';
 
 (() => {
-  const VERSION = 'FORMCRAFT-THEME-STUDIO-1.0';
+  const VERSION = 'FORMCRAFT-THEME-STUDIO-2.0';
   const FONT_STACKS = Object.freeze({
     Inter: '"Inter", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
+    'Plus Jakarta Sans': '"Plus Jakarta Sans", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
     Manrope: '"Manrope", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
     'DM Sans': '"DM Sans", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
     'IBM Plex Sans': '"IBM Plex Sans", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
@@ -11,7 +12,7 @@
     System: 'ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif'
   });
 
-  const DEFAULT_DESIGN = Object.freeze({
+  const LEGACY_DEFAULT_DESIGN = Object.freeze({
     version: 1,
     appearance: { theme: 'system' },
     colors: {
@@ -25,6 +26,24 @@
     layout: {
       density: 'comfortable', spacing: 1, sectionGap: 22, cardPadding: 18,
       controlHeight: 42, sidebarWidth: 252, contentMax: 1480, radius: 12,
+      iconSize: 18, shadow: 'subtle', motion: 'standard'
+    }
+  });
+
+  const DEFAULT_DESIGN = Object.freeze({
+    version: 2,
+    appearance: { theme: 'system' },
+    colors: {
+      primary: '#4f46e5', success: '#087f5b', warning: '#b45309', danger: '#b42318',
+      lightCanvas: '#f5f7fb', lightSurface: '#ffffff', lightText: '#101828', lightMuted: '#667085', lightBorder: '#dde3ec',
+      darkCanvas: '#080e19', darkSurface: '#101827', darkText: '#f7f9fc', darkMuted: '#a8b3c5', darkBorder: '#26354b'
+    },
+    typography: {
+      uiFont: 'Plus Jakarta Sans', displayFont: 'Plus Jakarta Sans', baseSize: 14, scale: 1, lineHeight: 1.5
+    },
+    layout: {
+      density: 'comfortable', spacing: 1, sectionGap: 20, cardPadding: 18,
+      controlHeight: 44, sidebarWidth: 264, contentMax: 1560, radius: 14,
       iconSize: 18, shadow: 'subtle', motion: 'standard'
     }
   });
@@ -67,7 +86,7 @@
 
   function mergeDesign(value = {}) {
     return {
-      version: 1,
+      version: 2,
       appearance: { ...DEFAULT_DESIGN.appearance, ...(value.appearance || {}) },
       colors: { ...DEFAULT_DESIGN.colors, ...(value.colors || {}) },
       typography: { ...DEFAULT_DESIGN.typography, ...(value.typography || {}) },
@@ -75,9 +94,20 @@
     };
   }
 
+  function matchesTemplate(value, template) {
+    if (!value || typeof value !== 'object') return false;
+    return Object.entries(template).every(([key, expected]) => {
+      if (expected && typeof expected === 'object') return matchesTemplate(value[key], expected);
+      return value[key] === expected;
+    });
+  }
+
   function ensureDesignSettings() {
     state.settings ||= {};
-    state.settings.uiDesign = mergeDesign(state.settings.uiDesign);
+    const current = state.settings.uiDesign;
+    const shouldMigrateLegacyDefault = matchesTemplate(current, LEGACY_DEFAULT_DESIGN);
+    state.settings.uiDesign = mergeDesign(shouldMigrateLegacyDefault ? DEFAULT_DESIGN : current);
+    if (shouldMigrateLegacyDefault) state.settings.uiDesignMigratedFrom = 'FORMCRAFT-THEME-STUDIO-1.0';
     if (!state.settings.theme) state.settings.theme = state.settings.uiDesign.appearance.theme;
     return state.settings.uiDesign;
   }

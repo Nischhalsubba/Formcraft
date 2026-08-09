@@ -1,0 +1,111 @@
+/* Formcraft layout integrity guards.
+   Loaded last so shared controls keep their shape across every route and older CSS layers. */
+
+/* Text actions are atomic controls. Responsive layouts may wrap the control itself,
+   but never split a short action label into multiple lines. */
+:where(
+  .button,
+  .workspace-create-button,
+  .filter-chip,
+  .rw-text-button,
+  .pd-context-trigger,
+  .pd-role-trigger
+) {
+  flex-shrink: 0;
+  min-width: max-content;
+  white-space: nowrap;
+  overflow-wrap: normal;
+  word-break: normal;
+  text-wrap: nowrap;
+}
+
+/* responsive-system-v2 intentionally allows prose to break anywhere. Neutralize
+   that behavior for labels nested inside interactive controls. */
+:where(
+  .button,
+  .workspace-create-button,
+  .filter-chip,
+  .rw-text-button,
+  .pd-context-trigger,
+  .pd-role-trigger
+) :where(span, strong, small) {
+  white-space: inherit;
+  overflow-wrap: normal;
+  word-break: normal;
+}
+
+/* Card headers and action rows should reflow controls as whole units instead of
+   squeezing the button until its label wraps. */
+.rw-card > header,
+.rw-recovery-banner,
+.rw-modal-recovery {
+  flex-wrap: wrap;
+}
+
+.rw-card > header > div,
+.rw-recovery-banner > div,
+.rw-modal-recovery > div {
+  min-width: 0;
+  flex: 1 1 12rem;
+}
+
+.rw-card > header > .button,
+.rw-recovery-banner > .button,
+.rw-modal-recovery > .button {
+  flex: 0 0 auto;
+}
+
+/* Shared action collections across page headers, records, dialogs, ERP and HRMS
+   keep enough intrinsic width for each action while allowing the collection to wrap. */
+:where(
+  .hero-actions,
+  .rw-hero-actions,
+  .rw-editor-side-actions,
+  .hrms-head-actions,
+  .erp-head-actions,
+  .erp-module-actions,
+  .modal-actions,
+  .form-actions,
+  .panel-actions,
+  .toolbar-actions
+) {
+  min-width: 0;
+  flex-wrap: wrap;
+}
+
+:where(
+  .hero-actions,
+  .rw-hero-actions,
+  .rw-editor-side-actions,
+  .hrms-head-actions,
+  .erp-head-actions,
+  .erp-module-actions,
+  .modal-actions,
+  .form-actions,
+  .panel-actions,
+  .toolbar-actions
+) > :where(.button, .workspace-create-button, .filter-chip) {
+  flex: 0 0 auto;
+}
+
+/* Fixed-width icon controls remain fixed-width even when adjacent text grows. */
+:where(.icon-button, .action-button, .utility-button, .menu-button) {
+  flex: 0 0 auto;
+  overflow-wrap: normal;
+  word-break: normal;
+}
+
+/* Very narrow screens should stack crowded record-card headers rather than damage
+   the control label or force horizontal page scrolling. */
+@media (max-width: 340px) {
+  .rw-card > header {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .rw-card > header > .button {
+    width: auto;
+    max-width: 100%;
+    justify-self: start;
+  }
+}

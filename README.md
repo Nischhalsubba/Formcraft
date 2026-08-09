@@ -37,6 +37,7 @@ This branch differs from the default branch in the following detected paths:
 
 - [`.github/workflows/erp-suite-browser-validation.yml`](https://github.com/Nischhalsubba/Formcraft/blob/agent/customer-e2e-product-depth/.github/workflows/erp-suite-browser-validation.yml)
 - [`.github/workflows/product-depth-browser-validation.yml`](https://github.com/Nischhalsubba/Formcraft/blob/agent/customer-e2e-product-depth/.github/workflows/product-depth-browser-validation.yml)
+- [`README.md`](https://github.com/Nischhalsubba/Formcraft/blob/agent/customer-e2e-product-depth/README.md)
 - [`assets/css/product-depth-automation-ui.css`](https://github.com/Nischhalsubba/Formcraft/blob/agent/customer-e2e-product-depth/assets/css/product-depth-automation-ui.css)
 - [`assets/css/product-depth-collaboration-ui.css`](https://github.com/Nischhalsubba/Formcraft/blob/agent/customer-e2e-product-depth/assets/css/product-depth-collaboration-ui.css)
 - [`assets/css/product-depth-command-ui.css`](https://github.com/Nischhalsubba/Formcraft/blob/agent/customer-e2e-product-depth/assets/css/product-depth-command-ui.css)
@@ -46,7 +47,6 @@ This branch differs from the default branch in the following detected paths:
 - [`assets/css/product-depth-record-actions.css`](https://github.com/Nischhalsubba/Formcraft/blob/agent/customer-e2e-product-depth/assets/css/product-depth-record-actions.css)
 - [`assets/css/product-depth-record-ui.css`](https://github.com/Nischhalsubba/Formcraft/blob/agent/customer-e2e-product-depth/assets/css/product-depth-record-ui.css)
 - [`assets/css/product-depth-role-dashboard.css`](https://github.com/Nischhalsubba/Formcraft/blob/agent/customer-e2e-product-depth/assets/css/product-depth-role-dashboard.css)
-- [`assets/css/product-depth-shell-ui.css`](https://github.com/Nischhalsubba/Formcraft/blob/agent/customer-e2e-product-depth/assets/css/product-depth-shell-ui.css)
 
 ## Quick start
 

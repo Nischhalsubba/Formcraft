@@ -11,8 +11,11 @@
     const candidates = [...actions.children].filter(node => node instanceof HTMLElement && !node.hidden);
     if (candidates.length <= 2) return;
     root.dataset.pdActionsCompact = 'true';
-    const primary = candidates.find(node => node.classList.contains('button-primary')) || candidates[0];
+    const primary = candidates.find(node => node.matches?.('[data-rw-edit]'))
+      || candidates.find(node => node.classList.contains('button-primary'))
+      || candidates[0];
     const secondary = candidates.filter(node => node !== primary);
+    primary.classList.add('pd-record-primary-action');
     const more = document.createElement('details');
     more.className = 'pd-record-more';
     more.innerHTML = `<summary aria-label="More record actions">${typeof icon === 'function' ? icon('more', 18) : '...'}<span>More</span></summary><div class="pd-record-more-menu"></div>`;

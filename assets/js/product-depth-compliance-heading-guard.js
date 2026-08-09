@@ -1,7 +1,7 @@
 'use strict';
 
 (() => {
-  const VERSION = 'FORMCRAFT-PRODUCT-DEPTH-COMPLIANCE-HEADING-1.0';
+  const VERSION = 'FORMCRAFT-PRODUCT-DEPTH-COMPLIANCE-HEADING-1.1';
   const expected = 'attendance & compliance center';
   let frame = 0;
 
@@ -16,11 +16,8 @@
       return;
     }
 
-    const canonical = root.querySelector('h1[data-route-heading]')
-      || [...root.querySelectorAll('h1')].find(node => node.textContent.trim().toLowerCase() === expected)
-      || headings[0]
-      || null;
-
+    const inRoot = headings.filter(node => root.contains(node));
+    const canonical = inRoot[0] || headings[0] || null;
     headings.forEach(node => {
       node.classList.toggle('pd-duplicate-page-heading', Boolean(canonical && node !== canonical));
     });
@@ -35,11 +32,21 @@
     });
   }
 
+  if (typeof renderShell === 'function') {
+    const renderShellBeforeHeadingGuard = renderShell;
+    renderShell = function renderProductDepthHeadingGuard(...args) {
+      const result = renderShellBeforeHeadingGuard.apply(this, args);
+      reconcile();
+      schedule();
+      return result;
+    };
+  }
+
   new MutationObserver(schedule).observe(document.body, { childList: true, subtree: true });
   window.addEventListener('hashchange', schedule, { passive: true });
   document.addEventListener('formcraft:workspace-ready', schedule);
   schedule();
 
   document.documentElement.dataset.formcraftProductDepthComplianceHeading = VERSION;
-  window.FormcraftProductDepthComplianceHeading = Object.freeze({ version: VERSION, refresh: schedule });
+  window.FormcraftProductDepthComplianceHeading = Object.freeze({ version: VERSION, refresh: () => { reconcile(); schedule(); } });
 })();

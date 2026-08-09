@@ -10,16 +10,17 @@
   const escape = value => typeof window.escapeHtml === 'function'
     ? window.escapeHtml(value ?? '')
     : String(value ?? '').replace(/[&<>"']/g, character => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[character]);
-  const arr = value => Array.isArray(value) ? value : [];
   const currency = value => {
     const code = state.erp?.settings?.currency || 'NPR';
     try { return new Intl.NumberFormat('en-NP', { style: 'currency', currency: code, maximumFractionDigits: 2 }).format(Number(value || 0)); }
     catch { return `${code} ${Number(value || 0).toFixed(2)}`; }
   };
+
   function animateIn(node, y = 8) {
     if (!node || reduceMotion.matches || !window.gsap) return;
     window.gsap.fromTo(node, { autoAlpha: 0, y }, { autoAlpha: 1, y: 0, duration: 0.22, ease: 'power3.out', clearProps: 'opacity,transform,visibility' });
   }
+
   function patchTransactionSchemas() {
     for (const key of ['sales', 'purchase']) {
       const module = ERP.modulesByKey.get(key);
@@ -134,11 +135,26 @@
     });
   }
 
+  function mountEditor(form, host) {
+    const modalGrid = form.querySelector('.erp-form-grid');
+    const editorMain = form.querySelector('.rw-editor-main');
+    if (modalGrid) {
+      const anchor = modalGrid.closest('fieldset') || modalGrid;
+      anchor.insertAdjacentElement('afterend', host);
+    } else if (editorMain) {
+      editorMain.insertAdjacentElement('afterbegin', host);
+    } else {
+      const actions = form.querySelector('.modal-actions, .form-actions, [data-form-actions]');
+      if (actions) actions.insertAdjacentElement('beforebegin', host);
+      else form.append(host);
+    }
+    return host.isConnected && form.contains(host);
+  }
+
   function enhanceTransactionForm(form) {
     if (!form || enhanced.has(form)) return;
     const moduleKey = form.dataset.erpModule || form.closest('[data-record-module]')?.dataset.recordModule;
     if (!['sales', 'purchase'].includes(moduleKey)) return;
-    enhanced.add(form);
 
     let lines = Depth.transaction.parseLines(form.elements.lineItemsJson?.value);
     if (!lines.length) lines = legacyLineFromForm(form);
@@ -149,12 +165,8 @@
     host.dataset.pdLineEditor = moduleKey;
     host.innerHTML = `<header><div><span>Transaction lines</span><h3>${moduleKey === 'sales' ? 'Products and services' : 'Purchase items'}</h3><p>Add multiple lines with independent quantities, discounts and tax treatment.</p></div><button class="button button-secondary button-small" type="button" data-pd-add-line>${typeof icon === 'function' ? icon('plus', 15) : '+'}Add line</button></header><div class="pd-line-list" data-pd-line-list>${lines.map(rowMarkup).join('')}</div><footer data-pd-transaction-summary></footer>`;
 
-    const modalGrid = form.querySelector('.erp-form-grid');
-    const editorMain = form.querySelector('.rw-editor-main');
-    if (modalGrid) modalGrid.closest('fieldset')?.insertAdjacentElement('afterend', host);
-    else if (editorMain) editorMain.insertAdjacentElement('afterbegin', host);
-    else form.prepend(host);
-
+    if (!mountEditor(form, host)) return;
+    enhanced.add(form);
     hideLegacyTransactionFields(form);
     host.addEventListener('input', () => syncLineEditor(form));
     host.addEventListener('change', () => syncLineEditor(form));
@@ -172,7 +184,9 @@
       if (rows.length <= 1) {
         rows[0].querySelectorAll('input').forEach(input => { input.value = input.dataset.pdLine === 'quantity' ? '1' : input.dataset.pdLine === 'unit' ? 'unit' : ''; });
         rows[0].querySelectorAll('select').forEach(select => { select.value = ''; });
-      } else remove.closest('[data-pd-line-row]')?.remove();
+      } else {
+        remove.closest('[data-pd-line-row]')?.remove();
+      }
       syncLineEditor(form);
     });
     syncLineEditor(form);

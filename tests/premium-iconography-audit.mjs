@@ -25,7 +25,8 @@ assert.ok(
   html.indexOf('assets/css/premium-interface-geometry.css') > html.indexOf('assets/css/premium-interface.css'),
   'Geometry guard must load after the premium visual layer.'
 );
-assert.ok(html.includes('family=Inter') && html.includes('family=Manrope'), 'Inter and Manrope typography must be loaded.');
+assert.ok(html.includes('family=Inter'), 'Canonical Inter interface typography must be loaded.');
+assert.ok(!/family=(?:Manrope|DM\+Sans|IBM\+Plex\+Sans|Plus\+Jakarta\+Sans|Source\+Sans\+3)/.test(html), 'Inactive font families must not be preloaded at startup.');
 assert.ok(
   html.indexOf('assets/js/premium-iconography.js') > html.indexOf('assets/js/erp-suite-schema.js') &&
   html.indexOf('assets/js/premium-iconography.js') < html.indexOf('assets/js/erp-suite-ui.js'),

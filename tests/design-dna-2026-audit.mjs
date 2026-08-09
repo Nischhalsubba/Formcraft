@@ -8,8 +8,10 @@ const guards = read('assets/css/formcraft-design-dna-2026-guards.css');
 const motion = read('assets/js/formcraft-motion-orchestra.js');
 const atmosphere = read('assets/js/formcraft-workspace-atmosphere.js');
 const themeStudio = read('assets/js/ui-theme-studio.js');
+const fontLoader = read('assets/js/theme-font-loader.js');
 
-assert(index.includes('Plus+Jakarta+Sans'), 'Plus Jakarta Sans must be loaded');
+assert(index.includes('assets/js/theme-font-loader.js'), 'Lazy Theme Studio font loader must be wired');
+assert(fontLoader.includes("'Plus Jakarta Sans'"), 'Plus Jakarta Sans lazy-load mapping must exist');
 assert(index.includes('assets/css/formcraft-design-dna-2026.css'), 'Design DNA stylesheet must be wired');
 assert(index.includes('assets/css/formcraft-design-dna-2026-guards.css'), 'Design DNA responsive guards must be wired');
 assert(index.includes('assets/js/formcraft-motion-orchestra.js'), 'GSAP motion orchestration must be wired');
@@ -44,6 +46,9 @@ assert(themeStudio.includes("primary: '#4f46e5'"), 'Theme Studio must use the De
 assert(themeStudio.includes("uiFont: 'Plus Jakarta Sans', displayFont: 'Plus Jakarta Sans'"), 'Theme Studio must use Design DNA typography by default');
 assert(themeStudio.includes('LEGACY_DEFAULT_DESIGN'), 'Legacy default migration guard missing');
 assert(themeStudio.includes('matchesTemplate(current, LEGACY_DEFAULT_DESIGN)'), 'Only untouched legacy themes may auto-migrate');
+
+assert(fontLoader.includes('fonts.googleapis.com/css2?family='), 'Selected Design DNA fonts must load on demand');
+assert(fontLoader.includes('formcraft:workspace-ready'), 'Active workspace typography must synchronize after backend hydration');
 
 assert(motion.includes('window.gsap'), 'GSAP orchestration must use existing GSAP runtime');
 assert(motion.includes('prefers-reduced-motion: reduce'), 'GSAP reduced-motion guard missing');

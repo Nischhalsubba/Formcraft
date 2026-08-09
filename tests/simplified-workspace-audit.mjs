@@ -2,12 +2,13 @@ import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 
 const root = new URL('../', import.meta.url);
-const [html, shellJs, shellActions, shellCss, studioJs, studioCss, readme, pkgText, workflow] = await Promise.all([
+const [html, shellJs, shellActions, shellCss, studioJs, fontLoaderJs, studioCss, readme, pkgText, workflow] = await Promise.all([
   readFile(new URL('index.html', root), 'utf8'),
   readFile(new URL('assets/js/simplified-workspace-v4.js', root), 'utf8'),
   readFile(new URL('assets/js/simplified-workspace-actions.js', root), 'utf8'),
   readFile(new URL('assets/css/simplified-workspace-v4.css', root), 'utf8'),
   readFile(new URL('assets/js/ui-theme-studio.js', root), 'utf8'),
+  readFile(new URL('assets/js/theme-font-loader.js', root), 'utf8'),
   readFile(new URL('assets/css/ui-theme-studio.css', root), 'utf8'),
   readFile(new URL('README.md', root), 'utf8'),
   readFile(new URL('package.json', root), 'utf8'),
@@ -18,6 +19,7 @@ for (const asset of [
   'assets/css/simplified-workspace-v4.css',
   'assets/css/ui-theme-studio.css',
   'assets/js/ui-theme-studio.js',
+  'assets/js/theme-font-loader.js',
   'assets/js/simplified-workspace-v4.js',
   'assets/js/simplified-workspace-actions.js'
 ]) assert.ok(html.includes(asset), `Missing simplified workspace asset: ${asset}`);
@@ -29,6 +31,10 @@ assert.ok(
 assert.ok(
   html.indexOf('assets/js/ui-theme-studio.js') > html.indexOf('assets/js/responsive-system-v2.js'),
   'Theme studio must load after the responsive system.'
+);
+assert.ok(
+  html.indexOf('assets/js/theme-font-loader.js') > html.indexOf('assets/js/ui-theme-studio.js'),
+  'Font loader must load after the Theme Studio font catalog.'
 );
 assert.ok(
   html.indexOf('assets/js/simplified-workspace-v4.js') > html.indexOf('assets/js/ui-theme-studio.js'),
@@ -105,8 +111,11 @@ for (const token of [
 }
 
 for (const font of ['Plus Jakarta Sans', 'DM Sans', 'IBM Plex Sans', 'Source Sans 3', 'Inter', 'Manrope']) {
-  assert.ok(html.includes(font.replaceAll(' ', '+')) || html.includes(font), `Missing selectable font asset: ${font}`);
+  assert.ok(studioJs.includes(font), `Missing selectable Theme Studio font: ${font}`);
+  assert.ok(fontLoaderJs.includes(font), `Missing lazy-load mapping for Theme Studio font: ${font}`);
 }
+assert.ok(fontLoaderJs.includes('fonts.googleapis.com/css2?family='), 'Theme Studio fonts must load on demand.');
+assert.ok(!html.includes('family=Manrope') && !html.includes('family=DM+Sans') && !html.includes('family=IBM+Plex+Sans'), 'Inactive Theme Studio fonts must not preload in index.html.');
 
 for (const readmeContract of [
   '```mermaid',
@@ -129,4 +138,4 @@ assert.ok(workflow.includes('assets/js/simplified-workspace-*.js'), 'Stable shel
 assert.ok(workflow.includes('assets/js/ui-theme-studio.js'), 'Theme studio changes must trigger CI.');
 
 assert.ok(!`${shellJs}${shellActions}${shellCss}${studioJs}${studioCss}`.includes('odoo.com'), 'The simplified UI must not embed Odoo assets or source code.');
-console.log('Simplified navigation, stable mobile create actions, Design DNA theme studio, design tokens, and architecture README contracts passed.');
+console.log('Simplified navigation, stable mobile create actions, lazy Theme Studio fonts, design tokens, and architecture README contracts passed.');

@@ -1,5 +1,5 @@
 import 'jsr:@supabase/functions-js/edge-runtime.d.ts';
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.45.4';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -71,18 +71,6 @@ Deno.serve(async request => {
 
   const rawToken = crypto.randomUUID();
   const tokenHash = await sha256(rawToken);
-  const redirectTo = `${request.headers.get('origin') || Deno.env.get('SITE_URL') || ''}/#dashboard`;
-
-  const { data: inviteData, error: inviteError } = await adminClient.auth.admin.inviteUserByEmail(email, {
-    redirectTo,
-    data: {
-      full_name: fullName,
-      formcraft_workspace_id: workspaceId,
-      formcraft_workspace_role: role
-    }
-  });
-
-  if (inviteError) return json({ error: inviteError.message }, 409);
 
   const { data: invitation, error: invitationError } = await adminClient
     .from('workspace_invitations')
@@ -94,13 +82,64 @@ Deno.serve(async request => {
       token_hash: tokenHash,
       invited_by: authData.user.id
     })
-    .select('id, email, full_name, role, status, expires_at')
+    .select('id, workspace_id, email, full_name, role, status, expires_at')
     .single();
 
-  if (invitationError) return json({ error: invitationError.message }, 500);
+  if (invitationError) return json({ error: invitationError.message }, 409);
+
+  const redirectBase = request.headers.get('origin') || Deno.env.get('SITE_URL') || '';
+  const redirectTo = `${redirectBase.replace(/\/$/, '')}/#dashboard`;
+
+  // Workspace identity and role are deliberately NOT placed in raw user metadata.
+  // Authorization comes from the already-authorized invitation row below.
+  const { data: inviteData, error: inviteError } = await adminClient.auth.admin.inviteUserByEmail(email, {
+    redirectTo,
+    data: { full_name: fullName }
+  });
+
+  if (inviteError || !inviteData.user?.id) {
+    await adminClient.from('workspace_invitations').delete().eq('id', invitation.id);
+    return json({ error: inviteError?.message || 'Invitation user could not be provisioned.' }, 409);
+  }
+
+  const { data: existingMember, error: existingMemberError } = await adminClient
+    .from('workspace_members')
+    .select('role')
+    .eq('workspace_id', invitation.workspace_id)
+    .eq('user_id', inviteData.user.id)
+    .maybeSingle();
+
+  if (existingMemberError) {
+    await adminClient.from('workspace_invitations').delete().eq('id', invitation.id);
+    return json({ error: existingMemberError.message }, 500);
+  }
+  if (existingMember) {
+    await adminClient.from('workspace_invitations').delete().eq('id', invitation.id);
+    return json({ error: `This user is already a ${existingMember.role} in the workspace.` }, 409);
+  }
+
+  // Provision only the exact auth identity returned for the invited email, and derive
+  // role/workspace from the server-side invitation row. No caller/user metadata is trusted.
+  const { error: provisionError } = await adminClient
+    .from('workspace_members')
+    .insert({
+      workspace_id: invitation.workspace_id,
+      user_id: inviteData.user.id,
+      role: invitation.role
+    });
+
+  if (provisionError) {
+    await adminClient.from('workspace_invitations').delete().eq('id', invitation.id);
+    return json({ error: provisionError.message }, 500);
+  }
 
   return json({
-    ...invitation,
-    userId: inviteData.user?.id || null
+    id: invitation.id,
+    email: invitation.email,
+    full_name: invitation.full_name,
+    role: invitation.role,
+    status: invitation.status,
+    expires_at: invitation.expires_at,
+    userId: inviteData.user.id
   }, 201);
 });

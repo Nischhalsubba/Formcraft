@@ -102,15 +102,31 @@ Deno.serve(async request => {
     return json({ error: inviteError?.message || 'Invitation user could not be provisioned.' }, 409);
   }
 
+  const { data: existingMember, error: existingMemberError } = await adminClient
+    .from('workspace_members')
+    .select('role')
+    .eq('workspace_id', invitation.workspace_id)
+    .eq('user_id', inviteData.user.id)
+    .maybeSingle();
+
+  if (existingMemberError) {
+    await adminClient.from('workspace_invitations').delete().eq('id', invitation.id);
+    return json({ error: existingMemberError.message }, 500);
+  }
+  if (existingMember) {
+    await adminClient.from('workspace_invitations').delete().eq('id', invitation.id);
+    return json({ error: `This user is already a ${existingMember.role} in the workspace.` }, 409);
+  }
+
   // Provision only the exact auth identity returned for the invited email, and derive
   // role/workspace from the server-side invitation row. No caller/user metadata is trusted.
   const { error: provisionError } = await adminClient
     .from('workspace_members')
-    .upsert({
+    .insert({
       workspace_id: invitation.workspace_id,
       user_id: inviteData.user.id,
       role: invitation.role
-    }, { onConflict: 'workspace_id,user_id' });
+    });
 
   if (provisionError) {
     await adminClient.from('workspace_invitations').delete().eq('id', invitation.id);

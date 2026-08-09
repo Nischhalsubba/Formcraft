@@ -1,0 +1,84 @@
+/* Role-focused dashboard overview */
+.pd-role-dashboard {
+  grid-column: 1 / -1;
+}
+
+.pd-role-dashboard-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.pd-role-dashboard-grid > button {
+  display: grid;
+  min-height: 64px;
+  grid-template-columns: 36px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 9px;
+  padding: 10px;
+  border: 1px solid var(--border);
+  border-radius: 11px;
+  background: var(--surface-raised);
+  color: var(--ink);
+  text-align: left;
+  cursor: pointer;
+  transition: border-color var(--fc-motion-micro) var(--fc-ease), background-color var(--fc-motion-micro) var(--fc-ease), transform var(--fc-motion-micro) var(--fc-ease);
+}
+
+.pd-role-dashboard-grid > button:hover {
+  border-color: color-mix(in srgb, var(--primary) 25%, var(--border));
+  background: var(--primary-soft);
+  transform: translateY(-1px);
+}
+
+.pd-role-dashboard-icon {
+  display: grid;
+  width: 36px;
+  height: 36px;
+  place-items: center;
+  border-radius: 10px;
+  background: var(--primary-soft);
+  color: var(--primary);
+}
+
+.pd-role-dashboard-grid > button > span:nth-child(2) {
+  display: grid;
+  min-width: 0;
+  gap: 2px;
+}
+
+.pd-role-dashboard-grid strong {
+  font-size: 12px;
+  font-weight: 720;
+}
+
+.pd-role-dashboard-grid small {
+  overflow: hidden;
+  color: var(--muted);
+  font-size: 10px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.pd-role-dashboard-grid b {
+  color: var(--muted);
+  font-size: 16px;
+  font-variant-numeric: tabular-nums;
+}
+
+@media (max-width: 1000px) {
+  .pd-role-dashboard-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 600px) {
+  .pd-role-dashboard-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .pd-role-dashboard-grid > button,
+  .pd-role-dashboard .button {
+    min-height: 44px;
+  }
+}

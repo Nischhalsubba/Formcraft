@@ -107,9 +107,10 @@ dialog.modal,
 
 dialog.modal > [data-modal-content],
 [data-modal].modal > [data-modal-content] {
-  width: 100%;
+  width: auto;
   max-width: 100%;
   min-width: 0;
+  margin: 0;
 }
 
 dialog.modal[data-surface="form"] > [data-modal-content] > :where(form, .modal-card, .form-modal),

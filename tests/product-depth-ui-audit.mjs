@@ -28,7 +28,7 @@ assert(scripts.includes('FORMCRAFT-PRODUCT-DEPTH-WORKFLOW-BRIDGE-1.0'), 'Line-aw
 assert(scripts.includes('FORMCRAFT-PRODUCT-DEPTH-TRANSACTIONS-1.0'), 'Transaction UI marker missing');
 assert(scripts.includes('FORMCRAFT-PRODUCT-DEPTH-COMMAND-1.0'), 'Command UI marker missing');
 assert(scripts.includes('FORMCRAFT-PRODUCT-DEPTH-MOBILE-1.0'), 'Mobile UI marker missing');
-assert(scripts.includes('FORMCRAFT-PRODUCT-DEPTH-COMPLIANCE-HEADING-1.0'), 'Compliance heading invariant marker missing');
+assert(scripts.includes('FORMCRAFT-PRODUCT-DEPTH-COMPLIANCE-HEADING-1.1'), 'Compliance heading invariant marker missing');
 assert(scripts.includes('FORMCRAFT-PRODUCT-DEPTH-RECORD-ACTIONS-1.0'), 'Mobile record actions marker missing');
 assert(scripts.includes('FORMCRAFT-PRODUCT-DEPTH-SHELL-1.0'), 'Shell UI marker missing');
 assert(scripts.includes('FORMCRAFT-PRODUCT-DEPTH-MODAL-OBSERVER-1.1'), 'Global modal enhancement observer missing');
@@ -64,6 +64,7 @@ assert(scripts.includes('pd-scope-details'), 'Collapsible scope boundary missing
 assert(scripts.includes('pd-hajiri-filters'), 'Hajiri status filters missing');
 assert(scripts.includes('pd-day-total'), 'Hajiri daily totals missing');
 assert(scripts.includes('pd-duplicate-page-heading'), 'Compliance heading dedupe missing');
+assert(scripts.includes('renderProductDepthHeadingGuard'), 'Compliance heading guard must run synchronously after shell renders');
 assert(scripts.includes('Discard changes'), 'Record editor discard wording missing');
 assert(scripts.includes('inputMode'), 'Mobile numeric input modes missing');
 assert(scripts.includes('pd-relation-filter'), 'Searchable relation filtering missing');

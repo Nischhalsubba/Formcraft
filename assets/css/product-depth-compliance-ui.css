@@ -1,0 +1,216 @@
+/* Compliance compression and Hajiri scanning */
+.np-compliance-metrics article[role="button"] {
+  cursor: pointer;
+  transition: border-color var(--fc-motion-micro) var(--fc-ease), background-color var(--fc-motion-micro) var(--fc-ease), transform var(--fc-motion-micro) var(--fc-ease);
+}
+
+.np-compliance-metrics article[role="button"]:hover {
+  border-color: color-mix(in srgb, var(--primary) 26%, var(--border));
+  background: var(--primary-soft);
+  transform: translateY(-1px);
+}
+
+.np-compliance-metrics article[role="button"] em {
+  color: var(--primary);
+  font-size: 10px;
+  font-style: normal;
+  font-weight: 700;
+}
+
+.pd-operational-checklist {
+  display: grid;
+  gap: 10px;
+  padding: 14px;
+  border: 1px solid color-mix(in srgb, var(--primary) 20%, var(--border));
+  border-radius: 14px;
+  background: var(--surface-raised);
+  box-shadow: var(--shadow-sm);
+}
+
+.pd-operational-checklist[hidden] {
+  display: none;
+}
+
+.pd-operational-checklist > header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.pd-operational-checklist > header > div {
+  display: grid;
+  gap: 2px;
+}
+
+.pd-operational-checklist > header span {
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.pd-operational-checklist > header strong {
+  font-size: 15px;
+}
+
+.pd-operational-checklist ul {
+  display: grid;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.pd-operational-checklist li {
+  display: grid;
+  gap: 2px;
+  padding: 9px 10px;
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  background: var(--surface-soft);
+}
+
+.pd-operational-checklist li[data-severity="high"] {
+  border-color: color-mix(in srgb, var(--danger) 24%, var(--border));
+  background: var(--danger-soft);
+}
+
+.pd-operational-checklist li span {
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.pd-operational-checklist li small,
+.pd-operational-checklist > p {
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.np-boundary:has(.pd-scope-details) {
+  display: block;
+  padding: 0;
+  overflow: hidden;
+  border-color: var(--border);
+  background: var(--surface-soft);
+}
+
+.pd-scope-details summary {
+  display: flex;
+  min-height: 44px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 9px 12px;
+  color: var(--ink);
+  cursor: pointer;
+  list-style: none;
+}
+
+.pd-scope-details summary::-webkit-details-marker {
+  display: none;
+}
+
+.pd-scope-details summary span {
+  color: var(--primary);
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.pd-scope-details p {
+  margin: 0;
+  padding: 0 12px 12px;
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1.55;
+}
+
+.pd-hajiri-controls {
+  display: grid;
+  gap: 10px;
+  margin-bottom: 12px;
+  padding: 12px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--surface-soft);
+}
+
+.pd-hajiri-legend,
+.pd-hajiri-filters {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 7px;
+}
+
+.pd-hajiri-legend span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--muted);
+  font-size: 10px;
+}
+
+.pd-hajiri-legend i {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--muted-2);
+}
+
+.pd-hajiri-legend i[data-tone="present"] { background: var(--success); }
+.pd-hajiri-legend i[data-tone="absent"] { background: var(--danger); }
+.pd-hajiri-legend i[data-tone="leave"] { background: var(--warning); }
+.pd-hajiri-legend i[data-tone="holiday"] { background: var(--info); }
+
+.pd-hajiri-filters button {
+  min-height: 34px;
+  padding: 5px 9px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--surface-raised);
+  color: var(--muted);
+  font: inherit;
+  font-size: 10px;
+  font-weight: 680;
+  cursor: pointer;
+}
+
+.pd-hajiri-filters button.is-active {
+  border-color: color-mix(in srgb, var(--primary) 28%, var(--border));
+  background: var(--primary-soft);
+  color: var(--primary);
+}
+
+.np-hajiri-table thead th {
+  position: sticky;
+  z-index: 3;
+  top: 0;
+  background: var(--surface-raised);
+}
+
+.np-hajiri-table :is(thead th:first-child, tbody th, tfoot th) {
+  position: sticky;
+  z-index: 4;
+  left: 0;
+  background: var(--surface-raised);
+}
+
+.np-hajiri-table tbody td[data-code] {
+  cursor: pointer;
+  transition: opacity var(--fc-motion-micro) var(--fc-ease), background-color var(--fc-motion-micro) var(--fc-ease), transform var(--fc-motion-micro) var(--fc-ease);
+}
+
+.np-hajiri-table tbody td[data-code]:hover {
+  background: var(--primary-soft);
+  transform: translateY(-1px);
+}
+
+.np-hajiri-table .pd-hajiri-dim {
+  opacity: .18;
+}
+
+.np-hajiri-table tfoot th,
+.np-hajiri-table tfoot td {
+  border-top: 2px solid var(--border-strong);
+  background: var(--surface-soft);
+  font-weight: 700;
+}

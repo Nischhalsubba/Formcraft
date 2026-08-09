@@ -19,6 +19,34 @@ def visible(page, selector):
     return page.locator(f'{selector}:visible').first
 
 
+def assert_single_line_buttons(page, surface):
+    violations = page.locator('.button:visible').evaluate_all("""
+      nodes => nodes
+        .filter(node => (node.textContent || '').trim())
+        .map(node => {
+          const walker = document.createTreeWalker(node, NodeFilter.SHOW_TEXT);
+          const tops = new Set();
+          let textNode;
+          while ((textNode = walker.nextNode())) {
+            if (!(textNode.textContent || '').trim()) continue;
+            const range = document.createRange();
+            range.selectNodeContents(textNode);
+            for (const rect of range.getClientRects()) {
+              if (rect.width > 0 && rect.height > 0) tops.add(Math.round(rect.top * 2) / 2);
+            }
+          }
+          return {
+            text: (node.textContent || '').trim().replace(/\s+/g, ' '),
+            lines: tops.size,
+            whiteSpace: getComputedStyle(node).whiteSpace,
+            width: Math.round(node.getBoundingClientRect().width)
+          };
+        })
+        .filter(item => item.lines > 1 || item.whiteSpace !== 'nowrap')
+    """)
+    assert violations == [], f'{surface} contains wrapped standard action buttons: {violations}'
+
+
 def prepare_page(browser, width, height):
     page = browser.new_page(viewport={'width': width, 'height': height})
     errors = []
@@ -84,6 +112,7 @@ def test_desktop(browser, base_url):
     page.goto(f'{base_url}/#dashboard', wait_until='domcontentloaded')
     wait_ready(page, errors)
     seed(page)
+    assert_single_line_buttons(page, 'desktop dashboard')
 
     desktop_menu = page.locator('.fc3-desktop-sidebar-toggle')
     assert desktop_menu.count() >= 1
@@ -100,6 +129,7 @@ def test_desktop(browser, base_url):
     page.wait_for_function(f"document.body.classList.contains('fc4-sidebar-collapsed') === {str(before).lower()}")
 
     open_inventory(page)
+    assert_single_line_buttons(page, 'desktop inventory list')
     first_record_id = page.locator('[data-erp-open-record][data-erp-module="inventory"]').first.get_attribute('data-erp-open-record')
     page.locator('[data-erp-open-record][data-erp-module="inventory"]').first.click()
     page.wait_for_selector('[data-record-workspace][data-record-mode="view"]')
@@ -107,12 +137,15 @@ def test_desktop(browser, base_url):
     assert 'record=' in page.url
     assert visible(page, '.rw-view-layout').is_visible()
     assert visible(page, '[data-rw-edit]').is_visible()
+    assert visible(page, '[data-erp-add-note]').inner_text().strip() == 'Add update'
+    assert_single_line_buttons(page, 'desktop record view')
     page.screenshot(path=str(ARTIFACTS / 'desktop-record-view.png'), full_page=True)
 
     visible(page, '[data-rw-edit]').click()
     page.wait_for_selector('[data-record-workspace-editor]')
     assert page.locator('dialog[open]').count() == 0
     assert 'recordMode=edit' in page.url
+    assert_single_line_buttons(page, 'desktop record editor')
     editor = visible(page, '[data-rw-form]')
     name = editor.locator('input[name="name"]')
     original_name = name.input_value()
@@ -144,6 +177,7 @@ def test_desktop(browser, base_url):
     visible(page, '[data-erp-new-record="inventory"]').click()
     page.wait_for_selector('dialog[open] form[data-erp-module="inventory"]')
     modal_form = visible(page, 'dialog[open] form[data-erp-module="inventory"]')
+    assert_single_line_buttons(page, 'desktop inventory modal')
     modal_draft_name = 'Recovered modal inventory item'
     modal_form.locator('input[name="name"]').fill(modal_draft_name)
     page.wait_for_timeout(120)
@@ -172,6 +206,7 @@ def test_mobile(browser, base_url):
     seed(page)
     assert visible(page, '.fc3-mobile-menu').is_visible()
     assert not page.locator('.fc3-desktop-sidebar-toggle').first.is_visible()
+    assert_single_line_buttons(page, 'mobile dashboard')
 
     page.evaluate("""
       () => {
@@ -182,6 +217,8 @@ def test_mobile(browser, base_url):
     """)
     page.wait_for_selector('[data-record-workspace][data-record-mode="view"]')
     assert visible(page, '.rw-view-layout').evaluate("node => getComputedStyle(node).gridTemplateColumns.split(' ').filter(Boolean).length") == 1
+    assert visible(page, '[data-erp-add-note]').inner_text().strip() == 'Add update'
+    assert_single_line_buttons(page, 'mobile record view')
     assert page.evaluate("Math.max(document.documentElement.scrollWidth, document.body.scrollWidth) <= innerWidth + 2")
     page.screenshot(path=str(ARTIFACTS / 'mobile-record-view.png'), full_page=True)
 
@@ -189,8 +226,32 @@ def test_mobile(browser, base_url):
     page.wait_for_selector('[data-record-workspace-editor]')
     assert visible(page, '.rw-editor-layout').evaluate("node => getComputedStyle(node).gridTemplateColumns.split(' ').filter(Boolean).length") == 1
     assert all(box['height'] >= 40 for box in page.locator('[data-rw-jump]').evaluate_all("nodes => nodes.map(node => node.getBoundingClientRect())"))
+    assert_single_line_buttons(page, 'mobile record editor')
     assert page.evaluate("Math.max(document.documentElement.scrollWidth, document.body.scrollWidth) <= innerWidth + 2")
     page.screenshot(path=str(ARTIFACTS / 'mobile-record-editor.png'), full_page=True)
+    assert errors == [], errors
+    page.close()
+
+
+def test_narrow_action_integrity(browser, base_url):
+    page, errors = prepare_page(browser, 320, 780)
+    page.goto(f'{base_url}/#dashboard', wait_until='domcontentloaded')
+    wait_ready(page, errors)
+    seed(page)
+    page.evaluate("""
+      () => {
+        const module = FormcraftERP.modulesByKey.get('inventory');
+        const record = FormcraftERP.collection(module)[0];
+        FormcraftRecordWorkspace.openRecord(module.key, record.id, { replace: true });
+      }
+    """)
+    page.wait_for_selector('[data-record-workspace][data-record-mode="view"]')
+    add_update = visible(page, '[data-erp-add-note]')
+    assert add_update.inner_text().strip() == 'Add update'
+    assert add_update.evaluate("node => getComputedStyle(node).whiteSpace") == 'nowrap'
+    assert_single_line_buttons(page, '320px record view')
+    assert page.evaluate("Math.max(document.documentElement.scrollWidth, document.body.scrollWidth) <= innerWidth + 2")
+    page.screenshot(path=str(ARTIFACTS / 'narrow-record-action-integrity.png'), full_page=True)
     assert errors == [], errors
     page.close()
 
@@ -206,9 +267,10 @@ try:
         browser = playwright.chromium.launch()
         test_desktop(browser, base_url)
         test_mobile(browser, base_url)
+        test_narrow_action_integrity(browser, base_url)
         browser.close()
 finally:
     server.shutdown()
     server.server_close()
 
-print('Record workspace E2E checks passed for the single sidebar control, full-page viewing and editing, route state, resumable page drafts, backdrop modal closing, automatic modal draft recovery, desktop and mobile layouts.')
+print('Record workspace E2E checks passed for full-page viewing/editing, resumable drafts, modal recovery, responsive layouts, and single-line standard actions down to 320px.')

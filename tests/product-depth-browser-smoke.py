@@ -71,8 +71,17 @@ def test_desktop(browser, base_url):
     page.wait_for_selector('[data-pd-work-inbox]')
     assert visible(page, '[data-pd-work-inbox]').is_visible()
     assert visible(page, '[data-pd-context]').is_visible()
+    assert visible(page, '[data-pd-command-open]').is_visible()
 
-    page.keyboard.press('Control+k')
+    # Browser chrome may reserve Ctrl+K itself. Dispatch the same cancelable DOM shortcut
+    # to certify Formcraft's global handler, then separately verify the visible trigger.
+    page.evaluate("window.dispatchEvent(new KeyboardEvent('keydown', { key: 'k', code: 'KeyK', ctrlKey: true, bubbles: true, cancelable: true }))")
+    page.wait_for_selector('.pd-command-overlay:not([hidden])')
+    assert visible(page, '[data-pd-palette-input]').is_visible()
+    page.evaluate('FormcraftProductDepthCommandUI.close()')
+    page.wait_for_function("document.querySelector('.pd-command-overlay')?.hidden === true")
+
+    visible(page, '[data-pd-command-open]').click()
     page.wait_for_selector('.pd-command-overlay:not([hidden])')
     search = visible(page, '[data-pd-palette-input]')
     search.fill('Sales')

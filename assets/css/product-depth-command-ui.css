@@ -101,6 +101,53 @@
   color: var(--ink);
 }
 
+/* Discoverable command entry point */
+.pd-command-trigger {
+  display: inline-grid;
+  min-width: 128px;
+  min-height: 40px;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 7px;
+  padding: 5px 7px 5px 10px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--surface-raised);
+  color: var(--muted);
+  font: inherit;
+  cursor: pointer;
+  transition: border-color var(--fc-motion-micro) var(--fc-ease), background-color var(--fc-motion-micro) var(--fc-ease), color var(--fc-motion-micro) var(--fc-ease), transform var(--fc-motion-micro) var(--fc-ease);
+}
+
+.pd-command-trigger:hover {
+  border-color: color-mix(in srgb, var(--primary) 26%, var(--border));
+  background: var(--primary-soft);
+  color: var(--ink);
+}
+
+.pd-command-trigger:active {
+  transform: scale(.985);
+}
+
+.pd-command-trigger > span {
+  font-size: 11px;
+  font-weight: 680;
+}
+
+.pd-command-trigger kbd {
+  display: inline-grid;
+  min-height: 22px;
+  place-items: center;
+  padding-inline: 5px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--surface-soft);
+  color: var(--muted);
+  font-family: var(--fc-font-data, monospace);
+  font-size: 8px;
+  white-space: nowrap;
+}
+
 /* Universal command palette */
 body.pd-palette-open {
   overflow: hidden;
@@ -272,4 +319,20 @@ body.pd-palette-open {
   padding: 28px 16px;
   color: var(--muted);
   text-align: center;
+}
+
+@media (max-width: 820px) {
+  .pd-command-trigger {
+    min-width: 44px;
+    width: 44px;
+    min-height: 44px;
+    grid-template-columns: 1fr;
+    padding: 0;
+    place-items: center;
+  }
+
+  .pd-command-trigger > span,
+  .pd-command-trigger > kbd {
+    display: none;
+  }
 }

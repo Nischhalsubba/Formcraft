@@ -82,7 +82,7 @@ Deno.serve(async request => {
       token_hash: tokenHash,
       invited_by: authData.user.id
     })
-    .select('id, email, full_name, role, status, expires_at')
+    .select('id, workspace_id, email, full_name, role, status, expires_at')
     .single();
 
   if (invitationError) return json({ error: invitationError.message }, 409);
@@ -90,8 +90,8 @@ Deno.serve(async request => {
   const redirectBase = request.headers.get('origin') || Deno.env.get('SITE_URL') || '';
   const redirectTo = `${redirectBase.replace(/\/$/, '')}/#dashboard`;
 
-  // Important: workspace identity and role are deliberately NOT placed in raw user
-  // metadata. Authorization comes from the already-authorized invitation row below.
+  // Workspace identity and role are deliberately NOT placed in raw user metadata.
+  // Authorization comes from the already-authorized invitation row below.
   const { data: inviteData, error: inviteError } = await adminClient.auth.admin.inviteUserByEmail(email, {
     redirectTo,
     data: { full_name: fullName }
@@ -107,7 +107,7 @@ Deno.serve(async request => {
   const { error: provisionError } = await adminClient
     .from('workspace_members')
     .upsert({
-      workspace_id: invitation.workspace_id || workspaceId,
+      workspace_id: invitation.workspace_id,
       user_id: inviteData.user.id,
       role: invitation.role
     }, { onConflict: 'workspace_id,user_id' });
@@ -118,7 +118,12 @@ Deno.serve(async request => {
   }
 
   return json({
-    ...invitation,
+    id: invitation.id,
+    email: invitation.email,
+    full_name: invitation.full_name,
+    role: invitation.role,
+    status: invitation.status,
+    expires_at: invitation.expires_at,
     userId: inviteData.user.id
   }, 201);
 });

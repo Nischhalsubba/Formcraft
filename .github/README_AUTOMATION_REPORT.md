@@ -9,7 +9,6 @@ Generator: `aed303eed8a536f2dda075c8be583693325aac37`
 | `agent/audit-critical-medium-hardening` | unchanged | README already matched the standard |
 | `agent/customer-e2e-product-depth` | unchanged | README already matched the standard |
 | `agent/global-alignment-system` | unchanged | README already matched the standard |
-| `agent/global-button-layout-integrity` | unchanged | README already matched the standard |
 | `agent/hrms-zkteco-complete-additive` | unchanged | README already matched the standard |
 | `agent/nepal-erp-suite` | unchanged | README already matched the standard |
 | `agent/onboarding-visual-refresh` | unchanged | README already matched the standard |
@@ -25,4 +24,4 @@ Generator: `aed303eed8a536f2dda075c8be583693325aac37`
 | `fix/first-owner-autofill` | unchanged | README already matched the standard |
 | `fix/netlify-config-fallback` | unchanged | README already matched the standard |
 | `fix/owner-setup-state` | unchanged | README already matched the standard |
-| `main` | updated | Branch-specific README committed |
+| `main` | unchanged | README already matched the standard |

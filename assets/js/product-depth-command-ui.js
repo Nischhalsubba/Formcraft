@@ -12,10 +12,13 @@
     : String(value ?? '').replace(/[&<>"']/g, character => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[character]);
   const arr = value => Array.isArray(value) ? value : [];
   const title = value => typeof ERP.title === 'function' ? ERP.title(value) : String(value || '');
+  const shortcutLabel = /mac|iphone|ipad/i.test(navigator.platform || navigator.userAgent || '') ? '⌘ K' : 'Ctrl K';
+
   function animateIn(node, y = 8) {
     if (!node || reduceMotion.matches || !window.gsap) return;
     window.gsap.fromTo(node, { autoAlpha: 0, y }, { autoAlpha: 1, y: 0, duration: 0.22, ease: 'power3.out', clearProps: 'opacity,transform,visibility' });
   }
+
   function workItemTarget(item) {
     if (ERP.modulesByKey.has(item.source)) return { kind: 'erp', key: item.source, id: item.recordId };
     if (item.source === 'tasks') return { kind: 'route', key: 'tasks' };
@@ -93,7 +96,7 @@
     palette = document.createElement('div');
     palette.className = 'pd-command-overlay';
     palette.hidden = true;
-    palette.innerHTML = `<div class="pd-command-backdrop" data-pd-palette-close></div><section class="pd-command-card" role="dialog" aria-modal="true" aria-labelledby="pd-command-title"><header><div><span id="pd-command-title">Quick find</span><small>Apps, records and recent work</small></div><kbd>Esc</kbd></header><label class="pd-command-search"><span class="sr-only">Search Formcraft</span>${typeof icon === 'function' ? icon('search', 18) : ''}<input type="search" autocomplete="off" placeholder="Search apps and records..." data-pd-palette-input></label><div class="pd-command-results" role="listbox" data-pd-palette-results></div><footer><span><kbd>Up</kbd><kbd>Down</kbd> Navigate</span><span><kbd>Enter</kbd> Open</span></footer></section>`;
+    palette.innerHTML = `<div class="pd-command-backdrop" data-pd-palette-close></div><section class="pd-command-card" role="dialog" aria-modal="true" aria-labelledby="pd-command-title"><header><div><span id="pd-command-title">Quick find</span><small>Apps, records and recent work</small></div><kbd>Esc</kbd></header><label class="pd-command-search"><span class="sr-only">Search Formcraft</span>${typeof icon === 'function' ? icon('search', 18) : ''}<input type="search" autocomplete="off" placeholder="Search apps and records..." data-pd-palette-input></label><div class="pd-command-results" role="listbox" data-pd-palette-results></div><footer><span><kbd>↑</kbd><kbd>↓</kbd> Navigate</span><span><kbd>Enter</kbd> Open</span></footer></section>`;
     document.body.append(palette);
     const input = palette.querySelector('[data-pd-palette-input]');
     input.addEventListener('input', () => renderPaletteResults(input));
@@ -133,18 +136,42 @@
     });
   }
 
+  function renderCommandTrigger() {
+    const topbar = document.querySelector('.workspace-topbar, .fc3-topbar');
+    if (!topbar || topbar.querySelector('[data-pd-command-open]')) return;
+    const target = topbar.querySelector('.workspace-topbar-actions, .fc3-topbar-actions, .topbar-actions') || topbar;
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.className = 'pd-command-trigger';
+    button.dataset.pdCommandOpen = '';
+    button.setAttribute('aria-label', `Search Formcraft (${shortcutLabel})`);
+    button.innerHTML = `${typeof icon === 'function' ? icon('search', 16) : ''}<span>Search</span><kbd>${escape(shortcutLabel)}</kbd>`;
+    button.addEventListener('click', () => openPalette());
+    target.prepend(button);
+  }
+
+  function handleGlobalShortcut(event) {
+    const key = String(event.key || '').toLowerCase();
+    const commandK = (event.ctrlKey || event.metaKey) && (key === 'k' || event.code === 'KeyK');
+    if (commandK) {
+      event.preventDefault();
+      event.stopPropagation();
+      openPalette();
+    } else if (event.key === 'Escape' && palette && !palette.hidden) {
+      event.preventDefault();
+      closePalette();
+    }
+  }
+
   function enhance() {
     renderWorkInbox();
+    renderCommandTrigger();
     document.documentElement.dataset.formcraftProductDepthCommand = VERSION;
   }
-  document.addEventListener('keydown', event => {
-    if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'k') {
-      event.preventDefault();
-      openPalette();
-    } else if (event.key === 'Escape' && palette && !palette.hidden) closePalette();
-  }, true);
+
+  window.addEventListener('keydown', handleGlobalShortcut, { capture: true });
   new MutationObserver(() => requestAnimationFrame(enhance)).observe(document.querySelector('#app') || document.body, { childList: true, subtree: true });
   document.addEventListener('formcraft:workspace-ready', enhance);
   enhance();
-  window.FormcraftProductDepthCommandUI = Object.freeze({ version: VERSION, open: openPalette, refresh: enhance });
+  window.FormcraftProductDepthCommandUI = Object.freeze({ version: VERSION, open: openPalette, close: closePalette, refresh: enhance });
 })();

@@ -25,6 +25,8 @@ on:
       - 'assets/css/nepal-attendance-compliance.css'
       - 'assets/js/hrms-*.js'
       - 'assets/css/hrms-suite.css'
+      - 'assets/js/product-depth-*.js'
+      - 'assets/css/product-depth-*.css'
       - 'device-bridge/**'
       - 'supabase/migrations/20260807170000_hrms_zkteco_bridge.sql'
       - 'assets/js/formcraft-bright-dashboard.js'
@@ -47,6 +49,8 @@ on:
       - 'tests/nepal-attendance-compliance-*.mjs'
       - 'tests/hrms-*.py'
       - 'tests/hrms-*.mjs'
+      - 'tests/product-depth-*.py'
+      - 'tests/product-depth-*.mjs'
       - 'docs/PREMIUM_UI_E2E_AUDIT.md'
       - 'docs/RESPONSIVE_SYSTEM_AUDIT.md'
       - 'docs/FORM_MODAL_E2E_AUDIT.md'
@@ -69,6 +73,7 @@ on:
       - agent/demo-data-form-workflows
       - agent/nepal-attendance-compliance
       - agent/hrms-production-certification
+      - agent/customer-e2e-product-depth
     paths:
       - 'assets/js/erp-suite-*.js'
       - 'assets/css/erp-suite.css'
@@ -92,6 +97,8 @@ on:
       - 'assets/css/nepal-attendance-compliance.css'
       - 'assets/js/hrms-*.js'
       - 'assets/css/hrms-suite.css'
+      - 'assets/js/product-depth-*.js'
+      - 'assets/css/product-depth-*.css'
       - 'device-bridge/**'
       - 'supabase/migrations/20260807170000_hrms_zkteco_bridge.sql'
       - 'assets/js/formcraft-bright-dashboard.js'
@@ -114,6 +121,8 @@ on:
       - 'tests/nepal-attendance-compliance-*.mjs'
       - 'tests/hrms-*.py'
       - 'tests/hrms-*.mjs'
+      - 'tests/product-depth-*.py'
+      - 'tests/product-depth-*.mjs'
       - 'docs/PREMIUM_UI_E2E_AUDIT.md'
       - 'docs/RESPONSIVE_SYSTEM_AUDIT.md'
       - 'docs/FORM_MODAL_E2E_AUDIT.md'
@@ -136,7 +145,7 @@ concurrency:
 jobs:
   browser-validation:
     runs-on: ubuntu-24.04
-    timeout-minutes: 38
+    timeout-minutes: 42
     env:
       SUPABASE_URL: https://formcraft-test.supabase.co
       SUPABASE_PUBLISHABLE_KEY: sb_publishable_formcraft_browser_test_key_1234567890
@@ -184,6 +193,9 @@ jobs:
 
       - name: Run connected demo data and form workflow regression
         run: python tests/demo-data-form-workflows-browser-smoke.py
+
+      - name: Run customer product-depth regression
+        run: python tests/product-depth-browser-smoke.py
 
       - name: Run additive HRMS Variant A browser regression
         run: python tests/hrms-additive-browser-smoke.py

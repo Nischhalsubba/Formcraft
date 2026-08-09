@@ -1,0 +1,177 @@
+/* Record-level files and mention metadata */
+.pd-collaboration-tools {
+  display: grid;
+  gap: 10px;
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px solid var(--border);
+}
+
+.pd-collaboration-tools.is-busy {
+  opacity: .68;
+  pointer-events: none;
+}
+
+.pd-collaboration-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.pd-collaboration-head > div {
+  display: grid;
+  gap: 2px;
+}
+
+.pd-collaboration-head strong {
+  font-size: 12px;
+  font-weight: 740;
+}
+
+.pd-collaboration-head > div > span {
+  color: var(--muted);
+  font-size: 10px;
+}
+
+.pd-file-upload {
+  position: relative;
+  min-width: max-content;
+  cursor: pointer;
+}
+
+.pd-file-upload input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.pd-attachment-list {
+  display: grid;
+  gap: 5px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.pd-attachment-list > li {
+  display: grid;
+  min-height: 44px;
+  grid-template-columns: 30px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 7px;
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  background: var(--surface-soft);
+}
+
+.pd-attachment-icon {
+  display: grid;
+  width: 28px;
+  height: 28px;
+  place-items: center;
+  border-radius: 8px;
+  background: var(--primary-soft);
+  color: var(--primary);
+}
+
+.pd-attachment-copy {
+  display: grid;
+  min-width: 0;
+  gap: 1px;
+}
+
+.pd-attachment-copy strong,
+.pd-attachment-copy small {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.pd-attachment-copy strong {
+  font-size: 11px;
+  font-weight: 690;
+}
+
+.pd-attachment-copy small,
+.pd-attachment-empty {
+  color: var(--muted);
+  font-size: 10px;
+}
+
+.pd-attachment-actions {
+  display: inline-flex;
+  gap: 2px;
+}
+
+.pd-attachment-actions .icon-button {
+  min-width: 34px;
+  min-height: 34px;
+}
+
+.pd-attachment-empty {
+  display: block !important;
+  min-height: 0 !important;
+  padding: 8px 0 !important;
+  border: 0 !important;
+  background: transparent !important;
+}
+
+.pd-mention-summary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  align-items: center;
+}
+
+.pd-mention-chip {
+  display: inline-flex;
+  min-height: 26px;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 7px;
+  border: 1px solid color-mix(in srgb, var(--primary) 18%, var(--border));
+  border-radius: 999px;
+  background: var(--primary-soft);
+  color: var(--primary);
+  font-size: 10px;
+  font-weight: 680;
+}
+
+.pd-mention-chip small {
+  display: grid;
+  min-width: 16px;
+  height: 16px;
+  place-items: center;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--primary) 12%, transparent);
+  font-size: 9px;
+}
+
+.pd-mention-empty {
+  color: var(--muted);
+  font-size: 10px;
+}
+
+@media (max-width: 820px) {
+  .pd-collaboration-head {
+    align-items: stretch;
+  }
+
+  .pd-file-upload {
+    min-height: 44px;
+  }
+
+  .pd-attachment-list > li {
+    min-height: 50px;
+  }
+
+  .pd-attachment-actions .icon-button {
+    min-width: 44px;
+    min-height: 44px;
+  }
+}

@@ -1,0 +1,226 @@
+/* Visual automation builder */
+.pd-internal-automation-field {
+  display: none !important;
+}
+
+.pd-automation-builder {
+  grid-column: 1 / -1;
+  display: grid;
+  gap: 12px;
+  margin-top: 10px;
+  padding: 14px;
+  border: 1px solid color-mix(in srgb, var(--primary) 18%, var(--border));
+  border-radius: 14px;
+  background: var(--surface-quiet, var(--surface-soft));
+}
+
+.pd-automation-builder > header,
+.pd-automation-builder > section > header {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.pd-automation-builder > header > div,
+.pd-automation-builder > section > header > div {
+  display: grid;
+  gap: 3px;
+}
+
+.pd-automation-builder > header > div > span {
+  color: var(--primary);
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+
+.pd-automation-builder h3,
+.pd-automation-builder p {
+  margin: 0;
+}
+
+.pd-automation-builder h3 {
+  font-size: 15px;
+}
+
+.pd-automation-builder p,
+.pd-automation-builder header span {
+  color: var(--muted);
+  font-size: 10px;
+}
+
+.pd-automation-trigger {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.pd-automation-trigger label,
+.pd-automation-row label {
+  display: grid;
+  min-width: 0;
+  gap: 4px;
+}
+
+.pd-automation-trigger label > span,
+.pd-automation-row label > span {
+  color: var(--muted);
+  font-size: 9px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.pd-automation-builder :is(input, select) {
+  width: 100%;
+  min-height: 40px;
+  padding-inline: 9px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface-raised);
+  color: var(--ink);
+  font: inherit;
+  font-size: 11px;
+}
+
+.pd-automation-builder > section {
+  display: grid;
+  gap: 8px;
+  padding: 11px;
+  border: 1px solid var(--border);
+  border-radius: 11px;
+  background: var(--surface-raised);
+}
+
+.pd-automation-builder > section > header strong {
+  font-size: 11px;
+}
+
+.pd-automation-rows {
+  display: grid;
+  gap: 6px;
+}
+
+.pd-automation-row {
+  display: grid;
+  grid-template-columns: minmax(110px, 1fr) minmax(135px, 1fr) minmax(130px, 1.2fr) 40px;
+  align-items: end;
+  gap: 7px;
+  padding: 8px;
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  background: var(--surface-soft);
+}
+
+.pd-automation-action-row {
+  grid-template-columns: minmax(150px, .7fr) minmax(220px, 1.3fr) 40px;
+}
+
+.pd-automation-row .icon-button {
+  width: 40px;
+  min-width: 40px;
+  height: 40px;
+  min-height: 40px;
+}
+
+.pd-automation-validation {
+  display: grid;
+  gap: 2px;
+  padding: 9px 10px;
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  background: var(--surface-soft);
+}
+
+.pd-automation-validation strong {
+  font-size: 11px;
+}
+
+.pd-automation-validation span {
+  color: var(--muted);
+  font-size: 10px;
+}
+
+.pd-automation-validation.is-valid {
+  border-color: color-mix(in srgb, var(--success) 25%, var(--border));
+  background: var(--success-soft);
+}
+
+.pd-automation-validation.is-invalid {
+  border-color: color-mix(in srgb, var(--warning) 25%, var(--border));
+  background: var(--warning-soft);
+}
+
+.pd-automation-history [data-pd-automation-history] {
+  display: grid;
+  gap: 5px;
+}
+
+.pd-automation-history article {
+  display: grid;
+  gap: 2px;
+  padding: 7px 8px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface-soft);
+}
+
+.pd-automation-history article > div {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.pd-automation-history article strong {
+  color: var(--primary);
+  font-size: 10px;
+  text-transform: capitalize;
+}
+
+.pd-automation-history article time,
+.pd-automation-history article span,
+.pd-automation-history p {
+  color: var(--muted);
+  font-size: 9px;
+}
+
+@media (max-width: 820px) {
+  .pd-automation-builder {
+    padding: 11px;
+  }
+
+  .pd-automation-builder > header {
+    display: grid;
+  }
+
+  .pd-automation-builder > header .button {
+    min-height: 44px;
+    width: 100%;
+  }
+
+  .pd-automation-trigger,
+  .pd-automation-row,
+  .pd-automation-action-row {
+    grid-template-columns: 1fr;
+  }
+
+  .pd-automation-builder :is(input, select) {
+    min-height: 44px;
+    font-size: 16px;
+  }
+
+  .pd-automation-row .icon-button {
+    width: 100%;
+    min-height: 44px;
+  }
+
+  .pd-automation-builder > section > header {
+    align-items: center;
+  }
+
+  .pd-automation-builder > section > header .button {
+    min-height: 44px;
+  }
+}

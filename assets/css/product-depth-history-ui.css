@@ -1,0 +1,93 @@
+/* Field-level record history */
+.pd-version-card {
+  box-shadow: none !important;
+}
+
+.pd-version-history {
+  display: grid;
+  gap: 7px;
+}
+
+.pd-version-history article {
+  display: grid;
+  gap: 6px;
+  padding: 9px;
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  background: var(--surface-soft);
+}
+
+.pd-version-history article > header {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.pd-version-history article > header > div {
+  display: grid;
+  gap: 1px;
+}
+
+.pd-version-history article strong {
+  color: var(--ink);
+  font-size: 10px;
+  font-weight: 720;
+  text-transform: capitalize;
+}
+
+.pd-version-history article time,
+.pd-version-history article p,
+.pd-history-empty {
+  color: var(--muted);
+  font-size: 9px;
+}
+
+.pd-version-history ul {
+  display: grid;
+  gap: 3px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.pd-version-history li {
+  display: grid;
+  gap: 1px;
+  padding-top: 4px;
+  border-top: 1px solid color-mix(in srgb, var(--border) 74%, transparent);
+}
+
+.pd-version-history li > span {
+  color: var(--muted);
+  font-size: 9px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.pd-version-history li > small {
+  overflow: hidden;
+  color: var(--ink);
+  font-size: 10px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.pd-version-history .button {
+  min-width: max-content;
+}
+
+@media (max-width: 820px) {
+  .pd-version-history article > header {
+    align-items: stretch;
+  }
+
+  .pd-version-history .button {
+    min-height: 44px;
+  }
+
+  .pd-version-history li > small {
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
+}

@@ -1,16 +1,18 @@
+// Verifies responsive assets, runtime contracts, documentation, and CI coverage for the maintained application workspace.
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 
-const root = new URL('../', import.meta.url);
+const appRoot = new URL('../', import.meta.url);
+const repositoryRoot = new URL('../../', import.meta.url);
 const [html, css, landscapeCss, runtime, dashboard, pkgText, workflow, docs] = await Promise.all([
-  readFile(new URL('index.html', root), 'utf8'),
-  readFile(new URL('assets/css/responsive-system-v2.css', root), 'utf8'),
-  readFile(new URL('assets/css/responsive-system-v2-landscape.css', root), 'utf8'),
-  readFile(new URL('assets/js/responsive-system-v2.js', root), 'utf8'),
-  readFile(new URL('assets/js/formcraft-bright-dashboard.js', root), 'utf8'),
-  readFile(new URL('package.json', root), 'utf8'),
-  readFile(new URL('.github/workflows/erp-suite-browser-validation.yml', root), 'utf8'),
-  readFile(new URL('docs/RESPONSIVE_SYSTEM_AUDIT.md', root), 'utf8')
+  readFile(new URL('index.html', appRoot), 'utf8'),
+  readFile(new URL('assets/css/responsive-system-v2.css', appRoot), 'utf8'),
+  readFile(new URL('assets/css/responsive-system-v2-landscape.css', appRoot), 'utf8'),
+  readFile(new URL('assets/js/responsive-system-v2.js', appRoot), 'utf8'),
+  readFile(new URL('assets/js/formcraft-bright-dashboard.js', appRoot), 'utf8'),
+  readFile(new URL('package.json', appRoot), 'utf8'),
+  readFile(new URL('.github/workflows/browser-regression.yml', repositoryRoot), 'utf8'),
+  readFile(new URL('docs/RESPONSIVE_SYSTEM_AUDIT.md', appRoot), 'utf8')
 ]);
 
 for (const asset of [
@@ -103,9 +105,9 @@ const pkg = JSON.parse(pkgText);
 assert.ok(pkg.scripts.test.includes('responsive-system-audit.mjs'), 'Responsive static audit must run in npm test.');
 assert.ok(pkg.scripts['test:responsive'].includes('responsive-system-v2.js'), 'Responsive runtime syntax must be checked.');
 assert.ok(pkg.scripts['test:responsive'].includes('responsive-system-audit.mjs'), 'Responsive audit syntax must be checked.');
-assert.ok(workflow.includes('tests/responsive-system-browser-smoke.py'), 'Responsive browser regression must run in CI.');
-assert.ok(workflow.includes('assets/css/responsive-system-v2*.css'), 'Responsive CSS wildcard must trigger CI.');
-assert.ok(workflow.includes('assets/js/responsive-system-v2.js'), 'Responsive runtime must trigger CI.');
+assert.ok(workflow.includes('working-directory: app'), 'Browser CI must run from the application workspace.');
+assert.ok(workflow.includes("- 'app/**'"), 'Application changes must trigger browser CI.');
+assert.ok(workflow.includes('python tests/responsive-system-browser-smoke.py'), 'Responsive browser regression must run in CI.');
 
 assert.ok(!`${css}${landscapeCss}${runtime}`.includes('odoo.com'), 'Responsive runtime must not embed Odoo assets or source code.');
 console.log('Responsive system contracts passed for incremental runtime work, dashboard, tables, boards, records, forms, calendar, invoices, mobile, tablet, landscape, and desktop layouts.');

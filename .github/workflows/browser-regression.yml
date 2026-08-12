@@ -1,0 +1,72 @@
+name: Browser regression
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'app/**'
+      - '.github/workflows/browser-regression.yml'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'app/**'
+      - '.github/workflows/browser-regression.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: formcraft-browser-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  browser-validation:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    defaults:
+      run:
+        working-directory: app
+    env:
+      SUPABASE_URL: https://formcraft-test.supabase.co
+      SUPABASE_PUBLISHABLE_KEY: sb_publishable_formcraft_browser_test_key_1234567890
+      PYTHONUNBUFFERED: '1'
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v5
+      - name: Set up Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: 22
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Build verified static site
+        run: npm run build
+      - name: Install browser and device-bridge test dependencies
+        run: |
+          python -m pip install playwright==1.54.0
+          python -m pip install -r device-bridge/requirements.txt
+          python -m playwright install --with-deps chromium
+      - name: Run browser regression suites
+        run: |
+          python tests/browser-smoke.py
+          python tests/erp-suite-browser-smoke.py
+          python tests/workspace-architecture-v3-browser-smoke.py
+          python tests/premium-interface-browser-smoke.py
+          python tests/responsive-system-browser-smoke.py
+          python tests/simplified-workspace-browser-smoke.py
+          python tests/form-modal-browser-smoke.py
+          python tests/demo-data-form-workflows-browser-smoke.py
+          python tests/record-workspace-browser-smoke.py
+          python tests/hrms-additive-browser-smoke.py
+          python tests/hrms-device-bridge-smoke.py
+          python tests/nepal-attendance-compliance-browser-smoke.py
+      - name: Upload browser evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: formcraft-browser-evidence
+          path: app/test-artifacts
+          if-no-files-found: warn
+          retention-days: 30

@@ -1,3 +1,4 @@
+// Verifies the Formcraft 2026 design-system, shell stability, motion, accessibility, and atmosphere contracts.
 import fs from 'node:fs';
 import assert from 'node:assert/strict';
 
@@ -9,7 +10,7 @@ const runtime = read('assets/js/formcraft-worldclass.js');
 const floating = read('assets/js/header-popover-fixes.js');
 const atmosphere = read('assets/js/formcraft-atmosphere.js');
 const authOnboarding = read('assets/js/auth-onboarding.js');
-const master = read('MASTER.md');
+const designSystem = read('docs/DESIGN_SYSTEM.md');
 
 assert(index.includes('assets/css/formcraft-worldclass.css'), 'worldclass stylesheet must be loaded');
 assert(index.indexOf('assets/css/formcraft-worldclass.css') > index.indexOf('assets/css/nepal-attendance-compliance.css'), 'worldclass stylesheet must load after feature styles');
@@ -28,8 +29,8 @@ assert(css.includes('.backend-gate'), 'authentication surface must be intentiona
 assert(css.includes('.fc-floating-panel'), 'floating surfaces must share the final design layer');
 assert(css.includes('.fc-context-select-trigger'), 'custom select trigger must be styled by the final design layer');
 assert.doesNotMatch(css, /(?:linear|radial|conic)-gradient/i, 'final design layer must not contain color gradients');
-assert.match(master, /All color gradients are forbidden/);
-assert.match(master, /Floating-surface system/);
+assert.match(designSystem, /All color gradients are forbidden/);
+assert.match(designSystem, /Floating-surface system/);
 
 assert(shellStability.includes('grid-template-columns: minmax(170px, 240px) minmax(260px, 1fr) max-content'), 'wide topbar must reserve a non-shrinking actions column');
 assert(shellStability.includes('width: min(100%, 560px)'), 'desktop search must be capped instead of consuming the full control bar');

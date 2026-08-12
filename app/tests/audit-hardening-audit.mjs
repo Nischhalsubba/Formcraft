@@ -1,15 +1,21 @@
+// Verifies security hardening across database policy, runtime behavior, interface safeguards, and Netlify headers.
 import fs from 'node:fs';
 import assert from 'node:assert/strict';
+import { fileURLToPath } from 'node:url';
+import path from 'node:path';
 
-const read = file => fs.readFileSync(file, 'utf8');
+const appRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
+const repositoryRoot = path.resolve(appRoot, '..');
+const readApp = file => fs.readFileSync(path.join(appRoot, file), 'utf8');
+const readRepository = file => fs.readFileSync(path.join(repositoryRoot, file), 'utf8');
 
-const migration = read('supabase/migrations/20260809000100_security_and_integrity_hardening.sql');
-const invitation = read('supabase/functions/invite-member/index.ts');
-const runtime = read('assets/js/audit-hardening.js');
-const fontLoader = read('assets/js/theme-font-loader.js');
-const css = read('assets/css/audit-hardening.css');
-const html = read('index.html');
-const netlify = read('netlify.toml');
+const migration = readApp('supabase/migrations/20260809000100_security_and_integrity_hardening.sql');
+const invitation = readApp('supabase/functions/invite-member/index.ts');
+const runtime = readApp('assets/js/audit-hardening.js');
+const fontLoader = readApp('assets/js/theme-font-loader.js');
+const css = readApp('assets/css/audit-hardening.css');
+const html = readApp('index.html');
+const netlify = readRepository('netlify.toml');
 
 assert.match(migration, /create or replace function public\.handle_new_user\(\)/i);
 assert.doesNotMatch(migration, /formcraft_workspace_role/);
@@ -45,6 +51,7 @@ assert.match(html, /assets\/css\/audit-hardening\.css/);
 assert.match(html, /@supabase\/supabase-js@2\.45\.4/);
 assert.doesNotMatch(html, /family=Manrope|family=DM\+Sans|family=IBM\+Plex\+Sans|family=Plus\+Jakarta\+Sans|family=Source\+Sans\+3/);
 
+assert.match(netlify, /base\s*=\s*"app"/);
 assert.match(netlify, /Content-Security-Policy/);
 assert.match(netlify, /publish\s*=\s*"dist"/);
 

@@ -1,14 +1,16 @@
+// Verifies draft, validation, relation, calculation, review, and browser-regression contracts for enhanced forms.
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 
-const root = new URL('../', import.meta.url);
+const appRoot = new URL('../', import.meta.url);
+const repositoryRoot = new URL('../../', import.meta.url);
 const [html, js, css, pkgText, workflow, demo] = await Promise.all([
-  readFile(new URL('index.html', root), 'utf8'),
-  readFile(new URL('assets/js/form-workflow-enhancements.js', root), 'utf8'),
-  readFile(new URL('assets/css/form-workflow-enhancements.css', root), 'utf8'),
-  readFile(new URL('package.json', root), 'utf8'),
-  readFile(new URL('.github/workflows/erp-suite-browser-validation.yml', root), 'utf8'),
-  readFile(new URL('assets/js/demo-data-system.js', root), 'utf8')
+  readFile(new URL('index.html', appRoot), 'utf8'),
+  readFile(new URL('assets/js/form-workflow-enhancements.js', appRoot), 'utf8'),
+  readFile(new URL('assets/css/form-workflow-enhancements.css', appRoot), 'utf8'),
+  readFile(new URL('package.json', appRoot), 'utf8'),
+  readFile(new URL('.github/workflows/browser-regression.yml', repositoryRoot), 'utf8'),
+  readFile(new URL('assets/js/demo-data-system.js', appRoot), 'utf8')
 ]);
 
 for (const asset of ['assets/css/form-workflow-enhancements.css', 'assets/js/form-workflow-enhancements.js']) assert.ok(html.includes(asset), `Missing form workflow asset: ${asset}`);
@@ -22,5 +24,6 @@ assert.ok(demo.includes('renderFormAdminPanel'), 'Admin form configuration must 
 const pkg = JSON.parse(pkgText);
 assert.ok(pkg.scripts.test.includes('form-workflow-enhancements-audit.mjs'), 'Form workflow static audit must run in npm test.');
 assert.ok(pkg.scripts['test:syntax'].includes('form-workflow-enhancements.js'), 'Form workflow runtime must receive a syntax check.');
-assert.ok(workflow.includes('tests/demo-data-form-workflows-browser-smoke.py'), 'Form workflow browser regression must run in CI.');
+assert.ok(workflow.includes('working-directory: app'), 'Browser CI must run from the application workspace.');
+assert.ok(workflow.includes('python tests/demo-data-form-workflows-browser-smoke.py'), 'Form workflow browser regression must run in CI.');
 console.log('Form workflow contracts passed for drafts, validation, calculations, searchable relations, review, analytics, and admin layout controls.');

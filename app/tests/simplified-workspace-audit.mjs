@@ -1,18 +1,20 @@
+// Verifies the stable workspace shell, theme studio, documentation, and browser-CI coverage.
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 
-const root = new URL('../', import.meta.url);
+const appRoot = new URL('../', import.meta.url);
+const repositoryRoot = new URL('../../', import.meta.url);
 const [html, shellJs, shellActions, shellCss, studioJs, fontLoaderJs, studioCss, readme, pkgText, workflow] = await Promise.all([
-  readFile(new URL('index.html', root), 'utf8'),
-  readFile(new URL('assets/js/simplified-workspace-v4.js', root), 'utf8'),
-  readFile(new URL('assets/js/simplified-workspace-actions.js', root), 'utf8'),
-  readFile(new URL('assets/css/simplified-workspace-v4.css', root), 'utf8'),
-  readFile(new URL('assets/js/ui-theme-studio.js', root), 'utf8'),
-  readFile(new URL('assets/js/theme-font-loader.js', root), 'utf8'),
-  readFile(new URL('assets/css/ui-theme-studio.css', root), 'utf8'),
-  readFile(new URL('README.md', root), 'utf8'),
-  readFile(new URL('package.json', root), 'utf8'),
-  readFile(new URL('.github/workflows/erp-suite-browser-validation.yml', root), 'utf8')
+  readFile(new URL('index.html', appRoot), 'utf8'),
+  readFile(new URL('assets/js/simplified-workspace-v4.js', appRoot), 'utf8'),
+  readFile(new URL('assets/js/simplified-workspace-actions.js', appRoot), 'utf8'),
+  readFile(new URL('assets/css/simplified-workspace-v4.css', appRoot), 'utf8'),
+  readFile(new URL('assets/js/ui-theme-studio.js', appRoot), 'utf8'),
+  readFile(new URL('assets/js/theme-font-loader.js', appRoot), 'utf8'),
+  readFile(new URL('assets/css/ui-theme-studio.css', appRoot), 'utf8'),
+  readFile(new URL('README.md', appRoot), 'utf8'),
+  readFile(new URL('package.json', appRoot), 'utf8'),
+  readFile(new URL('.github/workflows/browser-regression.yml', repositoryRoot), 'utf8')
 ]);
 
 for (const asset of [
@@ -118,14 +120,12 @@ assert.ok(fontLoaderJs.includes('fonts.googleapis.com/css2?family='), 'Theme Stu
 assert.ok(!html.includes('family=Manrope') && !html.includes('family=DM+Sans') && !html.includes('family=IBM+Plex+Sans'), 'Inactive Theme Studio fonts must not preload in index.html.');
 
 for (const readmeContract of [
-  '```mermaid',
-  'Architecture map',
-  'Runtime request flow',
-  'Navigation model',
-  'Design token studio',
+  'Nepal-first business operations workspace',
+  'Project layout',
+  'Local verification',
   'Supabase',
   'Netlify',
-  'Nepal'
+  'docs/DESIGN_SYSTEM.md'
 ]) assert.ok(readme.includes(readmeContract), `README is missing: ${readmeContract}`);
 
 const pkg = JSON.parse(pkgText);
@@ -133,9 +133,9 @@ assert.ok(pkg.scripts.test.includes('simplified-workspace-audit.mjs'), 'Simplifi
 assert.ok(pkg.scripts['test:shell'].includes('simplified-workspace-v4.js'), 'Stable shell syntax must be checked.');
 assert.ok(pkg.scripts['test:shell'].includes('simplified-workspace-actions.js'), 'Stable shell action syntax must be checked.');
 assert.ok(pkg.scripts['test:shell'].includes('ui-theme-studio.js'), 'Theme studio syntax must be checked.');
-assert.ok(workflow.includes('tests/simplified-workspace-browser-smoke.py'), 'Simplified workspace browser regression must run in CI.');
-assert.ok(workflow.includes('assets/js/simplified-workspace-*.js'), 'Stable shell changes must trigger CI.');
-assert.ok(workflow.includes('assets/js/ui-theme-studio.js'), 'Theme studio changes must trigger CI.');
+assert.ok(workflow.includes('working-directory: app'), 'Browser CI must run from the application workspace.');
+assert.ok(workflow.includes("- 'app/**'"), 'Application changes must trigger browser CI.');
+assert.ok(workflow.includes('python tests/simplified-workspace-browser-smoke.py'), 'Simplified workspace browser regression must run in CI.');
 
 assert.ok(!`${shellJs}${shellActions}${shellCss}${studioJs}${studioCss}`.includes('odoo.com'), 'The simplified UI must not embed Odoo assets or source code.');
-console.log('Simplified navigation, stable mobile create actions, lazy Theme Studio fonts, design tokens, and architecture README contracts passed.');
+console.log('Simplified navigation, stable mobile create actions, lazy Theme Studio fonts, design tokens, and cleaned documentation contracts passed.');

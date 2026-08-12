@@ -1,14 +1,16 @@
+// Verifies connected demo-data coverage, form workflows, documentation, and browser evidence.
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 
-const root = new URL('../', import.meta.url);
+const appRoot = new URL('../', import.meta.url);
+const repositoryRoot = new URL('../../', import.meta.url);
 const [html, js, css, pkgText, workflow, docs] = await Promise.all([
-  readFile(new URL('index.html', root), 'utf8'),
-  readFile(new URL('assets/js/demo-data-system.js', root), 'utf8'),
-  readFile(new URL('assets/css/demo-data-system.css', root), 'utf8'),
-  readFile(new URL('package.json', root), 'utf8'),
-  readFile(new URL('.github/workflows/erp-suite-browser-validation.yml', root), 'utf8'),
-  readFile(new URL('docs/DEMO_DATA_AND_FORM_WORKFLOWS.md', root), 'utf8')
+  readFile(new URL('index.html', appRoot), 'utf8'),
+  readFile(new URL('assets/js/demo-data-system.js', appRoot), 'utf8'),
+  readFile(new URL('assets/css/demo-data-system.css', appRoot), 'utf8'),
+  readFile(new URL('package.json', appRoot), 'utf8'),
+  readFile(new URL('.github/workflows/browser-regression.yml', repositoryRoot), 'utf8'),
+  readFile(new URL('docs/DEMO_DATA_AND_FORM_WORKFLOWS.md', appRoot), 'utf8')
 ]);
 
 for (const asset of ['assets/css/demo-data-system.css', 'assets/js/demo-data-system.js']) assert.ok(html.includes(asset), `Missing demo data asset: ${asset}`);
@@ -23,6 +25,7 @@ for (const section of ['# Connected demo data and form workflows', '## Data safe
 const pkg = JSON.parse(pkgText);
 assert.ok(pkg.scripts.test.includes('demo-data-system-audit.mjs'), 'Demo data static audit must run in npm test.');
 assert.ok(pkg.scripts['test:syntax'].includes('demo-data-system.js'), 'Demo data runtime must receive a syntax check.');
-assert.ok(workflow.includes('tests/demo-data-form-workflows-browser-smoke.py'), 'Demo data browser regression must run in CI.');
-assert.ok(workflow.includes('demo-data-visual-snapshots'), 'Visual snapshot artifacts must be uploaded in CI.');
+assert.ok(workflow.includes('working-directory: app'), 'Browser CI must run from the application workspace.');
+assert.ok(workflow.includes('python tests/demo-data-form-workflows-browser-smoke.py'), 'Demo data browser regression must run in CI.');
+assert.ok(workflow.includes('name: formcraft-browser-evidence'), 'Browser evidence must be retained as a single consolidated artifact.');
 console.log('Demo data contracts passed for 20-record coverage, inner activity, safe reset, relationships, impact chains, and visual evidence.');

@@ -18,12 +18,14 @@ major_version = 15
 enabled = false
 port = 54323
 
-[inbucket]
+[local_smtp]
 enabled = false
 port = 54324
 
+# Formcraft migrations create and secure a Storage bucket, so the local database
+# bootstrap must install the managed Storage schema before application migrations.
 [storage]
-enabled = false
+enabled = true
 file_size_limit = "50MiB"
 
 [auth]

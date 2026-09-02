@@ -1,0 +1,57 @@
+name: Supabase migrations
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'app/supabase/migrations/**'
+      - 'app/supabase/config.toml'
+      - '.github/workflows/supabase-migrations.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'app/supabase/migrations/**'
+      - 'app/supabase/config.toml'
+      - '.github/workflows/supabase-migrations.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: formcraft-supabase-migrations-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    name: Rebuild and lint local database
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    defaults:
+      run:
+        working-directory: app
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Set up Supabase CLI
+        uses: supabase/setup-cli@3c2f5e2ae34c34e428e8e206e2c4d21fa2d20fbf # v2.1.1
+        with:
+          version: 2.116.0
+          github-token: ${{ github.token }}
+
+      - name: Start local Supabase database
+        run: supabase db start
+
+      - name: Rebuild from the complete migration chain
+        run: supabase db reset --local --no-seed
+
+      - name: Lint database schema
+        run: supabase db lint --local --level error --fail-on error
+
+      - name: Show applied migration history
+        run: supabase migration list --local
+
+      - name: Stop local Supabase database
+        if: always()
+        run: supabase stop --no-backup

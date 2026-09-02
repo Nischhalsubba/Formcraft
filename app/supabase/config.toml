@@ -1,0 +1,36 @@
+# Local-only Supabase configuration for deterministic migration verification.
+# This file is intentionally not linked to a remote Supabase project.
+project_id = "formcraft"
+
+[api]
+enabled = false
+port = 54321
+schemas = ["public", "storage", "graphql_public"]
+extra_search_path = ["public", "extensions"]
+max_rows = 1000
+
+[db]
+port = 54322
+shadow_port = 54320
+major_version = 15
+
+[studio]
+enabled = false
+port = 54323
+
+[local_smtp]
+enabled = false
+port = 54324
+
+# Formcraft migrations create and secure a Storage bucket, so the local database
+# bootstrap must install the managed Storage schema before application migrations.
+[storage]
+enabled = true
+file_size_limit = "50MiB"
+
+[auth]
+enabled = false
+site_url = "http://127.0.0.1:3000"
+additional_redirect_urls = []
+jwt_expiry = 3600
+enable_signup = true

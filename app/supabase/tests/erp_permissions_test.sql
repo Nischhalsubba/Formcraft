@@ -6,12 +6,12 @@ select plan(20);
 -- Deterministic users for RLS/RPC tests. Password authentication is irrelevant;
 -- these tests set the same JWT claim consumed by auth.uid().
 insert into auth.users (
-  id, aud, role, email, encrypted_password, email_confirmed_at,
+  id, aud, role, email, encrypted_password,
   raw_app_meta_data, raw_user_meta_data, created_at, updated_at
 ) values
-  ('10000000-0000-0000-0000-000000000001', 'authenticated', 'authenticated', 'owner@example.test', 'unused', now(), '{"provider":"email","providers":["email"]}', '{}', now(), now()),
-  ('10000000-0000-0000-0000-000000000002', 'authenticated', 'authenticated', 'editor@example.test', 'unused', now(), '{"provider":"email","providers":["email"]}', '{}', now(), now()),
-  ('10000000-0000-0000-0000-000000000003', 'authenticated', 'authenticated', 'viewer@example.test', 'unused', now(), '{"provider":"email","providers":["email"]}', '{}', now(), now());
+  ('10000000-0000-0000-0000-000000000001', 'authenticated', 'authenticated', 'owner@example.test', 'unused', '{"provider":"email","providers":["email"]}', '{}', now(), now()),
+  ('10000000-0000-0000-0000-000000000002', 'authenticated', 'authenticated', 'editor@example.test', 'unused', '{"provider":"email","providers":["email"]}', '{}', now(), now()),
+  ('10000000-0000-0000-0000-000000000003', 'authenticated', 'authenticated', 'viewer@example.test', 'unused', '{"provider":"email","providers":["email"]}', '{}', now(), now());
 
 insert into public.workspaces (id, name, created_by) values
   ('20000000-0000-0000-0000-000000000001', 'ERP permission test', '10000000-0000-0000-0000-000000000001'),

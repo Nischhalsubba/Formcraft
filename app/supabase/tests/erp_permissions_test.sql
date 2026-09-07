@@ -1,7 +1,7 @@
 begin;
 
 create extension if not exists pgtap with schema extensions;
-select plan(20);
+select plan(21);
 
 -- Deterministic users for RLS/RPC tests. Password authentication is irrelevant;
 -- these tests set the same JWT claim consumed by auth.uid().

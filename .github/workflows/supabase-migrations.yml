@@ -5,12 +5,14 @@ on:
     branches: [main]
     paths:
       - 'app/supabase/migrations/**'
+      - 'app/supabase/tests/**'
       - 'app/supabase/config.toml'
       - '.github/workflows/supabase-migrations.yml'
   push:
     branches: [main]
     paths:
       - 'app/supabase/migrations/**'
+      - 'app/supabase/tests/**'
       - 'app/supabase/config.toml'
       - '.github/workflows/supabase-migrations.yml'
   workflow_dispatch:
@@ -24,7 +26,7 @@ concurrency:
 
 jobs:
   validate:
-    name: Rebuild and lint local database
+    name: Rebuild, lint, and test local database
     runs-on: ubuntu-24.04
     timeout-minutes: 20
     defaults:
@@ -48,6 +50,9 @@ jobs:
 
       - name: Lint database schema
         run: supabase db lint --local --level error --fail-on error
+
+      - name: Run database authorization tests
+        run: supabase test db
 
       - name: Show applied migration history
         run: supabase migration list --local

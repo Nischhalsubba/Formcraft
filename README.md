@@ -53,12 +53,15 @@ flowchart TD
 
 ## Getting started
 
+Formcraft's deployable static workspace and `package.json` live under [`app/`](./app). The documented local build requires Node.js 22:
+
 ```bash
 git clone https://github.com/Nischhalsubba/Formcraft.git
-cd Formcraft
+cd Formcraft/app
+npm run build
 ```
 
-Use the package manager and scripts indicated by committed manifests/lockfiles.
+The `build` script generates runtime configuration, runs the verification suite, and creates `dist/`. You can run `npm run verify` independently. See the [application README](./app/README.md) for optional local configuration, Python/Playwright browser tests and deployment boundaries.
 
 ## Design & accessibility
 

@@ -15,9 +15,16 @@ if (!backendConfigured) {
   supabasePublishableKey = '';
 } else {
   try {
-    new URL(supabaseUrl);
+    const parsed = new URL(supabaseUrl);
+    const loopback = ['localhost', '127.0.0.1', '[::1]'].includes(parsed.hostname);
+    if (
+      (parsed.protocol !== 'https:' && !(parsed.protocol === 'http:' && loopback)) ||
+      !parsed.hostname || parsed.username || parsed.password
+    ) {
+      throw new Error('Insecure or invalid Supabase URL');
+    }
   } catch {
-    console.error('SUPABASE_URL must be a valid URL.');
+    console.error('SUPABASE_URL must use HTTPS, or HTTP for localhost development.');
     process.exit(1);
   }
 }

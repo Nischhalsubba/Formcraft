@@ -77,3 +77,7 @@ Use accurate terms such as **form UI, form validation, accessible forms, web for
 flowchart LR
     CHANGE["Form change"] --> STATES["Review all states"] --> ACCESS["Accessibility check"] --> TEST["Validation / submission test"] --> PR["Pull request"]
 ```
+
+## Change review and domain verification
+
+Use the [project-specific verification playbook](app/docs/SECURITY_REVIEW_PLAYBOOK.md) when reviewing sensitive workflows, source accuracy or release behavior.
